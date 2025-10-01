@@ -80,7 +80,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE!; // set in .env.local
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE!; // set in .env.local
+const API_BASE = "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net"; // set in .env.local
 const PUBLIC_PATHS = ["/auth/callback", "/health"]; // add any other public paths
 
 export async function middleware(req: NextRequest) {
