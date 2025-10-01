@@ -39,7 +39,7 @@ export const useTranscriptionWebSocket = ({
   sessionId,
   doctorId,
   patientId,
-  baseUrl = `https://doctorassistantai-athshnh6fggrbhby.centralus-01.azurewebsites.net`,
+  baseUrl = `https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net`,
   autoConnect = true
 }: UseTranscriptionWebSocketProps) => {
   const wsRef = useRef<WebSocket | null>(null);

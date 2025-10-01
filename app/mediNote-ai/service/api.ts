@@ -1,7 +1,7 @@
 import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, patient, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse } from "../types";
 import { API_BASE_URL_AISEARCH_MediNote, API_ROUTES } from "../../constants/api";
 import { promises } from "dns";
-const API_SERVICE = "https://doctorassistantai-athshnh6fggrbhby.centralus-01.azurewebsites.net"
+const API_SERVICE = "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net"
 
 export class APIService {
   static async healthCheck(): Promise<HealthResponse> {
