@@ -84,7 +84,7 @@ export default function DoctorVoiceEnrollment() {
       formData.append('file', audioBlob, 'doctor-voice.mp3');
 
       const response = await fetch(
-        'https://doctorassistantai-athshnh6fggrbhby.centralus-01.azurewebsites.net/doctors/register_voice',
+        'https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/doctors/register_voice',
         {
           method: 'POST',
           headers: {

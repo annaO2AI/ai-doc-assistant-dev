@@ -11,7 +11,7 @@
 
 //   if (!isPublicPath && !token) {
 //     const redirectTo = `${request.nextUrl.origin}/auth/callback`
-//     const loginUrl = `https://doctorassistantai-athshnh6fggrbhby.centralus-01.azurewebsites.net/auth/login?redirect_uri=${encodeURIComponent(
+//     const loginUrl = `https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/auth/login?redirect_uri=${encodeURIComponent(
 //       redirectTo
 //     )}`
 //     return NextResponse.redirect(loginUrl)

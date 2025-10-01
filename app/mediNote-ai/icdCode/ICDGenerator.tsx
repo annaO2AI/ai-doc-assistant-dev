@@ -242,7 +242,7 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({ sessionId }) => {
     
     try {
       const response = await fetch(
-        `https://doctorassistantai-athshnh6fggrbhby.centralus-01.azurewebsites.net/icd/search?q=${encodeURIComponent(
+        `https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/icd/search?q=${encodeURIComponent(
           searchQuery
         )}&system=${searchSystem}&limit=${searchLimit}`,
         {
@@ -293,7 +293,7 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({ sessionId }) => {
     setSummaryResponse(null);
     try {
       const response = await fetch(
-        'https://doctorassistantai-athshnh6fggrbhby.centralus-01.azurewebsites.net/icd/finalize-summary',
+        'https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/icd/finalize-summary',
         {
           method: 'POST',
           headers: {
