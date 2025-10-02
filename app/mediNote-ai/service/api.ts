@@ -637,4 +637,112 @@ export class APIService {
       throw error;
     }
   }
+
+  static async searchPharmacy(query: string, limit = 10, source = 'combined'): Promise<any> {
+    try {
+      const url = new URL(`${API_SERVICE}/pharmacy/search`);
+      url.searchParams.append('q', query);
+      url.searchParams.append('limit', limit.toString());
+      url.searchParams.append('source', source);
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.log(errorData);
+        throw new Error(`Pharmacy search failed: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Pharmacy search error:', error);
+      throw error;
+    }
+  }
+
+  static async getDrugById(drugId: number | string): Promise<any> {
+    try {
+      const response = await fetch(`${API_SERVICE}/pharmacy/drug/${drugId}`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.log(errorData);
+        throw new Error(`Get drug by ID failed: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Get drug by ID error:', error);
+      throw error;
+    }
+  }
+
+  static async getDrugByNdc(ndc: string): Promise<any> {
+    try {
+      const response = await fetch(`${API_SERVICE}/pharmacy/ndc/${ndc}`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.log(errorData);
+        throw new Error(`Get drug by NDC failed: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Get drug by NDC error:', error);
+      throw error;
+    }
+  }
+
+  static async createMedication(data: {
+    session_id: number;
+    patient_id: number;
+    doctor_id: number;
+    query: string;
+    rxcui: string;
+    drug_name: string;
+    ndc: string;
+    source: string;
+    payload: Record<string, any>;
+  }): Promise<any> {
+    try {
+      const response = await fetch(`${API_SERVICE}/medications`, {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.log(errorData);
+        throw new Error(`Create medication failed: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Create medication error:', error);
+      throw error;
+    }
+  }
 }

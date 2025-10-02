@@ -9,6 +9,7 @@ import {
 import { TranscriptionSummary } from "../types"
 import { APIService } from "../service/api"
 import Image from "next/image"
+import PharmacyGenerator from "../pharmacy/PharmacyGenerator"
 
 interface TranscriptionInterfaceProps {
   sessionId: number
@@ -99,7 +100,11 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
   }
 
   return (
-    <div className="mediNote-widthfix mx-auto rounded-lg px-16 transcription-welcommassege mt-16 relative">
+<div className="mediNote-widthfix mx-auto rounded-lg px-16 transcription-welcommassege mt-16 relative">
+  {/* Top-right PharmacyGenerator */}
+  <div className="absolute top-0 right-0 mt-4 mr-4 z-10">
+    <PharmacyGenerator />
+  </div>
       {/* Stop Recording Confirmation Popup */}
       {showStopConfirmation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

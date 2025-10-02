@@ -127,6 +127,7 @@ export default function ProcurementSearchPage() {
                   summaryData={sampleData}
                   showICDGenerator={showICDGenerator}
                   setShowICDGenerator={setShowICDGenerator}
+                  doctorId={doctorId || 0}
                 />
               )}
               {sessionId && patientId && transcriptionEnd && showICDGenerator && (
