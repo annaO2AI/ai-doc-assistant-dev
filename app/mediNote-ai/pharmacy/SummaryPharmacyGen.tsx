@@ -78,7 +78,7 @@ const SummaryPharmacyGen = ({
       </button>
       {/* Offcanvas Panel */}
       <div
-        className={`fixed top-0 right-0 h-full min-w-[60vw] max-w-screen-lg bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+        className={`fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

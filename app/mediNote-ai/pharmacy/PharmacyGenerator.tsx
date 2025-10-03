@@ -52,7 +52,7 @@ const PharmacyGenerator = () => {
       </button>
      {/* Offcanvas Panel */}
       <div
-        className={`fixed top-0 right-0 h-full min-w-[60vw] max-w-screen-lg bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+        className={`fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -71,9 +71,8 @@ const PharmacyGenerator = () => {
         <div className="p-6 overflow-y-auto h-[calc(100%-80px)]">
             {/* Tabs */}
             <div className="mb-6 w-full">
-              <div className="flex border-b border-gray-200">
-                {["Tab","TAB","TABs"]?.map((idx:string, index) => (
-
+              <div className="flex border-b border-gray-200 mb-3">
+                {["Pharmacy Search","Search Drug By ID","Search Drug By NDC"]?.map((idx:string, index) => (
                 <button
                 key={index}
                   className={ `px-4 py-2 -mb-px text-sm font-medium ${
@@ -81,7 +80,7 @@ const PharmacyGenerator = () => {
                   }`}
                   onClick={() => setTab(index)}
                 >
-                  {idx} {index + 1}
+                  {idx}
                 </button>
                 ))}
               </div>
