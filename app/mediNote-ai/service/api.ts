@@ -593,6 +593,41 @@ export class APIService {
     }
   }
 
+  static async getRecordingInfo(sessionId: string | number): Promise<{
+    session_id: number;
+    exists: boolean;
+    storage: string | null;
+    blob_key: string | null;
+    filename: string | null;
+    filesize: number | null;
+    web_url: string | null;
+    download_url: string | null;
+    absolute_path: string | null;
+  }> {
+    try {
+      const response = await fetch(
+        `${API_SERVICE}/api/recordings/${sessionId}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+          },
+          credentials: 'include',
+        }
+      )
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '')
+        throw new Error(`Recording info failed: ${response.status} ${text}`)
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.error('Get recording info error:', error)
+      throw error
+    }
+  }
+
   static async getCurrentUser(): Promise<any> {
     try {
       const response = await fetch(`${API_SERVICE}/auth/me`, {
