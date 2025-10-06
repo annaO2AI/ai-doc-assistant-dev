@@ -37,7 +37,7 @@ const SearchDrugByNdc = ({
           }
         }
   return (
-    <div className="min-w-[60vw]">
+    <div>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">
         Search Drug By NDC
       </h1>

@@ -48,7 +48,7 @@ const SearchDrugById = ({data,setData}:{
     }
   }
   return (
-    <div className="min-w-[60vw]">
+    <div>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">
         Search Drug By ID
       </h1>
@@ -96,10 +96,10 @@ const SearchDrugById = ({data,setData}:{
               </ul>
             </div>
 
-            <div>
+            <div className="overflow-auto h-[800px]">
               <h2 className="text-xl font-semibold text-gray-800">OpenFDA Labels</h2>
               {data.openfda_labels.length > 0 ? (
-                <pre className="bg-gray-100 p-2 rounded text-sm overflow-x-auto">
+                <pre className="bg-gray-100 p-2 rounded text-sm">
                   {JSON.stringify(data.openfda_labels, null, 2)}
                 </pre>
               ) : (
