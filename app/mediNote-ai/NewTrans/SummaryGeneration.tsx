@@ -200,11 +200,13 @@ export default function SummaryGeneration({
 
   const upsertIcdSection = useCallback((baseText: string, section: string) => {
     if (!section) return baseText;
+    const normalizedSection = section.replace(/^\s*ICD Codes\s*\(/, "## ICD Codes (");
     const lines = baseText.split("\n");
-    const headerIndex = lines.findIndex((l) => /^##\s+ICD Codes\s*\(/.test(l));
+    // Match any header that starts with "## ICD Codes"
+    const headerIndex = lines.findIndex((l) => /^##\s+ICD Codes\b/.test(l));
     if (headerIndex === -1) {
       const needsNewline = baseText.endsWith("\n") ? "" : "\n";
-      return baseText + needsNewline + section;
+      return baseText + needsNewline + normalizedSection;
     }
     let endIndex = lines.length;
     for (let i = headerIndex + 1; i < lines.length; i++) {
@@ -215,7 +217,7 @@ export default function SummaryGeneration({
     }
     const before = lines.slice(0, headerIndex).join("\n");
     const after = lines.slice(endIndex).join("\n");
-    const mid = section.replace(/\n+$/, "");
+    const mid = normalizedSection.replace(/\n+$/, "");
     const parts = [before, mid, after].filter((p) => p.length > 0);
     return parts.join("\n") + (after ? "" : "\n");
   }, []);
@@ -277,13 +279,18 @@ export default function SummaryGeneration({
         if (!raw) return;
         const parsed = JSON.parse(raw) as { system?: string; items?: Array<{ code: string; title: string }>; updatedAt?: string };
         if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0 && parsed.system) {
-          const header = `\n\nICD Codes (${parsed.system})\n`;
+          // Normalize to markdown header used in summaries without extra blank lines
+          const header = `## ICD Codes\n`;
           const unique = parsed.items.reduce((acc: Array<{ code: string; title: string }>, it) => {
             if (!acc.some((x) => x.code === it.code)) acc.push(it);
             return acc;
           }, []);
-          const lines = unique.map((it) => `- ${it.code}: ${it.title}`).join("\n");
-          setIcdSectionText(header + lines + "\n");
+          const lines = unique.map((it) => `- ${it.code}: ${it.title} - (${parsed.system})`).join("\n");
+          const section = (header + lines)
+            .replace(/\n{3,}/g, "\n\n") // collapse 3+ newlines
+            .replace(/^\n+/, "")        // trim leading newlines
+            .replace(/\n+$/, "");       // trim trailing newlines
+          setIcdSectionText(section);
         } else {
           setIcdSectionText("");
         }
@@ -297,7 +304,11 @@ export default function SummaryGeneration({
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail as { sessionId: number; sectionText: string } | undefined;
       if (!detail || Number(detail.sessionId) !== Number(sessionId)) return;
-      setIcdSectionText(detail.sectionText || "");
+      const cleaned = (detail.sectionText || "")
+        .replace(/\n{3,}/g, "\n\n")
+        .replace(/^\n+/, "")
+        .replace(/\n+$/, "");
+      setIcdSectionText(cleaned);
     };
 
     window.addEventListener("icdSelectionUpdated", handler as EventListener);
@@ -697,23 +708,13 @@ export default function SummaryGeneration({
           <div className="rounded-lg shadow-sm p-6 mb-6 bg-white ">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold text-gray-900">Visit Summary</h2>
-              <div className="flex gap-4">
-
                 <button
-                className="flex items-center px-6 py-2  bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                 onClick={() => setShowICDGenerator(!showICDGenerator)}
                 disabled={isLoading || isApproved}
               >
                 ICD Code Generator
               </button>
-              <SummaryPharmacyGen 
-              data={pharmacyData}
-              setData={setPharmacyData}
-              sessionId={sessionId}
-              patientId={patientId}
-              doctorId={doctorId}
-              />
-              </div>
             </div>
             <div className="flex justify-between items-start">
               <div className="w-full pr-4">
@@ -925,6 +926,6 @@ export default function SummaryGeneration({
               }}
             />
           )}
-    </>
+  </>
   );
 }
