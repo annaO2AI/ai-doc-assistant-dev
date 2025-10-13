@@ -166,8 +166,8 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       <div
         className={
           transcription.length === 0
-            ? "mediNote-widthfix-warpper-center m-auto"
-            : "mediNote-widthfix-warpper m-auto"
+            ? "mediNote-widthfix-warpper-center m-auto w-[80%]"
+            : "mediNote-widthfix-warpper m-auto w-[80%]"
         }
       >
         {/* Transcription Display */}
