@@ -273,16 +273,16 @@ body {
     outline: 8px solid #0052cc66;
   }
   .mediNote-widthfix-warpper{
-    min-height: calc(100vh - 175px);
+    min-height: calc(100vh - 200px);
     display: flex;
     flex-direction: column;
     justify-content: end;
   }
   .Patient-voice{
-        height: calc(100vh - 200px);
+        height: calc(100vh - 177px);
   }
   .transcriptDoctorPatient{
-       max-height: calc(100vh - 350px);
+      max-height: calc(100vh - 430px);
        z-index: 2;
        position: relative;
   }
@@ -460,7 +460,7 @@ body {
     background-color: #02102870;
     border-radius: 10px 0 0 10px;
     width: 300px;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 179px);
   }
   .imagfilter-doctor img{
     width: 100%;
@@ -524,7 +524,7 @@ body {
     background-color: #02102870;
     border-radius: 0px 10px 10px 0px;
     width: 300px;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 177px);
   }
   .DoctorResultslist{
     overflow-y: auto;
