@@ -837,7 +837,6 @@ export default function SummaryGeneration({
                 </linearGradient>
                 </defs>
                 </svg>
-
           </span>
           <span className="rightlinerGrading">
           <svg width="461" height="430" viewBox="0 0 461 430" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -40,12 +40,12 @@ export default function Breadcrumbs({ sidebarOpen }: HeaderProps) {
 
   return (
     <div className={clsx(
-                "header-widthfix w-full mt-12 mx-auto bradcurame-section", 
+                " w-[80%] mt-12 mx-auto bradcurame-section", 
                 sidebarOpen
                   ? "pl-[192px]"
                   : pathname === "/" || pathname === "/aiops" || pathname === "/talent-acquisition" || pathname === "/human-resources"
                   ? "pl-[80px]"
-                  : "w-full"
+                  : "pl-[80px]"
               )}
     >
       <nav className="flex py-2 px-4 mt-8 w-[100%]">
