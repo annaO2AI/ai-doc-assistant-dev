@@ -76,7 +76,7 @@ export default function DoctorSearch({
                 key={doc.id}
                 type="button"
                 onClick={() => onSelectDoctor(doc)}
-                className={`w-full text-left hover:bg-blue-500 p-6 rounded-md ${
+                className={`w-full text-left hover:bg-blue-500 px-4 py-2 rounded-md ${
                   isSelected ? "bg-blue-500 text-white" : "bg-white"
                 }`}
               >
@@ -86,7 +86,7 @@ export default function DoctorSearch({
                       {initials}
                     </div>
                     <span className="flex flex-col">
-                      <span className="font-medium">
+                      <span className="font-medium text-lg">
                         {doc.first_name} {doc.last_name}
                       </span>
                       <span className="text-sm">Doctor ID: {doc.id}</span>

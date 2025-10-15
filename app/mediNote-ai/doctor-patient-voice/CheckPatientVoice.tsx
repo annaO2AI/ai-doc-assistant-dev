@@ -248,7 +248,7 @@ export default function CheckPatientVoice({
           </div>
         ) : (
           <button
-            className="flex gap-2 text-white items-center absolute top-6 right-6 w-[150px] z-10"
+            className="flex gap-2 text-white items-center absolute top-6 right-6 w-[150px] z-40"
             onClick={() => {
               const customDoctorQuery = "a"; // Custom search query for doctors
               setDoctorSearch(customDoctorQuery);
@@ -263,7 +263,7 @@ export default function CheckPatientVoice({
           </button>
         )}
         {showDoctorSearch && (
-          <div className="relative w-full SearchDoctorToggle pt-12">
+          <div className="relative w-full SearchDoctorToggle pt-12 z-30">
             <button
               className="absolute top-6 left-4 px-3 py-1 text-white rounded-md"
               onClick={() => 

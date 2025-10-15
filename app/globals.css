@@ -528,7 +528,7 @@ body {
   }
   .DoctorResultslist{
     overflow-y: auto;
-    height: calc(100vh - 370px);
+    height: calc(100vh - 347px);
   }
      /* Custom scrollbar */
   .DoctorResultslist::-webkit-scrollbar {

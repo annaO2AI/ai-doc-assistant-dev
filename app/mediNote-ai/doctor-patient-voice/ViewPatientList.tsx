@@ -38,11 +38,11 @@ const ViewPatientList = ({ patients, handleStartCon }: ViewPatientListProps) => 
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2 items-center">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white text-lg font-semibold">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white text-sm font-semibold">
                       {initials}
                     </div>
                     <div className="text-gray-800 mb-2">
-                      <div className="font-bold text-xl">{patient.name}</div>
+                      <div className="font-bold text-lg">{patient.name}</div>
                       <div className="text-[14px] osubtitle font-normal">
                         <span className="ot-title font-bold">Patient ID: </span>
                         <span className="osubtitle">{patient.patient_id}</span>
