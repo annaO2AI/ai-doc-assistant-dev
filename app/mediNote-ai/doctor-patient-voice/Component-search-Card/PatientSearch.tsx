@@ -1,4 +1,3 @@
-//PatientSearch.tsx
 import React from "react";
 import ViewPatientList from "./../ViewPatientList";
 
@@ -28,6 +27,10 @@ interface PatientSearchProps {
   showPatientList: boolean;
   /** Callback that starts a session for a patient (receives patientId) */
   handleStartCon: (patientId: number) => void;
+  /** List of selected patient IDs */
+  selectedPatientIds: number[]; // Added prop
+  /** Callback to handle patient selection */
+  onPatientSelect: (patientId: number) => void; // Added prop
 }
 
 export default function PatientSearch({
@@ -40,6 +43,8 @@ export default function PatientSearch({
   patients,
   showPatientList,
   handleStartCon,
+  selectedPatientIds,
+  onPatientSelect,
 }: PatientSearchProps) {
   // Filter patients based on searchQuery
   const filteredPatients = searchQuery.trim()
@@ -50,11 +55,6 @@ export default function PatientSearch({
 
   return (
     <div className="patientSearch w-full searchPatients-bg py-6 px-6 pt-16 h-full relative z-10">
-      {/* <div className="pb-1 ot-title font-medium text-xl text-center mb-6 mt-3">
-        Search Patients
-      </div> */}
-
-      {/* ---- Search form ---- */}
       <form onSubmit={onSubmit} className="flex items-center gap-3">
         <div className="relative w-full">
           <div className="absolute inset-y-0 top-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -80,9 +80,6 @@ export default function PatientSearch({
             onKeyDown={onEnterKey}
           />
         </div>
-        {/* <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 h-[50px]" >
-          Search
-        </button> */}
       </form>
 
       {/* ---- Feedback UI ---- */}
@@ -108,10 +105,12 @@ export default function PatientSearch({
         )}
 
         {patients.length > 0 && showPatientList && (
-            <ViewPatientList
-              patients={filteredPatients}
-              handleStartCon={handleStartCon}
-            />
+          <ViewPatientList
+            patients={filteredPatients}
+            handleStartCon={handleStartCon}
+            selectedPatientIds={selectedPatientIds} // Pass selected IDs
+            onPatientSelect={onPatientSelect} // Pass selection handler
+          />
         )}
       </div>
     </div>

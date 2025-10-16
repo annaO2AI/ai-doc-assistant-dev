@@ -1,8 +1,7 @@
-//CheckPatientVoice.tsx
 import React, { useCallback, useMemo, useState } from "react";
 import { APIService } from "../service/api";
-import DoctorSearch from "./Component-search-Card/DoctorSearch";          // <-- new
-import PatientSearch from "./Component-search-Card/PatientSearch";        // <-- new
+import DoctorSearch from "./Component-search-Card/DoctorSearch";
+import PatientSearch from "./Component-search-Card/PatientSearch";
 import PatientHistory from "./PatientHistory";
 import WelcomeMessage from "./WelcomeMessage";
 import { SearchDoctorsResponse, doctor } from "../types";
@@ -42,9 +41,9 @@ export default function CheckPatientVoice({
   const [error, setError] = useState<string | null>(null);
   const [showPatientList, setShowPatientList] = useState(true);
   const [selectedPatientIds, setSelectedPatientIds] = useState<number[]>([]);
-  const [showPatientSearch, setShowPatientSearch] = useState(false); // New state for PatientSearch visibility
-  const [showDoctorSearch, setShowDoctorSearch] = useState(false);  // New state for DoctorSearch visibility
-
+  const [showPatientSearch, setShowPatientSearch] = useState(false);
+  const [showDoctorSearch, setShowDoctorSearch] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false); // New state for modal
   // Doctor-related state
   const [doctorSearch, setDoctorSearch] = useState<string>("");
   const [doctorResults, setDoctorResults] = useState<doctor[]>([]);
@@ -58,6 +57,7 @@ export default function CheckPatientVoice({
       setError("Please enter a search query");
       setUsers([]);
       setSelectedPatientIds([]);
+      setShowHistoryModal(false); // Close modal on new search
       setLoading(false);
       return;
     }
@@ -70,15 +70,15 @@ export default function CheckPatientVoice({
       if (!data?.results?.length) {
         setUsers([]);
         setSelectedPatientIds([]);
+        setShowHistoryModal(false);
       } else {
         const patientCards: PatientCardProps[] = data.results.map((p) => ({
           patient_id: p.id,
           name: `${p.first_name} ${p.last_name}`,
-          voice_file: "", // adjust if API returns it
+          voice_file: "",
           exists: true,
         }));
         setUsers(patientCards);
-        setSelectedPatientIds(patientCards.map((p) => p.patient_id));
       }
       setShowPatientList(true);
     } catch (err) {
@@ -89,10 +89,21 @@ export default function CheckPatientVoice({
       );
       setUsers([]);
       setSelectedPatientIds([]);
+      setShowHistoryModal(false);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  // Handle patient selection
+  const handlePatientSelect = (patientId: number) => {
+    setSelectedPatientIds((prev) =>
+      prev.includes(patientId)
+        ? prev.filter((id) => id !== patientId) // Deselect
+        : [...prev, patientId] // Select
+    );
+    setShowHistoryModal(true); // Show modal when a patient is selected
+  };
 
   const handlePatientSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,7 +149,7 @@ export default function CheckPatientVoice({
     }
   };
 
-/* ---------- SESSION START ---------- */
+  /* ---------- SESSION START ---------- */
   const handleStartSession = (patientId: number) => {
     if (!selectedDoctor) {
       setDoctorError("Please select a doctor before starting the session");
@@ -146,7 +157,12 @@ export default function CheckPatientVoice({
     }
     const selectedPatient = users.find((user) => user.patient_id === patientId);
     setShowPatientList(false);
-    handleStartCon(patientId, selectedDoctor.id, selectedPatient?.name || "", `${selectedDoctor.first_name} ${selectedDoctor.last_name}`);
+    handleStartCon(
+      patientId,
+      selectedDoctor.id,
+      selectedPatient?.name || "",
+      `${selectedDoctor.first_name} ${selectedDoctor.last_name}`
+    );
   };
 
   const handleStartConversation = () => {
@@ -154,34 +170,40 @@ export default function CheckPatientVoice({
       setDoctorError("Please select a doctor before starting the session");
     }
     if (selectedPatientIds.length === 0) {
-      setError("Please select Patient");
+      setError("Please select at least one patient");
     }
+  };
+
+  /* ---------- MODAL CLOSE HANDLER ---------- */
+  const handleCloseModal = () => {
+    setShowHistoryModal(false);
+    setSelectedPatientIds([]); // Optional: Clear selections when closing modal
   };
 
   /* ---------- RENDER ---------- */
   return (
     <div className="flex Patient-voice mx-auto w-[80%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
-       {error && selectedPatientIds.length === 0 && 
-        <div className="flex gap-2 absolute left-[220px] top-[30px] z-30 w-[500px]  ">
+      {error && selectedPatientIds.length === 0 && (
+        <div className="flex gap-2 absolute left-[220px] top-[30px] z-30 w-[500px]">
           <div className="patientError">
             <svg width="129" height="39" viewBox="0 0 129 39" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M0.444784 0.503058C0.170331 0.533553 -0.0274368 0.780763 0.00305816 1.05522L0.500002 5.52769C0.530497 5.80215 0.777707 5.99991 1.05216 5.96942C1.32661 5.93892 1.52438 5.69171 1.49389 5.41726L1.05216 1.44173L5.02769 0.999998C5.30215 0.969503 5.49991 0.722293 5.46942 0.44784C5.43892 0.173387 5.19171 -0.0243809 4.91726 0.00611408L0.444784 0.503058ZM128.5 21.5L128.17 21.1243C109.818 37.2441 87.995 40.1106 65.7379 34.9504C43.4633 29.7862 20.7809 16.5844 0.812347 0.609565L0.5 1L0.187653 1.39043C20.2191 17.4156 43.0367 30.7138 65.5121 35.9246C88.005 41.1394 110.182 38.2559 128.83 21.8757L128.5 21.5Z" fill="white"/>
             </svg>
           </div>
-          <div className="text-sm text-red-600  bg-[#FFD9E8] p-3 text-center rounded-md">
+          <div className="text-sm text-red-600 bg-[#FFD9E8] p-3 text-center rounded-md">
             Please choose a patient to continue with the conversation.
           </div>
         </div>
-       } 
-      <div className="flex gap-3 items-start justify-between  min-h-full max-h-full h-full">
+      )}
+      <div className="flex gap-3 items-start justify-between min-h-full max-h-full h-full">
         <button
-          className="flex gap-2 text-white items-center absolute left-8 top-8 z-20 "
+          className="flex gap-2 text-white items-center absolute left-8 top-8 z-20"
           onClick={() => {
-            const customQuery = "a"; // Custom search query
+            const customQuery = "a";
             setSearchQuery(customQuery);
             fetchUsers(customQuery);
             setShowPatientSearch(true);
-          }} // Updated to set custom query and fetch
+          }}
         >
           <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18.8889 13.7143L18.9175 13.7147C19.5179 13.7303 20 14.2358 20 14.8572C20 15.4785 19.5179 15.984 18.9175 15.9996L18.8889 16H1.1111C0.497451 16 2.74887e-07 15.4883 0 14.8572C0 14.226 0.497451 13.7143 1.1111 13.7143H18.8889ZM18.8889 6.85715L18.9175 6.85752C19.5179 6.87316 20 7.37868 20 8C20 8.62132 19.5179 9.12684 18.9175 9.14248L18.8889 9.14285H1.1111C0.497451 9.14285 1.37443e-07 8.63118 0 8C0 7.36882 0.497451 6.85715 1.1111 6.85715H18.8889ZM18.8889 0L18.9175 0.000368304C19.5179 0.0160088 20 0.521523 20 1.14285C20 1.76417 19.5179 2.26969 18.9175 2.28533L18.8889 2.2857H1.1111C0.497451 2.2857 0 1.77403 0 1.14285C0 0.511664 0.497451 0 1.1111 0H18.8889Z" fill="white" />
@@ -192,10 +214,10 @@ export default function CheckPatientVoice({
           <div className="relative w-full min-h-full">
             <button
               className="absolute top-6 right-3 px-3 py-1 text-white rounded-md z-20"
-              onClick={() => setShowPatientSearch(false)} // Close button
+              onClick={() => setShowPatientSearch(false)}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3.89705 4.05379L3.96967 3.96967C4.23594 3.7034 4.6526 3.6792 4.94621 3.89705L5.03033 3.96967L10 8.939L14.9697 3.96967C15.2359 3.7034 15.6526 3.6792 15.9462 3.89705L16.0303 3.96967C16.2966 4.23594 16.3208 4.6526 16.1029 4.94621L16.0303 5.03033L11.061 10L16.0303 14.9697C16.2966 15.2359 16.3208 15.6526 16.1029 15.9462L16.0303 16.0303C15.7641 16.2966 15.3474 16.3208 15.0538 16.1029L14.9697 16.0303L10 11.061L5.03033 16.0303C4.76406 16.2966 4.3474 16.3208 4.05379 16.1029L3.96967 16.0303C3.7034 15.7641 3.6792 15.3474 3.89705 15.0538L3.96967 14.9697L8.939 10L3.96967 5.03033C3.7034 4.76406 3.6792 4.3474 3.89705 4.05379L3.96967 3.96967L3.89705 4.05379Z" fill="white"/>
+                <path d="M3.89705 4.05379L3.96967 3.96967C4.23594 3.7034 4.6526 3.6792 4.94621 3.89705L5.03033 3.96967L10 8.939L14.9697 3.96967C15.2359 3.7034 15.6526 3.6792 15.9462 3.89705L16.0303 3.96967C16.2966 4.23594 16.3208 4.6526 16.1029 4.94621L16.0303 5.03033L11.061 10L16.0303 14.9697C16.2966 15.2359 16.3208 15.6526 16.1029 15.9462L16.0303 16.0303C15.7641 16.2966 15.3474 16.3208 15.0538 16.1029L14.9697 16.0303L10 11.061L5.03033 16.0303C4.76406 16.2966 4.3474 16.3208 4.05379 16.1029L3.96967 16.0303C3.7034 15.7641 3.6792 15.3474 3.89705 15.0538L3.96967 14.9697L8.939 10L3.96967 5.03033C3.7034 4.76406 3.6792 4.3474 3.89705 4.05379L3.96967 3.96967L3.89705 4.05379Z" fill="white"/>
               </svg>
             </button>
             <PatientSearch
@@ -208,41 +230,44 @@ export default function CheckPatientVoice({
               patients={users}
               showPatientList={showPatientList}
               handleStartCon={handleStartSession}
+              selectedPatientIds={selectedPatientIds}
+              onPatientSelect={handlePatientSelect}
             />
           </div>
         )}
       </div>
       <WelcomeMessage username={"Doctor"} onStartConversation={handleStartConversation} />
-       {doctorError && 
-       <div className="flex gap-2 absolute right-[220px] top-[30px] z-30 w-[340px]  ">
-        <div className="text-sm text-red-600  bg-[#FFD9E8] p-3 text-center rounded-md">
-          {doctorError}
+      {doctorError && (
+        <div className="flex gap-2 absolute right-[220px] top-[30px] z-30 w-[340px]">
+          <div className="text-sm text-red-600 bg-[#FFD9E8] p-3 text-center rounded-md">
+            {doctorError}
+          </div>
+          <div className="doctorError-ab">
+            <svg width="132" height="40" viewBox="0 0 132 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M131.058 1.50333C131.332 1.53512 131.528 1.78327 131.497 2.05757L130.979 6.52764C130.947 6.80195 130.699 6.99854 130.424 6.96674C130.150 6.93495 129.953 6.6868 129.985 6.4125L130.446 2.4391L126.472 1.97852C126.198 1.94672 126.001 1.69858 126.033 1.42427C126.065 1.14996 126.313 0.953372 126.588 0.985169L131.058 1.50333ZM1 22.6186L1.32815 22.2413C19.969 38.4564 42.1374 41.3401 64.7455 36.1494C87.3705 30.9547 110.409 17.6756 130.69 1.60809L131 2L131.31 2.39191C110.966 18.5095 87.7935 31.8836 64.9693 37.124C42.1282 42.3683 19.6091 39.4687 0.671846 22.9958L1 22.6186Z" fill="white"/>
+            </svg>
+          </div>
         </div>
-        <div className="doctorError-ab">
-          <svg width="132" height="40" viewBox="0 0 132 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M131.058 1.50333C131.332 1.53512 131.528 1.78327 131.497 2.05757L130.979 6.52764C130.947 6.80195 130.699 6.99854 130.424 6.96674C130.15 6.93495 129.953 6.6868 129.985 6.4125L130.446 2.4391L126.472 1.97852C126.198 1.94672 126.001 1.69858 126.033 1.42427C126.065 1.14996 126.313 0.953372 126.588 0.985169L131.058 1.50333ZM1 22.6186L1.32815 22.2413C19.969 38.4564 42.1374 41.3401 64.7455 36.1494C87.3705 30.9547 110.409 17.6756 130.69 1.60809L131 2L131.31 2.39191C110.966 18.5095 87.7935 31.8836 64.9693 37.124C42.1282 42.3683 19.6091 39.4687 0.671846 22.9958L1 22.6186Z" fill="white"/>
-          </svg>
-        </div>
-      </div>
-       } {/* Moved error div here */}
-      <div className="relative flex gap-3 ">
+      )}
+      <div className="relative flex gap-3">
         {selectedDoctor ? (
-          <div className="flex gap-2 text-white items-center absolute top-6 right-6 w-[160px] z-10"
-           onClick={() => {
-              const customDoctorQuery = "a"; // Custom search query for doctors
+          <div
+            className="flex gap-2 text-white items-center absolute top-6 right-6 w-[160px] z-10"
+            onClick={() => {
+              const customDoctorQuery = "a";
               setDoctorSearch(customDoctorQuery);
               searchDoctors(customDoctorQuery);
               setShowDoctorSearch(true);
-            }} // Updated to set custom query and fetch
+            }}
           >
             <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-semibold">{selectedDoctor.first_name.charAt(0).toUpperCase()}</span>
-            <span className="font-semibold text-white flex flex-col leading-[1] ">
-              <span className="text-white text-[16px]">{selectedDoctor.first_name} {selectedDoctor.last_name}</span> 
+            <span className="font-semibold text-white flex flex-col leading-[1]">
+              <span className="text-white text-[16px]">{selectedDoctor.first_name} {selectedDoctor.last_name}</span>
               <span className="text-white text-[14px] font-normal">Doctor</span>
             </span>
             <span>
               <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5.86603 7.5C5.48112 8.16667 4.51887 8.16667 4.13397 7.5L0.669873 1.5C0.284972 0.833333 0.766098 5.89981e-08 1.5359 1.26296e-07L8.4641 7.31979e-07C9.2339 7.99277e-07 9.71503 0.833334 9.33013 1.5L5.86603 7.5Z" fill="white"/>
+                <path d="M5.86603 7.5C5.48112 8.16667 4.51887 8.16667 4.13397 7.5L0.669873 1.5C0.284972 0.833333 0.766098 5.89981e-08 1.5359 1.26296e-07L8.4641 7.31979e-07C9.2339 7.99277e-07 9.71503 0.833334 9.33013 1.5L5.86603 7.5Z" fill="white"/>
               </svg>
             </span>
           </div>
@@ -250,11 +275,11 @@ export default function CheckPatientVoice({
           <button
             className="flex gap-2 text-white items-center absolute top-6 right-6 w-[150px] z-40"
             onClick={() => {
-              const customDoctorQuery = "a"; // Custom search query for doctors
+              const customDoctorQuery = "a";
               setDoctorSearch(customDoctorQuery);
               searchDoctors(customDoctorQuery);
               setShowDoctorSearch(true);
-            }} // Updated to set custom query and fetch
+            }}
           >
             <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18.8889 13.7143L18.9175 13.7147C19.5179 13.7303 20 14.2358 20 14.8572C20 15.4785 19.5179 15.984 18.9175 15.9996L18.8889 16H1.1111C0.497451 16 2.74887e-07 15.4883 0 14.8572C0 14.226 0.497451 13.7143 1.1111 13.7143H18.8889ZM18.8889 6.85715L18.9175 6.85752C19.5179 6.87316 20 7.37868 20 8C20 8.62132 19.5179 9.12684 18.9175 9.14248L18.8889 9.14285H1.1111C0.497451 9.14285 1.37443e-07 8.63118 0 8C0 7.36882 0.497451 6.85715 1.1111 6.85715H18.8889ZM18.8889 0L18.9175 0.000368304C19.5179 0.0160088 20 0.521523 20 1.14285C20 1.76417 19.5179 2.26969 18.9175 2.28533L18.8889 2.2857H1.1111C0.497451 2.2857 0 1.77403 0 1.14285C0 0.511664 0.497451 0 1.1111 0H18.8889Z" fill="white" />
@@ -266,14 +291,11 @@ export default function CheckPatientVoice({
           <div className="relative w-full SearchDoctorToggle pt-12 z-30">
             <button
               className="absolute top-6 left-4 px-3 py-1 text-white rounded-md"
-              onClick={() => 
-                setShowDoctorSearch(false)
-              } // Close button
+              onClick={() => setShowDoctorSearch(false)}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3.89705 4.05379L3.96967 3.96967C4.23594 3.7034 4.6526 3.6792 4.94621 3.89705L5.03033 3.96967L10 8.939L14.9697 3.96967C15.2359 3.7034 15.6526 3.6792 15.9462 3.89705L16.0303 3.96967C16.2966 4.23594 16.3208 4.6526 16.1029 4.94621L16.0303 5.03033L11.061 10L16.0303 14.9697C16.2966 15.2359 16.3208 15.6526 16.1029 15.9462L16.0303 16.0303C15.7641 16.2966 15.3474 16.3208 15.0538 16.1029L14.9697 16.0303L10 11.061L5.03033 16.0303C4.76406 16.2966 4.3474 16.3208 4.05379 16.1029L3.96967 16.0303C3.7034 15.7641 3.6792 15.3474 3.89705 15.0538L3.96967 14.9697L8.939 10L3.96967 5.03033C3.7034 4.76406 3.6792 4.3474 3.89705 4.05379L3.96967 3.96967L3.89705 4.05379Z" fill="white"/>
+                <path d="M3.89705 4.05379L3.96967 3.96967C4.23594 3.7034 4.6526 3.6792 4.94621 3.89705L5.03033 3.96967L10 8.939L14.9697 3.96967C15.2359 3.7034 15.6526 3.6792 15.9462 3.89705L16.0303 3.96967C16.2966 4.23594 16.3208 4.6526 16.1029 4.94621L16.0303 5.03033L11.061 10L16.0303 14.9697C16.2966 15.2359 16.3208 15.6526 16.1029 15.9462L16.0303 16.0303C15.7641 16.2966 15.3474 16.3208 15.0538 16.1029L14.9697 16.0303L10 11.061L5.03033 16.0303C4.76406 16.2966 4.3474 16.3208 4.05379 16.1029L3.96967 16.0303C3.7034 15.7641 3.6792 15.3474 3.89705 15.0538L3.96967 14.9697L8.939 10L3.96967 5.03033C3.7034 4.76406 3.6792 4.3474 3.89705 4.05379L3.96967 3.96967L3.89705 4.05379Z" fill="white"/>
               </svg>
-
             </button>
             <DoctorSearch
               doctorSearch={doctorSearch}
@@ -281,7 +303,7 @@ export default function CheckPatientVoice({
               onSearchDoctors={() => searchDoctors(doctorSearch)}
               onEnterKey={handleDoctorKeyDown}
               doctorSearching={doctorSearching}
-              doctorError={null} // Set to null since error is now displayed in CheckPatientVoice
+              doctorError={null}
               doctorResults={doctorResults}
               selectedDoctor={selectedDoctor}
               onSelectDoctor={setSelectedDoctor}
@@ -290,13 +312,25 @@ export default function CheckPatientVoice({
         )}
       </div>
       <div>
-        {/* <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           <div className="full">
-            {selectedPatientIds.length > 0 && (
-              <PatientHistory patientIds={selectedPatientIds} />
+            {selectedPatientIds.length > 0 && showHistoryModal && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50">
+                <div className="bg-white rounded-lg shadow-sm p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto relative">
+                  <button
+                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                    onClick={handleCloseModal}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.89705 4.05379L3.96967 3.96967C4.23594 3.7034 4.6526 3.6792 4.94621 3.89705L5.03033 3.96967L10 8.939L14.9697 3.96967C15.2359 3.7034 15.6526 3.6792 15.9462 3.89705L16.0303 3.96967C16.2966 4.23594 16.3208 4.6526 16.1029 4.94621L16.0303 5.03033L11.061 10L16.0303 14.9697C16.2966 15.2359 16.3208 15.6526 16.1029 15.9462L16.0303 16.0303C15.7641 16.2966 15.3474 16.3208 15.0538 16.1029L14.9697 16.0303L10 11.061L5.03033 16.0303C4.76406 16.2966 4.3474 16.3208 4.05379 16.1029L3.96967 16.0303C3.7034 15.7641 3.6792 15.3474 3.89705 15.0538L3.96967 14.9697L8.939 10L3.96967 5.03033C3.7034 4.76406 3.6792 4.3474 3.89705 4.05379L3.96967 3.96967L3.89705 4.05379Z" fill="currentColor"/>
+                    </svg>
+                  </button>
+                  <PatientHistory patientIds={selectedPatientIds} />
+                </div>
+              </div>
             )}
           </div>
-        </div> */}
+        </div>
       </div>
       <span className="rightlinerGrading">
         <svg width="461" height="430" viewBox="0 0 461 430" fill="none" xmlns="http://www.w3.org/2000/svg">

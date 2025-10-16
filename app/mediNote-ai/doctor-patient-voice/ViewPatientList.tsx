@@ -10,9 +10,16 @@ interface PatientCardProps {
 interface ViewPatientListProps {
   patients: PatientCardProps[];
   handleStartCon: (id: number) => void;
+  selectedPatientIds: number[]; // Added prop
+  onPatientSelect: (patientId: number) => void; // Added prop
 }
 
-const ViewPatientList = ({ patients, handleStartCon }: ViewPatientListProps) => {
+const ViewPatientList = ({
+  patients,
+  handleStartCon,
+  selectedPatientIds,
+  onPatientSelect,
+}: ViewPatientListProps) => {
   return (
     <div className="patient-list space-y-4">
       {patients.map((patient) => {
@@ -38,6 +45,17 @@ const ViewPatientList = ({ patients, handleStartCon }: ViewPatientListProps) => 
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2 items-center">
+                    {/* Checkbox added here */}
+                    <input
+                      type="checkbox"
+                      checked={selectedPatientIds.includes(patient.patient_id)}
+                      onChange={(e) => {
+                        e.stopPropagation(); // Prevent card click from triggering
+                        onPatientSelect(patient.patient_id);
+                      }}
+                      className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      aria-label={`Select patient ${patient.name}`}
+                    />
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white text-sm font-semibold">
                       {initials}
                     </div>
@@ -48,37 +66,14 @@ const ViewPatientList = ({ patients, handleStartCon }: ViewPatientListProps) => 
                         <span className="osubtitle">{patient.patient_id}</span>
                       </div>
                     </div>
-                   </div>
-                   {patient.exists ? (
-                      <span className="status patent-active"></span>
-                      ) : (
-                      <span className="status patent-inactive"></span>
-                   )}
+                  </div>
+                  {patient.exists ? (
+                    <span className="status patent-active"></span>
+                  ) : (
+                    <span className="status patent-inactive"></span>
+                  )}
                 </div>
-                {/* <div className="text-gray-600 text-sm py-1">
-                  <span className="ot-title font-bold">Patient ID: </span>
-                  <span className="osubtitle">{patient.patient_id}</span>
-                </div>
-                <div className="text-gray-600 text-sm py-1">
-                  <span className="ot-title font-bold">Patient Voice Exists: </span>
-                  <span className="osubtitle">{patient.exists ? "Exists" : "Not exists"}</span>
-                </div> */}
               </div>
-              {/*<div className="flex justify-between items-center">
-                 <span
-                  className={`inline-block px-0 py-1 text-md font-semibold ${
-                    patient.exists ? "text-green-800" : "text-red-800"
-                  }`}
-                >
-                  {patient.exists ? "Active" : "Inactive"}
-                </span>
-                <button
-                  onClick={() => handleStartCon(patient.patient_id)}
-                  className="text-white bg-blue-500 inline-block rounded-full px-4 py-2 text-sm font-normal mt-2"
-                >
-                  Start Session
-                </button> 
-              </div>*/}
             </div>
           </div>
         );
