@@ -91,25 +91,45 @@ export class APIService {
     }
   }
 
-  static async SearchDoctor(query: string): Promise<SearchDoctorsResponse> {
-    try {
-      const response = await fetch(`${API_SERVICE}/doctors/search?q=${encodeURIComponent(query)}`, {
-        method: 'GET',
-        headers: {
-          'accept': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Error searching doctors:', error);
-      throw error;
+static async SearchDoctor(
+  text?: string | number | boolean, 
+  limit: number = 500, 
+  offset: number = 0
+): Promise<SearchDoctorsResponse> {
+  try {
+    // Build the URL with proper encoding
+    const url = new URL(`${API_SERVICE}/doctors/doctors/search`);
+    
+    // Only add query parameter if text has a meaningful value
+    if (text !== undefined && text !== null && text !== '') {
+      url.searchParams.append('q', String(text));
     }
+    
+    // Add pagination parameters
+    url.searchParams.append('limit', limit.toString());
+    url.searchParams.append('offset', offset.toString());
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error('Search doctors error:', errorData);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Search doctors error:', error);
+    throw error;
   }
+}
 
   static async updateDoctor(doctorData: DoctorCreationTypes, doctorId: number): Promise<UpdateDoctorResponse> {
     try {
@@ -179,26 +199,41 @@ export class APIService {
     }
   }
 
-  static async SearchPatient(text:string | number | boolean): Promise<any> {
-    try {
-      const response = await fetch(`${API_SERVICE}/patients/search?query=${text}`, {
-        method: "GET",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.log(errorData)
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Registration error:', error);
+static async SearchPatient(text: string | number | boolean): Promise<any> {
+  try {
+    // Build the URL with proper encoding
+    const url = new URL(`${API_SERVICE}/patients/patients/search`);
+    
+    // Only add query parameter if text has a meaningful value
+    if (text !== undefined && text !== null && text !== '') {
+      url.searchParams.append('query', String(text));
     }
+    
+    // Add pagination parameters
+    url.searchParams.append('limit', '500');
+    url.searchParams.append('offset', '0');
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error('Search error:', errorData);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Search error:', error);
+    throw error;
   }
+}
 
   static async updatePatient(patientData: PatientCreationTypes, id:number): Promise<any> {
     try {
@@ -636,10 +671,7 @@ export class APIService {
       });
 
       if (!response.ok) {
-        console.log('Response status:', response.status)
-        console.log('Response headers:', Array.from(response.headers.entries()))
-        const errorText = await response.text()
-        console.log('Error response:', errorText)
+       const errorText = await response.text()
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 

@@ -113,7 +113,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 <div className="flex Patient-voice mx-auto w-[80%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
   {/* Top-right PharmacyGenerator */}
       <div className="absolute top-[5px] right-[190px] mt-4 mr-4 z-10">
-        <PharmacyGenerator />
+    <PharmacyGenerator defaultOpen={false} showButton={true} fullWidth={false}/>
       </div>
       {/* Stop Recording Confirmation Popup */}
       {showStopConfirmation && (

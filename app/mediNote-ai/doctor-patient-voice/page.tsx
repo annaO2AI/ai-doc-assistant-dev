@@ -14,7 +14,7 @@ import TranscriptionComponent from "../NewTrans/TranscriptionComponent"
 import SummaryGeneration from "../NewTrans/SummaryGeneration"
 import { TranscriptionSummary } from "../types"
 import { sampleData } from "../transcription-summary/Summary"
-import ICDGenerator from "../icdCode/ICDGenerator"
+import ICDGenerator from "../icd-code-generator/ICDGenerator"
 
 // Define types for our state
 type AppState = "patientCheck" | "transcription" | "summary"
@@ -145,7 +145,7 @@ export default function ProcurementSearchPage() {
               )}
               {sessionId && patientId && transcriptionEnd && showICDGenerator && (
                 <div className="ICDGenerator-pupup fixed" ref={icdRef}>
-                    <ICDGenerator sessionId={sessionId} />
+                    <ICDGenerator sessionId={sessionId} showButton={false} fullWidth={true}  />
                 </div>
               )}
             </div>

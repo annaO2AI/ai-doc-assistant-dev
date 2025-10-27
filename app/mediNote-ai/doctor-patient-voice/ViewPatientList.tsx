@@ -46,7 +46,7 @@ const ViewPatientList = ({
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2 items-center">
                     {/* Checkbox added here */}
-                    <input
+                    {/* <input
                       type="checkbox"
                       checked={selectedPatientIds.includes(patient.patient_id)}
                       onChange={(e) => {
@@ -55,7 +55,7 @@ const ViewPatientList = ({
                       }}
                       className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                       aria-label={`Select patient ${patient.name}`}
-                    />
+                    /> */}
                     <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white text-sm font-semibold">
                       {initials}
                     </div>

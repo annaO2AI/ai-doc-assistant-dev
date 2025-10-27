@@ -43,7 +43,7 @@ export default function CheckPatientVoice({
   const [selectedPatientIds, setSelectedPatientIds] = useState<number[]>([]);
   const [showPatientSearch, setShowPatientSearch] = useState(false);
   const [showDoctorSearch, setShowDoctorSearch] = useState(false);
-  const [showHistoryModal, setShowHistoryModal] = useState(false); // New state for modal
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   // Doctor-related state
   const [doctorSearch, setDoctorSearch] = useState<string>("");
   const [doctorResults, setDoctorResults] = useState<doctor[]>([]);
@@ -53,18 +53,11 @@ export default function CheckPatientVoice({
 
   /* ---------- PATIENT SEARCH LOGIC ---------- */
   const fetchUsers = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setError("Please enter a search query");
-      setUsers([]);
-      setSelectedPatientIds([]);
-      setShowHistoryModal(false); // Close modal on new search
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
+      
+      // Allow empty query to fetch all patients
       const data: ApiResponse = await APIService.SearchPatient(query);
 
       if (!data?.results?.length) {
@@ -95,6 +88,11 @@ export default function CheckPatientVoice({
     }
   }, []);
 
+  React.useEffect(() => {
+    // Fetch all patients on initial load
+    fetchUsers("");
+  }, [fetchUsers]);
+
   // Handle patient selection
   const handlePatientSelect = (patientId: number) => {
     setSelectedPatientIds((prev) =>
@@ -119,15 +117,11 @@ export default function CheckPatientVoice({
 
   /* ---------- DOCTOR SEARCH LOGIC ---------- */
   const searchDoctors = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setDoctorError("Please enter doctor name or ID");
-      setDoctorResults([]);
-      setSelectedDoctor(null);
-      return;
-    }
     try {
       setDoctorSearching(true);
       setDoctorError(null);
+      
+      // Allow empty query to fetch all doctors
       const data: SearchDoctorsResponse = await APIService.SearchDoctor(query);
       setDoctorResults(data?.results || []);
     } catch (err) {
@@ -199,9 +193,6 @@ export default function CheckPatientVoice({
         <button
           className="flex gap-2 text-white items-center absolute left-8 top-8 z-20"
           onClick={() => {
-            const customQuery = "a";
-            setSearchQuery(customQuery);
-            fetchUsers(customQuery);
             setShowPatientSearch(true);
           }}
         >
@@ -254,9 +245,6 @@ export default function CheckPatientVoice({
           <div
             className="flex gap-2 text-white items-center absolute top-6 right-6 w-[160px] z-10"
             onClick={() => {
-              const customDoctorQuery = "a";
-              setDoctorSearch(customDoctorQuery);
-              searchDoctors(customDoctorQuery);
               setShowDoctorSearch(true);
             }}
           >
@@ -275,9 +263,6 @@ export default function CheckPatientVoice({
           <button
             className="flex gap-2 text-white items-center absolute top-6 right-6 w-[150px] z-40"
             onClick={() => {
-              const customDoctorQuery = "a";
-              setDoctorSearch(customDoctorQuery);
-              searchDoctors(customDoctorQuery);
               setShowDoctorSearch(true);
             }}
           >

@@ -1,5 +1,5 @@
 // DoctorSearch.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { doctor } from "../../types";
 
 interface DoctorSearchProps {
@@ -34,6 +34,11 @@ export default function DoctorSearch({
   onSelectDoctor,
   onEnterKey,
 }: DoctorSearchProps) {
+  // Load all doctors on initial mount
+  useEffect(() => {
+    onSearchDoctors();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="SearchDoctor w-full py-6 px-6 pb-0 relative z-10">
       <div className="flex items-start gap-3 mb-3">
@@ -62,8 +67,15 @@ export default function DoctorSearch({
       {/* ---- Error message ---- */}
       {doctorError && <div className="text-sm text-red-600">{doctorError}</div>}
 
+      {/* ---- Loading state ---- */}
+      {doctorSearching && (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>
+      )}
+
       {/* ---- Results list ---- */}
-      {doctorResults.length > 0 && (
+      {!doctorSearching && doctorResults.length > 0 && (
         <div className="mb-6 flex flex-col gap-3 DoctorResultslist ">
           {doctorResults.map((doc) => {
             const initials = `${doc.first_name.charAt(0)}${doc.last_name.charAt(
@@ -96,6 +108,13 @@ export default function DoctorSearch({
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* ---- No results message ---- */}
+      {!doctorSearching && doctorResults.length === 0 && !doctorError && (
+        <div className="text-center py-8 text-gray-500">
+          No doctors found
         </div>
       )}
 
