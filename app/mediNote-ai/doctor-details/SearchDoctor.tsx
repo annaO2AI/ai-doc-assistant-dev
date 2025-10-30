@@ -15,6 +15,7 @@ interface doctor {
   last_name: string;
   email: string;
   voice_enrolled: boolean;
+  full_name: string;
 }
 
 interface DoctorCreationTypes {
@@ -43,12 +44,16 @@ const SearchDoctor: React.FC = () => {
     }
 
     try {
-      setLoading(true);
       const data: ApiResponse = await APIService.SearchDoctor(searchQuery);
       if (!data) {
         setError("Something went wrong");
         throw new Error("No response received from server");
       } else {
+        const doctorsWithFullName = data.results.map(doctor => ({
+          ...doctor,
+          full_name: `${doctor.first_name} ${doctor.last_name}`
+        }));
+        setDoctors(doctorsWithFullName);
         setDoctors(data.results);
         setHasSearched(true);
         setLoading(false);
