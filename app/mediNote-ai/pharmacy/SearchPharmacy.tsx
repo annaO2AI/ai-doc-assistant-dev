@@ -199,15 +199,17 @@ const SearchPharmacy = ({
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 size={48} className="animate-spin text-indigo-600 mb-4" />
           <p className="text-lg text-gray-700">Searching for medications...</p>
-          <p className="text-sm text-gray-500 mt-2">Looking for "{debouncedQuery}"</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Looking for &quot;{debouncedQuery}&quot;
+          </p>
         </div>
       )}
 
-      {/* Results Section - Only show when not loading and there's something to display */}
+      {/* Results Section - Only show when not loading and there&apos;s something to display */}
       {!loading && !searchError && (hasSearched || data) && (
         <div className="mx-auto mt-6">
           <h2 className="text-2xl font-bold mb-6 text-gray-800">
-            {data?.query ? `Results for "${data.query}"` : 'Search Results'}
+            {data?.query ? `Results for &quot;${data.query}&quot;` : 'Search Results'}
           </h2>
 
           {data?.openfda_ndc && data.openfda_ndc.length > 0 ? (
@@ -299,7 +301,7 @@ const SearchPharmacy = ({
                 <Search size={48} className="mx-auto opacity-50" />
               </div>
               <p className="text-gray-500 text-lg mb-2">
-                No medications found {debouncedQuery && `for "${debouncedQuery}"`}
+                No medications found {debouncedQuery && `for &quot;${debouncedQuery}&quot;`}
               </p>
               <p className="text-sm text-gray-400">
                 {debouncedQuery ? 'Try a different search term or check the spelling' : 'Start typing to search for medications'}
