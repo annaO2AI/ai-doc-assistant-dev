@@ -1,4 +1,4 @@
-import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, patient, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse } from "../types";
+import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, EpicPatientsResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner } from "../types";
 import { API_BASE_URL_AISEARCH_MediNote, API_ROUTES } from "../../constants/api";
 import { promises } from "dns";
 const API_SERVICE = "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net"
@@ -324,7 +324,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-  static async startSession(patientId: number, doctorId: number) {
+  static async startSession(patientId: number, doctorId: string| number) {
     try {
       const response = await fetch(`${API_SERVICE}/session/start?doctor_id=${doctorId}&patient_id=${patientId}`, {
         method: "POST",
@@ -812,4 +812,163 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
       throw error;
     }
   }
+
+    static async searchEpicPatients(tokenId: string): Promise<EpicPatientsResponse> {
+  try {
+    const response = await fetch(
+      `${API_SERVICE}/epic/fhir/patients/demo-names?token_id=${tokenId}`,
+      {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch patients: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Epic patients search error:', error);
+    throw error;
+  }
+}
+  
+  // Epic FHIR Practitioner API
+  static async searchEpicPractitioner(practitionerId: string, tokenId: string): Promise<EpicPractitioner> {
+    try {
+      const response = await fetch(
+        `${API_SERVICE}/epic/fhir/practitioner/${practitionerId}/name?token_id=${tokenId}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch practitioner: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Epic practitioner search error:', error);
+      throw error;
+    }
+  }
+
+  static async epicStartSession(patientId: string | number, practitionerId: string) {
+    try {
+      const response = await fetch(`${API_SERVICE}/session/start?epic_practitioner_id=${practitionerId}&epic_patient_id=${patientId}`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.log(errorData);
+        throw new Error(`Session start failed: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Session start error:', error);
+      throw error;
+    }
+  }
+  static async getEpicEncounters(tokenId: string, patientId: string, count: number = 50): Promise<any> {
+    try {
+      const url = new URL(`${API_SERVICE}/epic/fhir/encounters`);
+      url.searchParams.append('token_id', tokenId);
+      url.searchParams.append('patient_id', patientId);
+      url.searchParams.append('count', count.toString());
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch encounters: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Epic encounters fetch error:', error);
+      throw error;
+    }
+  }
+
+  static async createEpicDocumentReference(
+    tokenId: string,
+    patientId: string,
+    encounterId: string,
+    noteText: string,
+  ): Promise<any> {
+    try {
+      const url = new URL(`${API_SERVICE}/epic/fhir/documentreference`);
+      url.searchParams.append('token_id', tokenId);
+      url.searchParams.append('patient_id', patientId);
+      url.searchParams.append('encounter_id', encounterId);
+      url.searchParams.append('title', "Doctor Assistant Summary");
+      url.searchParams.append('content_type', 'text/plain');
+      url.searchParams.append('note_type_display',  'Progress note');
+
+      const response = await fetch(url.toString(), {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          note_text: noteText
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to create document reference: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Epic document reference creation error:', error);
+      throw error;
+    }
+  }
+
+  // In your APIService file (../service/api.ts)
+static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean; data?: any; message?: string }> {
+  try {
+    const response = await fetch('/api/epic/fhir/documentreference', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('Error saving to Epic DocumentReference:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Failed to save to Epic DocumentReference' 
+    };
+  }
+}
+
 }

@@ -54,6 +54,11 @@ const menuItems = [
         href: "/mediNote-ai/pharmacy",
         icon: ArroTabIcon,
       },
+         {
+        label: "Epic",
+        href: "/mediNote-ai/epic",
+        icon: ArroTabIcon,
+      },
       // {
       //   label: "History",
       //   href: "/mediNote-ai/history",

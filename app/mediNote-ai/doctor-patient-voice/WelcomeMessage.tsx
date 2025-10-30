@@ -12,11 +12,11 @@ export default function WelcomeMessage({ username, onStartConversation }: Welcom
     <div className="flex flex-col  w-[70%] m-auto items-center justify-center items-end z-10">
       <div className="flex justify-evenly w-full">
         <div className="flex flex-col items-left justify-center mb-4 w-[56%]">
-          <LoganimationsIconWhite width={73} />
+           <LoganimationsIconWhite width={73} />
           <div className="text-[58px] font-bold w-2xl otitle mt-4 mb-4 leading-[1.1]">
             Hi, {username}
             <br />
-            What would like to know?
+            What would you like to know?
           </div>
           <p className="osubtitle-white text-[20px] mb-4">
             Tap to start conversation your patient visit and 
