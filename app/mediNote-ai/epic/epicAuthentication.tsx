@@ -63,7 +63,7 @@ export function EpicAuthentication({
               </div>
               <p className="text-xs text-gray-500 text-center">
                 Click the button above to open Epic authentication in a new tab.
-                After completing authentication, you'll be able to enter your
+                After completing authentication, you&apos;ll be able to enter your
                 token here.
               </p>
             </div>
@@ -97,7 +97,7 @@ export function EpicAuthentication({
                   disabled={!tokenId.trim()}
                   className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
                 >
-                  Submit Token & Continue
+                  Submit Token &amp; Continue
                 </button>
                 <button
                   type="button"

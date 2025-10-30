@@ -24,7 +24,8 @@ export interface recordingProps {
 }
 // Define types for our state
 type AppState = "patientCheck" | "transcription" | "summary"
-export default function page() {
+
+export default function Page() {
   const icdRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(true)
@@ -107,22 +108,22 @@ export default function page() {
     }
   }
 
-   const handleSelectedEpic = async(item: any, summaryContent: string) => {
-     try {
-          if (!authToken || !patientMId) return
-          const data = await APIService.createEpicDocumentReference(
-            authToken || "",
-            patientMId || "",
-            item.id || "",
-            summaryContent
-          )
-          if (data) {
-            console.log("Epic counters:", data)
-            // alert("Document Reference created successfully in Epic.")
-          }
-        } catch (error) {
-          console.log("Failed to fetch epic counters:", error)
-        }
+  const handleSelectedEpic = async(item: any, summaryContent: string) => {
+    try {
+      if (!authToken || !patientMId) return
+      const data = await APIService.createEpicDocumentReference(
+        authToken || "",
+        patientMId || "",
+        item.id || "",
+        summaryContent
+      )
+      if (data) {
+        console.log("Epic counters:", data)
+        // alert("Document Reference created successfully in Epic.")
+      }
+    } catch (error) {
+      console.log("Failed to fetch epic counters:", error)
+    }
   }
   return (
     <DashboardProvider>
