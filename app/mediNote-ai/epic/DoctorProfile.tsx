@@ -35,13 +35,13 @@ export const DoctorProfile: React.FC<DoctorProfileProps> = ({
 
   return (
     <div
-      className="flex gap-2 text-white items-center absolute top-6 right-6 w-[160px] z-10 cursor-pointer"
+      className="flex gap-2 text-white items-center absolute top-6 right-6 min-w-[180px] z-10 cursor-pointer"
       onClick={onEditClick}
     >
-      <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-semibold">
+      <span className="avatar flex items-center justify-center rounded-full bg-indigo-600 text-white text-sm font-semibold w-[30px] h-[30px] min-h-[30px] min-w-[30px]">
         {doctor.full_name?.charAt(0).toUpperCase() || 'D'}
       </span>
-      <span className="font-semibold text-white flex flex-col leading-[1]">
+      <span className="font-semibold text-white flex flex-col leading-[1.2]">
         <span className="text-white text-[16px]">
           {doctor.full_name || ``}
         </span>

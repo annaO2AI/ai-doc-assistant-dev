@@ -559,4 +559,17 @@ body {
     right: -99px;
     top: 36px;
   }
+  .epicLoginBox{
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 390px;
+    z-index: 99;
+    top: -5px;
+    box-shadow: 1px 1px 10px #00000012;
+  }
+  .customBord{
+    border: 1px dotted #3a14c233;
+  }
 }

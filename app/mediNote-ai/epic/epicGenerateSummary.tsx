@@ -886,7 +886,7 @@ export default function EpicGenerateSummary({
           </button>
         </div>
 
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-4 mx-auto w-[74%]">
           {epicCounters.map((item) => (
             <button 
               key={item.id} 
