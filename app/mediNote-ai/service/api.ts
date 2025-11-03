@@ -1,4 +1,4 @@
-import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, EpicPatientsResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner } from "../types";
+import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, EpicPatientsResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner, EpicDocumentReferenceResponse } from "../types";
 import { API_BASE_URL_AISEARCH_MediNote, API_ROUTES } from "../../constants/api";
 import { promises } from "dns";
 const API_SERVICE = "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net"
@@ -971,4 +971,34 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
   }
 }
 
+
+
+
+  static async getEpicDocumentReferences(
+    tokenId: string, 
+    patientId: string, 
+    count: number = 100
+  ): Promise<EpicDocumentReferenceResponse> {
+    try {
+      const response = await fetch(
+        `https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/epic/fhir/documentreference?token_id=${tokenId}&patient_id=${patientId}&count=${count}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch Epic documents: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching Epic documents:', error);
+      throw error;
+    }
+  }
 }

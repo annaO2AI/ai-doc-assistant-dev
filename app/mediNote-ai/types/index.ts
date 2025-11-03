@@ -269,3 +269,27 @@ export interface epicPatientResponse {
   mrn: string
   patientMId:string
 }
+
+
+export type DocumentReferenceType = {
+  system: string
+  code: string
+  display: string
+}
+
+export type DocumentReference = {
+  id: string | null
+  status: string | null
+  date: string | null
+  title: string | null
+  author: string[]
+  encounters: string[]
+  type: DocumentReferenceType[]
+}
+
+export type EpicDocumentReferenceResponse = {
+  ok: boolean
+  total: number
+  items: DocumentReference[]
+  epic_status: number
+}

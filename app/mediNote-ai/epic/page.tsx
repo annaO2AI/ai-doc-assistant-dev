@@ -181,8 +181,9 @@ export default function Page() {
                   handleEpicCounters={handleEpicCounters}
                   epicCounters={epicCounters}
                   handleSelectedEpic={handleSelectedEpic}
-                  
-                />                
+                  authToken={authToken || ""}
+                  patientMId={patientMId || ""}
+                />
               </>
             )}
             {sessionId && patientId && transcriptionEnd && showICDGenerator && (

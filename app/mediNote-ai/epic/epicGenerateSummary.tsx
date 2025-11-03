@@ -20,6 +20,8 @@ type TextCase = {
   handleEpicCounters: () => void
   epicCounters: any[]
   handleSelectedEpic: (item: any, summaryContent: string) => void
+  authToken: string,
+  patientMId: string
 }
 
 type SummaryText = {
@@ -35,6 +37,30 @@ type SummaryText = {
   summary: Summary
 }
 
+// Types for Epic FHIR DocumentReference
+type DocumentReferenceType = {
+  system: string
+  code: string
+  display: string
+}
+
+type DocumentReference = {
+  id: string | null
+  status: string | null
+  date: string | null
+  title: string | null
+  author: string[]
+  encounters: string[]
+  type: DocumentReferenceType[]
+}
+
+type EpicDocumentReferenceResponse = {
+  ok: boolean
+  total: number
+  items: DocumentReference[]
+  epic_status: number
+}
+
 export default function EpicGenerateSummary({
   sessionId,
   patientId,
@@ -45,7 +71,9 @@ export default function EpicGenerateSummary({
   doctorId,
   handleEpicCounters,
   epicCounters,
-  handleSelectedEpic
+  handleSelectedEpic,
+   authToken,
+  patientMId
 }: TextCase) {
   const [apiError, setApiError] = useState("")
   const [isEdit, setIsEdit] = useState(false)
@@ -75,6 +103,8 @@ export default function EpicGenerateSummary({
   const [showPopup, setShowPopup] = useState(false)
   const [selectedEncounter, setSelectedEncounter] = useState<any>(null)
   const [isCreatingNote, setIsCreatingNote] = useState(false)
+  const [epicDocuments, setEpicDocuments] = useState<DocumentReference[]>([])
+  const [isLoadingEpicDocuments, setIsLoadingEpicDocuments] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
 
@@ -100,6 +130,45 @@ export default function EpicGenerateSummary({
     setNotification({ message, show: true })
     setTimeout(() => setNotification({ message: "", show: false }), 3000)
   }, [])
+
+  // New function to fetch Epic DocumentReferences
+const fetchEpicDocumentReferences = useCallback(async () => {
+  try {
+    setIsLoadingEpicDocuments(true)
+    setApiError("")
+    if (!authToken || !patientMId) {
+      throw new Error("Missing authentication token or patient ID")
+    }
+    const count = 100
+    const response = await APIService.getEpicDocumentReferences(
+      authToken,
+      patientMId,
+      count
+    )
+    if (response.ok && Array.isArray(response.items)) {
+      console.log(`Found ${response.items.length} documents`)
+      setEpicDocuments(response.items)
+      if (response.items.length > 0) {
+        showNotification("Epic documents loaded successfully!")
+      } else {
+        showNotification("No Epic documents found for this patient")
+      }
+    } else {
+      console.error("Invalid response structure:", response)
+      throw new Error("Failed to load Epic documents")
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error"
+    if (errorMessage.includes("Authentication failed") || errorMessage.includes("401")) {
+      setApiError("Your Epic session has expired. Please re-authenticate.")
+    } else {
+      setApiError(`Failed to fetch Epic documents: ${errorMessage}`)
+    }
+    handleApiError(err, "Failed to fetch Epic documents")
+  } finally {
+    setIsLoadingEpicDocuments(false)
+  }
+}, [authToken, patientMId, handleApiError, showNotification])
 
   const loadAudio = useCallback(async () => {
     if (!sessionId) return
@@ -274,6 +343,10 @@ export default function EpicGenerateSummary({
   useEffect(() => {
     fetchSummaryById()
   }, [fetchSummaryById])
+
+  useEffect(() => {
+    fetchEpicDocumentReferences()
+  }, [fetchEpicDocumentReferences])
 
   useEffect(() => {
     if (typeof window === "undefined") return
@@ -545,7 +618,28 @@ export default function EpicGenerateSummary({
     }
   }
 
- 
+  const formatDisplayDate = (dateString: string | null) => {
+    if (!dateString) return "No date"
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    } catch {
+      return "Invalid date"
+    }
+  }
+
+  // Get display types for document
+  const getDisplayTypes = (types: DocumentReferenceType[]) => {
+    if (!types.length) return ["No type specified"]
+    // Prefer LOINC display names, fallback to others
+    const loincType = types.find(t => t.system === "http://loinc.org")
+    if (loincType) return [loincType.display]
+    return types.map(t => t.display).filter(Boolean)
+  }
+
   return (
     <>
       {isLoading && <Loader />}
@@ -703,7 +797,7 @@ export default function EpicGenerateSummary({
                   </div>
                 </div>
               </div>
-            </div>           
+            </div>
           </div>
           <div className="rounded-lg shadow-sm p-6 mb-6 bg-white ">
             <div className="flex justify-between items-center mb-6">
@@ -831,6 +925,88 @@ export default function EpicGenerateSummary({
               </div>
             </div>
           </div>
+          <div className="rounded-lg shadow-sm p-6 my-6 bg-white">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Epic FHIR Documents
+              </h2>
+              <button
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                onClick={fetchEpicDocumentReferences}
+                disabled={isLoadingEpicDocuments}
+              >
+                {isLoadingEpicDocuments ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div>
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Refresh</span>
+                  </>
+                )}
+              </button>
+            </div>
+            
+            {isLoadingEpicDocuments ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-600"></div>
+              </div>
+            ) : epicDocuments.length > 0 ? (
+              <div className="space-y-4">
+                {epicDocuments.map((doc, index) => (
+                  <div
+                    key={doc.id || `doc-${index}`}
+                    className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-gray-800">
+                        {doc.id || "No ID"}
+                      </h3>
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          doc.status === "current"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {doc.status || "Unknown"}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                      <div>
+                        <p className="font-medium">Date:</p>
+                        <p>{formatDisplayDate(doc.date)}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium">Type:</p>
+                        <p>{getDisplayTypes(doc.type).join(", ")}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium">Authors:</p>
+                        <p>{doc.author.length > 0 ? doc.author.join(", ") : "No authors"}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium">Encounters:</p>
+                        <p>{doc.encounters.length > 0 ? doc.encounters.length : "No encounters"}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No Epic documents found.</p>
+              </div>
+            )}
+            <div className="mt-4 text-sm text-gray-500">
+              <p>Total documents: {epicDocuments.length}</p>
+            </div>
+          </div>
 
           <span className="bottomlinerGrading">
             <svg
@@ -896,7 +1072,7 @@ export default function EpicGenerateSummary({
                 setShowPopup(true)
               }}
             >
-              <p className="font-semibold text-gray-700">{item?.id}</p>
+              <p className="font-semibold text-gray-700">Encounter Id{item?.id}</p>
               <h3 className="text-sm text-gray-600 mt-1">{item.type.join(", ")}</h3>
               <p className="text-xs text-gray-500 mt-2">Status: {item.status}</p>
               <p className="text-xs text-gray-500">Service Provider: {item.serviceProvider}</p>
