@@ -1001,4 +1001,24 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
       throw error;
     }
   }
+  static async getEpicSession(): Promise<any> {
+    try {
+      const response = await fetch(`${API_SERVICE}/epic/auth/session`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get Epic session: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting Epic session:', error);
+      throw error;
+    }
+  }
 }

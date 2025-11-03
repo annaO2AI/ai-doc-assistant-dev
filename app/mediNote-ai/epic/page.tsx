@@ -42,7 +42,7 @@ export default function Page() {
     useState<TranscriptionSummary | null>(null)
   const [showICDGenerator, setShowICDGenerator] = useState(false)
   const [epicCounters, setEpicCounters] = useState<any[]>([])
-
+  const [practitionerId, setPractitionerId] = useState<string | null>(null)
   const toggleCollapse = () => {
     const newCollapsed = !collapsed
     localStorage.setItem("sidebar-collapsed", String(newCollapsed))
@@ -55,8 +55,9 @@ export default function Page() {
   // Show sidebar on the talent-acquisition page
   const showSidebar = pathname === "/mediNote-ai/epic"
 
-  const handleTokenSubmit = (token: string) => {
+  const handleTokenSubmit = (token: string, practitionerId: string) => {
     setAuthToken(token)
+    setPractitionerId(practitionerId)
     localStorage.setItem("epic_auth_token", token)
   }
   const handleStartRecording = async ({
@@ -154,6 +155,7 @@ export default function Page() {
               <CheckPatientAndDoctor
                 authToken={authToken}
                 handleRecording={handleStartRecording}
+                practitionerId={practitionerId}
               />
             )}
             {currentState === "transcription" &&

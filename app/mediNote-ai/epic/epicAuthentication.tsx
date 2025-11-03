@@ -2,20 +2,21 @@
 "use client"
 
 import { useState } from "react"
+import { APIService } from "../service/api"
 
 export function EpicAuthentication({
   onTokenSubmit,
 }: {
-  onTokenSubmit: (token: string) => void
+  onTokenSubmit: (token: string, practitionerId: string) => void
 }) {
-  const [tokenId, setTokenId] = useState("")
+  const [tokenId, setTokenId] = useState<{ token: string; practitionerId: string } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showTokenInput, setShowTokenInput] = useState(false)
-
+  const [loading, setLoading] = useState(false)
   const handleOpenAuth = () => {
     setIsLoading(true)
     window.open(
-      "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/epic/auth/start",
+      "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/epic/auth/start?force=true",
       "_blank",
       "noopener,noreferrer"
     )
@@ -23,17 +24,35 @@ export function EpicAuthentication({
     setShowTokenInput(true)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const fetchToken = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (tokenId.trim()) {
-      onTokenSubmit(tokenId.trim())
-      setTokenId("")
-      setShowTokenInput(false)
+    setLoading(true)
+    try {
+      const response = await APIService.getEpicSession()
+      if (response && response.token) {
+        setTokenId({
+          token: response.token_id,
+          practitionerId: response.practitioner_id,
+        })
+      }
+      // setTokenId({
+      //     token:  "mTO8Sef4Uq6o-mmA",
+      //     practitionerId: "e3MBXCOmcoLKl7ayLD51AWA3",
+      //   })
+    } catch (error) {
+      console.error("Error fetching Epic session:", error)
+    } finally {
+      setLoading(false)
     }
   }
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onTokenSubmit(tokenId?.token ?? "", tokenId?.practitionerId || "")
+  }
+
   const handleCancel = () => {
-    setTokenId("")
+    setTokenId(null)
     setShowTokenInput(false)
   }
 
@@ -63,42 +82,26 @@ export function EpicAuthentication({
               </div>
               <p className="text-xs text-gray-500 text-center">
                 Click the button above to open Epic authentication in a new tab.
-                After completing authentication, you&apos;ll be able to enter your
-                token here.
+                After completing authentication, you&apos;ll be able to enter
+                your token here.
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label
-                  htmlFor="tokenId"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Enter Your Epic Token
-                </label>
-                <input
-                  id="tokenId"
-                  type="text"
-                  required
-                  value={tokenId}
-                  onChange={(e) => setTokenId(e.target.value)}
-                  placeholder="Paste your token ID here"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-                <p className="mt-2 text-xs text-gray-500">
-                  After completing authentication in the new tab, paste the
-                  token ID you received here
-                </p>
-              </div>
-
-              <div className="flex space-x-3">
+            <div>
+              <p className="mt-2 text-xs text-gray-500">
+                After completing authentication in the new tab, Confirm the
+                token ID you received here
+              </p>
+              <div className="my-3 flex justify-between items-center">
+                <div>
+                  <p className="mt-2 text-xs text-gray-500">tokenId : {tokenId?.token || "No token received"}</p>
+                <p className="mt-2 text-xs text-gray-500" >PractitionerId : {tokenId?.practitionerId || "No Practitioner ID received"}</p>
+                </div>
                 <button
-                  type="submit"
-                  disabled={!tokenId.trim()}
-                  className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
-                >
-                  Submit Token &amp; Continue
-                </button>
+                className="p-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
+                 onClick={fetchToken}>Re Fetch</button>  
+              </div>
+              <div className="flex space-x-3 mt-3">
                 <button
                   type="button"
                   onClick={handleCancel}
@@ -106,8 +109,16 @@ export function EpicAuthentication({
                 >
                   Cancel
                 </button>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={handleSubmit}
+                  className="flex-1 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-colors"
+                >
+                  Continue
+                </button>
               </div>
-            </form>
+            </div>
           )}
         </div>
       </div>

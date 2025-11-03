@@ -12,9 +12,11 @@ import { recordingProps } from "./page"
 export default function CheckPatientAndDoctor({
   authToken,
   handleRecording,
+  practitionerId
 }: {
   authToken: string | null
   handleRecording: (recording: recordingProps) => void
+  practitionerId: string | null
 }) {
   const [selectedPatient, setSelectedPatient] = useState<any | null>(null)
   const [showEpicPatientSearch, setShowEpicPatientSearch] = useState(false)
@@ -89,6 +91,7 @@ export default function CheckPatientAndDoctor({
               onClose={() => setShowEpicDoctorSearch(false)}
               setPractitionerData={setPractitionerData}
               practitionerData={practitionerData}
+              practId={practitionerId}
             />
           </div>
         )}
