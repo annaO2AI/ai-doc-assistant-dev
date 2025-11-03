@@ -29,16 +29,12 @@ export function EpicAuthentication({
     setLoading(true)
     try {
       const response = await APIService.getEpicSession()
-      if (response && response.token) {
+      if (response.token_id && response.practitioner_id) {
         setTokenId({
           token: response.token_id,
           practitionerId: response.practitioner_id,
         })
       }
-      // setTokenId({
-      //     token:  "mTO8Sef4Uq6o-mmA",
-      //     practitionerId: "e3MBXCOmcoLKl7ayLD51AWA3",
-      //   })
     } catch (error) {
       console.error("Error fetching Epic session:", error)
     } finally {

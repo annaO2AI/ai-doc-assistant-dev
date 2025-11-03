@@ -1005,6 +1005,7 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
     try {
       const response = await fetch(`${API_SERVICE}/epic/auth/session`, {
         method: 'GET',
+         credentials: "include",
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json'

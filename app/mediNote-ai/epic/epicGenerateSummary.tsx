@@ -1072,7 +1072,7 @@ const fetchEpicDocumentReferences = useCallback(async () => {
                 setShowPopup(true)
               }}
             >
-              <p className="font-semibold text-gray-700">Encounter Id{item?.id}</p>
+              <p className="font-semibold text-gray-700">Encounter Id : {item?.id}</p>
               <h3 className="text-sm text-gray-600 mt-1">{item.type.join(", ")}</h3>
               <p className="text-xs text-gray-500 mt-2">Status: {item.status}</p>
               <p className="text-xs text-gray-500">Service Provider: {item.serviceProvider}</p>
