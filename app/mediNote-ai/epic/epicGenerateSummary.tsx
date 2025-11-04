@@ -140,7 +140,7 @@ export default function EpicGenerateSummary({
     const randomSuffix = Math.random().toString(36).substring(2, 8)
     
     return {
-      id: `enc-${timestamp}-${randomSuffix}`,
+      id: `1762275785981-h9o680`,
       type: ["AMB", "OFFICE_VISIT"],
       status: "in-progress",
       serviceProvider: "Default Healthcare Provider",
@@ -148,16 +148,16 @@ export default function EpicGenerateSummary({
     }
   }, [])
 
-  // Get available encounters - use epicCounters if available, otherwise use default
-  const getAvailableEncounters = useCallback(() => {
-    if (epicCounters && epicCounters.length > 0) {
-      return epicCounters
-    }
-    
-    // Return default encounter if no epic counters available
-    const defaultEncounter = createDefaultEncounter()
-    return [defaultEncounter]
-  }, [epicCounters, createDefaultEncounter])
+// Get available encounters - use epicCounters if available, otherwise use default
+const getAvailableEncounters = useCallback(() => {
+  if (epicCounters && epicCounters.length > 0) {
+    return epicCounters
+  }
+  
+  // Return default encounter if no epic counters available
+  const defaultEncounter = createDefaultEncounter()
+  return [defaultEncounter]
+}, [epicCounters, createDefaultEncounter])
 
   // Define all Hooks first
   const handleApiError = useCallback((error: unknown, context: string) => {
@@ -173,25 +173,34 @@ export default function EpicGenerateSummary({
   }, [])
 
   // Updated function to handle Create Summary button click
-  const handleCreateSummaryClick = useCallback(() => {
-    const availableEncounters = getAvailableEncounters()
+// Updated function to handle Create Summary button click
+const handleCreateSummaryClick = useCallback(() => {
+  const availableEncounters = getAvailableEncounters()
+  
+  if (availableEncounters.length > 0) {
+    // Use the first available encounter
+    const encounterToUse = availableEncounters[0]
+    setSelectedEncounter(encounterToUse)
+    setShowPopup(true)
     
-    if (availableEncounters.length > 0) {
-      // Use the first available encounter
-      const encounterToUse = availableEncounters[0]
-      setSelectedEncounter(encounterToUse)
-      setShowPopup(true)
-      
-      // Show notification if using default encounter
-      if (epicCounters.length === 0) {
-        showNotification("Using default encounter - no Epic encounters available")
-      } else {
-        showNotification("Epic encounter selected successfully!")
-      }
-    } else {
-      showNotification("No encounters available")
+    // Show notification if using default encounter
+    if (epicCounters.length === 0) {
+      showNotification("Using default encounter for clinical note creation")
     }
-  }, [getAvailableEncounters, epicCounters, showNotification])
+  } else {
+    // Fallback to creating a default encounter with your specified ID
+    const defaultEncounter = {
+      id: "eoK8nLRcEypNjtns4dgnF3Q3",
+      type: ["AMB", "OFFICE_VISIT"],
+      status: "in-progress",
+      serviceProvider: "Default Healthcare Provider",
+      display: `Visit - ${new Date().toLocaleDateString()}`
+    }
+    setSelectedEncounter(defaultEncounter)
+    setShowPopup(true)
+    showNotification("Using default encounter for clinical note creation")
+  }
+}, [getAvailableEncounters, epicCounters, showNotification])
 
   // New function to fetch Epic DocumentReferences
   const fetchEpicDocumentReferences = useCallback(async () => {
@@ -208,15 +217,11 @@ export default function EpicGenerateSummary({
         count
       )
       if (response.ok && Array.isArray(response.items)) {
-        console.log(`Found ${response.items.length} documents`)
         setEpicDocuments(response.items)
         if (response.items.length > 0) {
           showNotification("Epic documents loaded successfully!")
-        } else {
-          showNotification("No Epic documents found for this patient")
         }
       } else {
-        console.error("Invalid response structure:", response)
         throw new Error("Failed to load Epic documents")
       }
     } catch (err) {
