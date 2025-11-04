@@ -21,8 +21,10 @@ type TextCase = {
   handleEpicCounters: () => void
   epicCounters: any[]
   handleSelectedEpic: (item: any, summaryContent: string) => void
-  authToken: string,
+  authToken: string
   patientMId: string
+  epicPatientName: string
+  epicDoctorName: string
 }
 
 type SummaryText = {
@@ -62,6 +64,15 @@ type EpicDocumentReferenceResponse = {
   epic_status: number
 }
 
+// Default encounter type
+type DefaultEncounter = {
+  id: string
+  type: string[]
+  status: string
+  serviceProvider: string
+  display: string
+}
+
 export default function EpicGenerateSummary({
   sessionId,
   patientId,
@@ -74,7 +85,9 @@ export default function EpicGenerateSummary({
   epicCounters,
   handleSelectedEpic,
   authToken,
-  patientMId
+  patientMId,
+  epicPatientName,
+  epicDoctorName,
 }: TextCase) {
   const [apiError, setApiError] = useState("")
   const [isEdit, setIsEdit] = useState(false)
@@ -121,6 +134,31 @@ export default function EpicGenerateSummary({
     }
   }, [])
 
+  // Create default encounter
+  const createDefaultEncounter = useCallback((): DefaultEncounter => {
+    const timestamp = new Date().getTime()
+    const randomSuffix = Math.random().toString(36).substring(2, 8)
+    
+    return {
+      id: `enc-${timestamp}-${randomSuffix}`,
+      type: ["AMB", "OFFICE_VISIT"],
+      status: "in-progress",
+      serviceProvider: "Default Healthcare Provider",
+      display: `Visit - ${new Date().toLocaleDateString()}`
+    }
+  }, [])
+
+  // Get available encounters - use epicCounters if available, otherwise use default
+  const getAvailableEncounters = useCallback(() => {
+    if (epicCounters && epicCounters.length > 0) {
+      return epicCounters
+    }
+    
+    // Return default encounter if no epic counters available
+    const defaultEncounter = createDefaultEncounter()
+    return [defaultEncounter]
+  }, [epicCounters, createDefaultEncounter])
+
   // Define all Hooks first
   const handleApiError = useCallback((error: unknown, context: string) => {
     const message =
@@ -133,6 +171,27 @@ export default function EpicGenerateSummary({
     setNotification({ message, show: true })
     setTimeout(() => setNotification({ message: "", show: false }), 3000)
   }, [])
+
+  // Updated function to handle Create Summary button click
+  const handleCreateSummaryClick = useCallback(() => {
+    const availableEncounters = getAvailableEncounters()
+    
+    if (availableEncounters.length > 0) {
+      // Use the first available encounter
+      const encounterToUse = availableEncounters[0]
+      setSelectedEncounter(encounterToUse)
+      setShowPopup(true)
+      
+      // Show notification if using default encounter
+      if (epicCounters.length === 0) {
+        showNotification("Using default encounter - no Epic encounters available")
+      } else {
+        showNotification("Epic encounter selected successfully!")
+      }
+    } else {
+      showNotification("No encounters available")
+    }
+  }, [getAvailableEncounters, epicCounters, showNotification])
 
   // New function to fetch Epic DocumentReferences
   const fetchEpicDocumentReferences = useCallback(async () => {
@@ -308,6 +367,35 @@ export default function EpicGenerateSummary({
     return parts.join("\n") + (after ? "" : "\n")
   }, [])
 
+  // Handler for creating clinical note
+  const handleCreateClinicalNote = useCallback(() => {
+    if (!clinicalNote.trim()) {
+      showNotification("Please enter a clinical note")
+      return
+    }
+
+    if (!noteTypeDisplay.trim()) {
+      showNotification("Please enter a note type display")
+      return
+    }
+
+    setIsCreatingNote(true)
+    
+    // Use the selected encounter (either from epicCounters or default)
+    if (selectedEncounter) {
+      handleSelectedEpic(selectedEncounter, clinicalNote)
+    }
+
+    // Simulate API call - remove setTimeout in production
+    setTimeout(() => {
+      setShowPopup(false)
+      setIsCreatingNote(false)
+      setClinicalNote("")
+      setNoteTypeDisplay("")
+      showNotification("Clinical note created successfully!")
+    }, 2000)
+  }, [clinicalNote, noteTypeDisplay, selectedEncounter, handleSelectedEpic, showNotification])
+
   useEffect(() => {
     loadAudio()
   }, [loadAudio])
@@ -448,7 +536,7 @@ export default function EpicGenerateSummary({
   useEffect(() => {
     if (showPopup && summaryContent) {
       setClinicalNote(summaryContent)
-      setNoteTypeDisplay("")
+      setNoteTypeDisplay(" ") // Set default note type
     }
   }, [showPopup, summaryContent])
 
@@ -579,7 +667,7 @@ export default function EpicGenerateSummary({
     })
   }
 
-  const patientName = summaryId?.summary?.ui?.chips?.[0]?.value ?? "Patient"
+  const patientName = epicPatientName || "Patient"
   const symptoms = summaryId?.summary?.ui?.chips?.[1]?.value ?? "Not specified"
   const durationText =
     summaryId?.summary?.ui?.chips?.[2]?.value ?? "Not specified"
@@ -587,7 +675,7 @@ export default function EpicGenerateSummary({
     summaryId?.summary?.ui?.chips?.[3]?.value ?? "Not specified"
   const nextSteps =
     summaryId?.summary?.ui?.chips?.[4]?.value?.replace(/\*\*/g, "") ?? ""
-  const doctorName = summaryId?.summary?.ui?.insights?.doctor?.by ?? "Doctor"
+  const doctorName = epicDoctorName || "Doctor"
   const doctorBullets = summaryId?.summary?.ui?.insights?.doctor?.bullets ?? []
   const structuredInsights = processDoctorInsights(doctorBullets)
   const patientBullets =
@@ -652,33 +740,6 @@ export default function EpicGenerateSummary({
     const loincType = types.find((t) => t.system === "http://loinc.org")
     if (loincType) return [loincType.display]
     return types.map((t) => t.display).filter(Boolean)
-  }
-
-  // Handler for creating clinical note
-  const handleCreateClinicalNote = () => {
-    if (!clinicalNote.trim()) {
-      showNotification("Please enter a clinical note")
-      return
-    }
-
-    if (!noteTypeDisplay.trim()) {
-      showNotification("Please enter a note type display")
-      return
-    }
-
-    setIsCreatingNote(true)
-    // Use the first encounter from epicCounters (hardcoded selection)
-    const hardcodedEncounter = epicCounters[0]
-    handleSelectedEpic(hardcodedEncounter, clinicalNote)
-
-    // Simulate API call - remove setTimeout in production
-    setTimeout(() => {
-      setShowPopup(false)
-      setIsCreatingNote(false)
-      setClinicalNote("")
-      setNoteTypeDisplay("")
-      showNotification("Clinical note created successfully in Epic!")
-    }, 2000)
   }
 
   return (
@@ -851,7 +912,7 @@ export default function EpicGenerateSummary({
                   showButton={true}
                   fullWidth={true}
                   editMode={false}
-                 defaultOpen={false}
+                 defaultOpen={false} 
                 />
 
                 <SummaryPharmacyGen
@@ -1105,7 +1166,7 @@ export default function EpicGenerateSummary({
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.476 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z"
+                d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.475 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z"
                 fill="#C2F5F9"
                 fillOpacity="0.2"
               />
@@ -1115,14 +1176,7 @@ export default function EpicGenerateSummary({
         <div className="flex justify-center space-x-4 mt-8 mb-8 relative z-[1]">
           <button
             className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            onClick={() => {
-              if (epicCounters && epicCounters.length > 0) {
-                setSelectedEncounter(epicCounters[0])
-                setShowPopup(true)
-              } else {
-                showNotification("No encounters available")
-              }
-            }}
+            onClick={handleCreateSummaryClick}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
             <span>Create Summary</span>
@@ -1183,16 +1237,24 @@ export default function EpicGenerateSummary({
                     </p>
                     <p>
                       <span className="font-medium">Type:</span>{" "}
-                      {selectedEncounter.type.join(", ")}
+                      {Array.isArray(selectedEncounter.type) 
+                        ? selectedEncounter.type.join(", ")
+                        : selectedEncounter.type || "Office Visit"}
                     </p>
                     <p>
                       <span className="font-medium">Status:</span>{" "}
-                      {selectedEncounter.status}
+                      {selectedEncounter.status || "in-progress"}
                     </p>
                     <p>
                       <span className="font-medium">Provider:</span>{" "}
-                      {selectedEncounter.serviceProvider}
+                      {selectedEncounter.serviceProvider || "Default Healthcare Provider"}
                     </p>
+                    {selectedEncounter.display && (
+                      <p>
+                        <span className="font-medium">Display:</span>{" "}
+                        {selectedEncounter.display}
+                      </p>
+                    )}
                   </div>
                 </div>
 

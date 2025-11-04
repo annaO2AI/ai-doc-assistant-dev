@@ -185,6 +185,8 @@ export default function Page() {
                   handleSelectedEpic={handleSelectedEpic}
                   authToken={authToken || ""}
                   patientMId={patientMId || ""}
+                  epicPatientName={patientName}
+                  epicDoctorName={doctorName}
                 />
               </>
             )}
