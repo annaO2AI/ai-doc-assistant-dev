@@ -53,7 +53,7 @@ export default function ICDCodeGeneratorPage() {
               "flex-1 overflow-auto p-2 background-chat-ui mt-16"
             )}
           >
-            <ICDGenerator sessionId={0} showButton={false} fullWidth={true} />
+            <ICDGenerator sessionId={0} showButton={false} fullWidth={true}   editMode={false}/>
           </main>
         </div>
       </div>

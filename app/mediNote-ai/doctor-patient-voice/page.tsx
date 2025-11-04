@@ -145,7 +145,7 @@ export default function ProcurementSearchPage() {
               )}
               {sessionId && patientId && transcriptionEnd && showICDGenerator && (
                 <div className="ICDGenerator-pupup fixed" ref={icdRef}>
-                    <ICDGenerator sessionId={sessionId} showButton={false} fullWidth={true}  />
+                    <ICDGenerator sessionId={sessionId} showButton={false} fullWidth={true}  editMode={true}  />
                 </div>
               )}
             </div>

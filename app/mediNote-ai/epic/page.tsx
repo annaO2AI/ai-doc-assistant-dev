@@ -194,6 +194,7 @@ export default function Page() {
                   sessionId={sessionId}
                   showButton={false}
                   fullWidth={true}
+                   editMode={false}
                 />
               </div>
             )}

@@ -8,6 +8,7 @@ import { Summary } from "../transcription-summary/Summary"
 import Image from "next/image"
 import SummaryPharmacyGen from "../pharmacy/SummaryPharmacyGen"
 import { MedicationResponse } from "../pharmacy/PharmacyGenerator"
+import ICDGenerator from "../icd-code-generator/ICDGenerator"
 
 type TextCase = {
   sessionId: number
@@ -72,7 +73,7 @@ export default function EpicGenerateSummary({
   handleEpicCounters,
   epicCounters,
   handleSelectedEpic,
-   authToken,
+  authToken,
   patientMId
 }: TextCase) {
   const [apiError, setApiError] = useState("")
@@ -105,6 +106,8 @@ export default function EpicGenerateSummary({
   const [isCreatingNote, setIsCreatingNote] = useState(false)
   const [epicDocuments, setEpicDocuments] = useState<DocumentReference[]>([])
   const [isLoadingEpicDocuments, setIsLoadingEpicDocuments] = useState(false)
+  const [clinicalNote, setClinicalNote] = useState("")
+  const [noteTypeDisplay, setNoteTypeDisplay] = useState("")
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
 
@@ -132,43 +135,46 @@ export default function EpicGenerateSummary({
   }, [])
 
   // New function to fetch Epic DocumentReferences
-const fetchEpicDocumentReferences = useCallback(async () => {
-  try {
-    setIsLoadingEpicDocuments(true)
-    setApiError("")
-    if (!authToken || !patientMId) {
-      throw new Error("Missing authentication token or patient ID")
-    }
-    const count = 100
-    const response = await APIService.getEpicDocumentReferences(
-      authToken,
-      patientMId,
-      count
-    )
-    if (response.ok && Array.isArray(response.items)) {
-      console.log(`Found ${response.items.length} documents`)
-      setEpicDocuments(response.items)
-      if (response.items.length > 0) {
-        showNotification("Epic documents loaded successfully!")
-      } else {
-        showNotification("No Epic documents found for this patient")
+  const fetchEpicDocumentReferences = useCallback(async () => {
+    try {
+      setIsLoadingEpicDocuments(true)
+      setApiError("")
+      if (!authToken || !patientMId) {
+        throw new Error("Missing authentication token or patient ID")
       }
-    } else {
-      console.error("Invalid response structure:", response)
-      throw new Error("Failed to load Epic documents")
+      const count = 100
+      const response = await APIService.getEpicDocumentReferences(
+        authToken,
+        patientMId,
+        count
+      )
+      if (response.ok && Array.isArray(response.items)) {
+        console.log(`Found ${response.items.length} documents`)
+        setEpicDocuments(response.items)
+        if (response.items.length > 0) {
+          showNotification("Epic documents loaded successfully!")
+        } else {
+          showNotification("No Epic documents found for this patient")
+        }
+      } else {
+        console.error("Invalid response structure:", response)
+        throw new Error("Failed to load Epic documents")
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error"
+      if (
+        errorMessage.includes("Authentication failed") ||
+        errorMessage.includes("401")
+      ) {
+        setApiError("Your Epic session has expired. Please re-authenticate.")
+      } else {
+        setApiError(`Failed to fetch Epic documents: ${errorMessage}`)
+      }
+      handleApiError(err, "Failed to fetch Epic documents")
+    } finally {
+      setIsLoadingEpicDocuments(false)
     }
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : "Unknown error"
-    if (errorMessage.includes("Authentication failed") || errorMessage.includes("401")) {
-      setApiError("Your Epic session has expired. Please re-authenticate.")
-    } else {
-      setApiError(`Failed to fetch Epic documents: ${errorMessage}`)
-    }
-    handleApiError(err, "Failed to fetch Epic documents")
-  } finally {
-    setIsLoadingEpicDocuments(false)
-  }
-}, [authToken, patientMId, handleApiError, showNotification])
+  }, [authToken, patientMId, handleApiError, showNotification])
 
   const loadAudio = useCallback(async () => {
     if (!sessionId) return
@@ -438,6 +444,14 @@ const fetchEpicDocumentReferences = useCallback(async () => {
     })
   }, [isEdit, icdSectionText, summaryContent, upsertIcdSection])
 
+  // Initialize clinical note with summary content when popup opens
+  useEffect(() => {
+    if (showPopup && summaryContent) {
+      setClinicalNote(summaryContent)
+      setNoteTypeDisplay("")
+    }
+  }, [showPopup, summaryContent])
+
   // Validate props after Hooks
   if (!sessionId || !patientId || !transcriptionEnd || !summaryData) {
     console.error("Missing required props in SummaryGeneration")
@@ -621,10 +635,10 @@ const fetchEpicDocumentReferences = useCallback(async () => {
   const formatDisplayDate = (dateString: string | null) => {
     if (!dateString) return "No date"
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       })
     } catch {
       return "Invalid date"
@@ -635,9 +649,36 @@ const fetchEpicDocumentReferences = useCallback(async () => {
   const getDisplayTypes = (types: DocumentReferenceType[]) => {
     if (!types.length) return ["No type specified"]
     // Prefer LOINC display names, fallback to others
-    const loincType = types.find(t => t.system === "http://loinc.org")
+    const loincType = types.find((t) => t.system === "http://loinc.org")
     if (loincType) return [loincType.display]
-    return types.map(t => t.display).filter(Boolean)
+    return types.map((t) => t.display).filter(Boolean)
+  }
+
+  // Handler for creating clinical note
+  const handleCreateClinicalNote = () => {
+    if (!clinicalNote.trim()) {
+      showNotification("Please enter a clinical note")
+      return
+    }
+
+    if (!noteTypeDisplay.trim()) {
+      showNotification("Please enter a note type display")
+      return
+    }
+
+    setIsCreatingNote(true)
+    // Use the first encounter from epicCounters (hardcoded selection)
+    const hardcodedEncounter = epicCounters[0]
+    handleSelectedEpic(hardcodedEncounter, clinicalNote)
+
+    // Simulate API call - remove setTimeout in production
+    setTimeout(() => {
+      setShowPopup(false)
+      setIsCreatingNote(false)
+      setClinicalNote("")
+      setNoteTypeDisplay("")
+      showNotification("Clinical note created successfully in Epic!")
+    }, 2000)
   }
 
   return (
@@ -805,13 +846,14 @@ const fetchEpicDocumentReferences = useCallback(async () => {
                 Visit Summary
               </h2>
               <div className="flex gap-4">
-                <button
-                  className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                  onClick={() => setShowICDGenerator(!showICDGenerator)}
-                  disabled={isLoading || isApproved}
-                >
-                  ICD Code Generator
-                </button>
+                <ICDGenerator
+                  sessionId={sessionId}
+                  showButton={true}
+                  fullWidth={true}
+                  editMode={false}
+                 defaultOpen={false}
+                />
+
                 <SummaryPharmacyGen
                   data={pharmacyData}
                   setData={setPharmacyData}
@@ -824,12 +866,12 @@ const fetchEpicDocumentReferences = useCallback(async () => {
             <div className="flex justify-between items-start">
               <div className="w-full pr-4">
                 <div className="text-gray-700 text-sm leading-relaxed">
-                    {summaryContent === "Summary content not available." ? (
-                      <p>{summaryContent}</p>
-                    ) : (
-                      renderContentSections(summaryContent || "")
-                    )}
-                  </div>
+                  {summaryContent === "Summary content not available." ? (
+                    <p>{summaryContent}</p>
+                  ) : (
+                    renderContentSections(summaryContent || "")
+                  )}
+                </div>
               </div>
               <div className="w-[300px] flex flex-col items-center justify-center">
                 <Image
@@ -942,15 +984,25 @@ const fetchEpicDocumentReferences = useCallback(async () => {
                   </>
                 ) : (
                   <>
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
                     </svg>
                     <span>Refresh</span>
                   </>
                 )}
               </button>
             </div>
-            
+
             {isLoadingEpicDocuments ? (
               <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-600"></div>
@@ -976,7 +1028,7 @@ const fetchEpicDocumentReferences = useCallback(async () => {
                         {doc.status || "Unknown"}
                       </span>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
                       <div>
                         <p className="font-medium">Date:</p>
@@ -988,11 +1040,19 @@ const fetchEpicDocumentReferences = useCallback(async () => {
                       </div>
                       <div>
                         <p className="font-medium">Authors:</p>
-                        <p>{doc.author.length > 0 ? doc.author.join(", ") : "No authors"}</p>
+                        <p>
+                          {doc.author.length > 0
+                            ? doc.author.join(", ")
+                            : "No authors"}
+                        </p>
                       </div>
                       <div>
                         <p className="font-medium">Encounters:</p>
-                        <p>{doc.encounters.length > 0 ? doc.encounters.length : "No encounters"}</p>
+                        <p>
+                          {doc.encounters.length > 0
+                            ? doc.encounters.length
+                            : "No encounters"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1055,39 +1115,24 @@ const fetchEpicDocumentReferences = useCallback(async () => {
         <div className="flex justify-center space-x-4 mt-8 mb-8 relative z-[1]">
           <button
             className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            onClick={handleEpicCounters}
+            onClick={() => {
+              if (epicCounters && epicCounters.length > 0) {
+                setSelectedEncounter(epicCounters[0])
+                setShowPopup(true)
+              } else {
+                showNotification("No encounters available")
+              }
+            }}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
-            <span> Create summary</span>
+            <span>Create Summary</span>
           </button>
-        </div>
-
-        <div className="grid grid-cols-4 mx-auto w-[74%]">
-          {epicCounters.map((item) => (
-            <button 
-              key={item.id} 
-              className="shadow-md p-4 m-2 border rounded-lg text-start hover:border-blue-500 hover:bg-blue-50 transition-colors"
-              onClick={() => {
-                setSelectedEncounter(item)
-                setShowPopup(true)
-              }}
-            >
-              <p className="font-semibold text-gray-700">Encounter Id : {item?.id}</p>
-              <h3 className="text-sm text-gray-600 mt-1">{item.type.join(", ")}</h3>
-              <p className="text-xs text-gray-500 mt-2">Status: {item.status}</p>
-              <p className="text-xs text-gray-500">Service Provider: {item.serviceProvider}</p>
-              <p className="text-xs text-gray-500">
-                Period: {item.period.start}{" "}
-                {item.period.end && `- ${item.period.end}`}
-              </p>
-            </button>
-          ))}
         </div>
 
         {/* Popup Modal */}
         {showPopup && selectedEncounter && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -1104,36 +1149,102 @@ const fetchEpicDocumentReferences = useCallback(async () => {
                   onClick={() => {
                     setShowPopup(false)
                     setIsCreatingNote(false)
+                    setClinicalNote("")
+                    setNoteTypeDisplay("")
                   }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                   disabled={isCreatingNote}
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
 
               <div className="mb-6">
                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Encounter</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">
+                    Selected Encounter
+                  </h4>
                   <div className="space-y-1 text-sm text-gray-600">
-                    <p><span className="font-medium">ID:</span> {selectedEncounter.id}</p>
-                    <p><span className="font-medium">Type:</span> {selectedEncounter.type.join(", ")}</p>
-                    <p><span className="font-medium">Status:</span> {selectedEncounter.status}</p>
-                    <p><span className="font-medium">Provider:</span> {selectedEncounter.serviceProvider}</p>
+                    <p>
+                      <span className="font-medium">Encounter ID:</span>{" "}
+                      {selectedEncounter.id}
+                    </p>
+                    <p>
+                      <span className="font-medium">Type:</span>{" "}
+                      {selectedEncounter.type.join(", ")}
+                    </p>
+                    <p>
+                      <span className="font-medium">Status:</span>{" "}
+                      {selectedEncounter.status}
+                    </p>
+                    <p>
+                      <span className="font-medium">Provider:</span>{" "}
+                      {selectedEncounter.serviceProvider}
+                    </p>
                   </div>
                 </div>
 
                 {!isCreatingNote ? (
-                  <p className="text-sm text-gray-700">
-                    This will create a clinical note in Epic using the summary content from this consultation. 
-                    The note will be associated with the selected encounter.
-                  </p>
+                  <div className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="note-type"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Note Type Display{" "}
+                        <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        id="note-type"
+                        type="text"
+                        value={noteTypeDisplay}
+                        onChange={(e) => setNoteTypeDisplay(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        placeholder="e.g., Progress Note, Consultation Note, etc."
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Specify the type of clinical note (e.g., Progress Note,
+                        Consultation Note)
+                      </p>
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="clinical-note"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        Clinical Note <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        id="clinical-note"
+                        value={clinicalNote}
+                        onChange={(e) => setClinicalNote(e.target.value)}
+                        className="w-full h-64 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                        placeholder="Enter the clinical note content here..."
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        This note will be created in Epic and associated with
+                        the selected encounter.
+                      </p>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex items-center justify-center space-x-3 py-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-600"></div>
-                    <p className="text-sm text-gray-700">Creating clinical note in Epic...</p>
+                    <p className="text-sm text-gray-700">
+                      Creating clinical note in Epic...
+                    </p>
                   </div>
                 )}
               </div>
@@ -1143,6 +1254,8 @@ const fetchEpicDocumentReferences = useCallback(async () => {
                   onClick={() => {
                     setShowPopup(false)
                     setIsCreatingNote(false)
+                    setClinicalNote("")
+                    setNoteTypeDisplay("")
                   }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
                   disabled={isCreatingNote}
@@ -1150,18 +1263,13 @@ const fetchEpicDocumentReferences = useCallback(async () => {
                   Cancel
                 </button>
                 <button
-                  onClick={() => {
-                    setIsCreatingNote(true)
-                    handleSelectedEpic(selectedEncounter, summaryContent)
-                    // Simulate API call - remove setTimeout in production
-                    setTimeout(() => {
-                      setShowPopup(false)
-                      setIsCreatingNote(false)
-                      showNotification("Clinical note created successfully in Epic!")
-                    }, 2000)
-                  }}
+                  onClick={handleCreateClinicalNote}
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
-                  disabled={isCreatingNote}
+                  disabled={
+                    isCreatingNote ||
+                    !clinicalNote.trim() ||
+                    !noteTypeDisplay.trim()
+                  }
                 >
                   {isCreatingNote ? (
                     <>

@@ -8,6 +8,7 @@ interface ICDGeneratorProps {
   fullWidth?: boolean;
   showButton?: boolean;
   defaultOpen?: boolean;
+  editMode?: boolean; // New prop for edit mode
 }
 
 // Define the API response interface for search
@@ -50,7 +51,8 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
   sessionId, 
   fullWidth = false, 
   showButton = false,
-  defaultOpen = true 
+  defaultOpen = true,
+  editMode = false,
 }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   // State for search form inputs
@@ -343,7 +345,7 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
   // Handle close button click
   const handleClose = () => {
     if (showButton) {
-      setIsOpen(false);
+    setIsOpen(false);
     }
     window.dispatchEvent(new CustomEvent('icdGeneratorClose', { detail: { sessionId } }));
   };
@@ -516,14 +518,13 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
             </div>
           )}
         </div>
-
-        {!isEditMode && (
-          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              Enable Edit Summary mode to select/deselect ICD codes.
-            </p>
-          </div>
-        )}
+{editMode && !isEditMode && (
+      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <p className="text-sm text-yellow-800">
+          Enable Edit Summary mode to select/deselect ICD codes.
+        </p>
+      </div>
+    )}
       </div>
     </div>
   );
