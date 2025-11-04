@@ -200,7 +200,7 @@ const SearchPharmacy = ({
           <Loader2 size={48} className="animate-spin text-indigo-600 mb-4" />
           <p className="text-lg text-gray-700">Searching for medications...</p>
           <p className="text-sm text-gray-500 mt-2">
-            Looking for &quot;{debouncedQuery}&quot;
+            Looking for {debouncedQuery}
           </p>
         </div>
       )}
@@ -209,7 +209,7 @@ const SearchPharmacy = ({
       {!loading && !searchError && (hasSearched || data) && (
         <div className="mx-auto mt-6">
           <h2 className="text-2xl font-bold mb-6 text-gray-800">
-            {data?.query ? `Results for &quot;${data.query}&quot;` : 'Search Results'}
+            {data?.query ? `Results for ${data.query}` : 'Search Results'}
           </h2>
 
           {data?.openfda_ndc && data.openfda_ndc.length > 0 ? (
