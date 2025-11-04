@@ -133,12 +133,13 @@ static async SearchDoctor(
 
   static async updateDoctor(doctorData: DoctorCreationTypes, doctorId: number): Promise<UpdateDoctorResponse> {
     try {
-      const response = await fetch(`${API_SERVICE}/doctors/update/${doctorId}`, {
+      const response = await fetch(`${API_SERVICE}/doctors/doctors/update/${doctorId}`, {
         method: 'PUT',
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
+         credentials: 'include',
         body: JSON.stringify(doctorData),
       });
 
@@ -155,12 +156,13 @@ static async SearchDoctor(
 
   static async createDoctor(doctorData: DoctorCreationTypes): Promise<CreateDoctorResponse> {
     try {
-      const response = await fetch(`${API_SERVICE}/doctors/create`, {
+      const response = await fetch(`${API_SERVICE}/doctors/doctors/create`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(doctorData),
       });
 
@@ -177,7 +179,7 @@ static async SearchDoctor(
 
   static async registerPatient(patientData: PatientCreationTypes): Promise<any> {
     try {
-      const response = await fetch(`${API_SERVICE}/patients/create`, {
+      const response = await fetch(`${API_SERVICE}/patients/patients/create`, {
         method: "POST",
         headers: {
           'accept': 'application/json',
@@ -237,7 +239,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
 
   static async updatePatient(patientData: PatientCreationTypes, id:number): Promise<any> {
     try {
-      const response = await fetch(`${API_SERVICE}/patients/update/${id}`, {
+      const response = await fetch(`${API_SERVICE}/patients/patients/update/${id}`, {
         method: "PUT",
         headers: {
           'Content-Type': 'application/json', 
@@ -287,7 +289,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     try {
       const formData = new FormData();
       formData.append('file', audioFile);
-      const response = await fetch(`${API_SERVICE}/doctors/register_voice/${id}`, {
+      const response = await fetch(`${API_SERVICE}/doctors/doctors/register_voice/${id}`, {
         method: "POST",
         body: formData,
         credentials: 'include',
@@ -305,7 +307,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
 
   static async checkPatientVoiceExists(patientId: number): Promise<any> {
     try {
-      const response = await fetch(`${API_SERVICE}/patients/voice_exists?patient_id=${patientId}`, {
+      const response = await fetch(`${API_SERVICE}/patients/patients/voice_exists?patient_id=${patientId}`, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',
@@ -553,7 +555,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
   }
 
   static async getPatientHistory(patientId: number): Promise<any> {
-    const response = await fetch(`${API_SERVICE}/patients/history/${patientId}`, {
+    const response = await fetch(`${API_SERVICE}/patients/patients/history/${patientId}`, {
       method: 'GET',
       headers: {
         'accept': 'application/json'
