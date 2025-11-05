@@ -140,7 +140,7 @@ export default function EpicGenerateSummary({
     const randomSuffix = Math.random().toString(36).substring(2, 8)
     
     return {
-      id: `ePkAIqzjhtEIN.iqexF.AqQ3`,
+      id: `eoK8nLRcEypNjtns4dgnF3Q3`,
       type: ["AMB", "OFFICE_VISIT"],
       status: "in-progress",
       serviceProvider: "Default Healthcare Provider",
@@ -378,12 +378,6 @@ const handleCreateSummaryClick = useCallback(() => {
       showNotification("Please enter a clinical note")
       return
     }
-
-    if (!noteTypeDisplay.trim()) {
-      showNotification("Please enter a note type display")
-      return
-    }
-
     setIsCreatingNote(true)
     
     // Use the selected encounter (either from epicCounters or default)
@@ -1033,106 +1027,113 @@ const handleCreateSummaryClick = useCallback(() => {
               </div>
             </div>
           </div>
-          <div className="rounded-lg shadow-sm p-6 my-6 bg-white">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Epic FHIR Documents
-              </h2>
-              <button
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                onClick={fetchEpicDocumentReferences}
-                disabled={isLoadingEpicDocuments}
+         <div className="rounded-lg shadow-sm p-6 my-6 bg-white">
+  <div className="flex justify-between items-center mb-6">
+    <h2 className="text-lg font-semibold text-gray-900">
+      Epic FHIR Documents
+    </h2>
+    <button
+      className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+      onClick={fetchEpicDocumentReferences}
+      disabled={isLoadingEpicDocuments}
+    >
+      {isLoadingEpicDocuments ? (
+        <>
+          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div>
+          <span>Loading...</span>
+        </>
+      ) : (
+        <>
+          <svg
+            className="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          <span>Refresh</span>
+        </>
+      )}
+    </button>
+  </div>
+
+  {isLoadingEpicDocuments ? (
+    <div className="flex justify-center py-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-600"></div>
+    </div>
+  ) : epicDocuments.length > 0 ? (
+    <>
+      {/* Scrollable container with custom height */}
+      <div className="max-h-80 overflow-y-auto space-y-3 pr-2 
+        /* Custom scrollbar styling */
+        scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 
+        hover:scrollbar-thumb-blue-400">
+        {epicDocuments.map((doc, index) => (
+          <div
+            key={doc.id || `doc-${index}`}
+            className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 transition-colors bg-white"
+          >
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-semibold text-gray-800 text-sm">
+               ID :   {doc.id || "No ID"}
+              </h3>
+              <span
+                className={`px-2 py-1 text-xs rounded-full ${
+                  doc.status === "current"
+                    ? "bg-green-100 text-green-800"
+                    : doc.status === "entered-in-error"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-gray-100 text-gray-800"
+                }`}
               >
-                {isLoadingEpicDocuments ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div>
-                    <span>Loading...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                      />
-                    </svg>
-                    <span>Refresh</span>
-                  </>
-                )}
-              </button>
+             {doc.status || "Unknown"}
+              </span>
             </div>
 
-            {isLoadingEpicDocuments ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-600"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+              <div>
+                <p className="font-medium text-xs text-gray-500">Date:</p>
+                <p className="text-sm">{formatDisplayDate(doc.date)}</p>
               </div>
-            ) : epicDocuments.length > 0 ? (
-              <div className="space-y-4">
-                {epicDocuments.map((doc, index) => (
-                  <div
-                    key={doc.id || `doc-${index}`}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-gray-800">
-                        {doc.id || "No ID"}
-                      </h3>
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          doc.status === "current"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {doc.status || "Unknown"}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-                      <div>
-                        <p className="font-medium">Date:</p>
-                        <p>{formatDisplayDate(doc.date)}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Type:</p>
-                        <p>{getDisplayTypes(doc.type).join(", ")}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Authors:</p>
-                        <p>
-                          {doc.author.length > 0
-                            ? doc.author.join(", ")
-                            : "No authors"}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-medium">Encounters:</p>
-                        <p>
-                          {doc.encounters.length > 0
-                            ? doc.encounters.length
-                            : "No encounters"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div>
+                <p className="font-medium text-xs text-gray-500">Type:</p>
+                <p className="text-sm">{getDisplayTypes(doc.type).join(", ")}</p>
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No Epic documents found.</p>
+              <div>
+                <p className="font-medium text-xs text-gray-500">Authors:</p>
+                <p className="text-sm">
+                  {doc.author.length > 0
+                    ? doc.author.map(author => 
+                        author.includes('/') ? author.split('/')[1] : author
+                      ).join(", ")
+                    : "No authors"}
+                </p>
               </div>
-            )}
-            <div className="mt-4 text-sm text-gray-500">
-              <p>Total documents: {epicDocuments.length}</p>
+              <div>
+                <p className="font-medium text-xs text-gray-500">Encounters:</p>
+                <p className="text-sm">
+                  {doc.encounters.length > 0
+                    ? doc.encounters.length
+                    : "No encounters"}
+                </p>
+              </div>
             </div>
           </div>
+        ))}
+      </div>
+    </>
+  ) : (
+    <div className="text-center py-8">
+      <p className="text-gray-500">No Epic documents found.</p>
+    </div>
+  )}
+</div>
 
           <span className="bottomlinerGrading">
             <svg
@@ -1267,27 +1268,6 @@ const handleCreateSummaryClick = useCallback(() => {
                   <div className="space-y-4">
                     <div>
                       <label
-                        htmlFor="note-type"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Note Type Display{" "}
-                        <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        id="note-type"
-                        type="text"
-                        value={noteTypeDisplay}
-                        onChange={(e) => setNoteTypeDisplay(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                        placeholder="e.g., Progress Note, Consultation Note, etc."
-                      />
-                      <p className="mt-1 text-xs text-gray-500">
-                        Specify the type of clinical note (e.g., Progress Note,
-                        Consultation Note)
-                      </p>
-                    </div>
-                    <div>
-                      <label
                         htmlFor="clinical-note"
                         className="block text-sm font-medium text-gray-700 mb-2"
                       >
@@ -1322,7 +1302,6 @@ const handleCreateSummaryClick = useCallback(() => {
                     setShowPopup(false)
                     setIsCreatingNote(false)
                     setClinicalNote("")
-                    setNoteTypeDisplay("")
                   }}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
                   disabled={isCreatingNote}
@@ -1334,8 +1313,7 @@ const handleCreateSummaryClick = useCallback(() => {
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
                   disabled={
                     isCreatingNote ||
-                    !clinicalNote.trim() ||
-                    !noteTypeDisplay.trim()
+                    !clinicalNote.trim()
                   }
                 >
                   {isCreatingNote ? (

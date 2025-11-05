@@ -910,44 +910,45 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-  static async createEpicDocumentReference(
-    tokenId: string,
-    patientId: string,
-    encounterId: string,
-    noteText: string,
-  ): Promise<any> {
-    try {
-      const url = new URL(`${API_SERVICE}/epic/fhir/documentreference`);
-      url.searchParams.append('token_id', tokenId);
-      url.searchParams.append('patient_id', patientId);
-      url.searchParams.append('encounter_id', encounterId);
-      url.searchParams.append('title', "Doctor Assistant Summary");
-      url.searchParams.append('content_type', 'text/plain');
-      url.searchParams.append('note_type_display',  'Progress note');
+static async createEpicDocumentReference(
+  tokenId: string,
+  patientId: string,
+  encounterId: string,
+  noteText: string,
+): Promise<any> {
+  try {
+    const url = new URL(`${API_SERVICE}/epic/fhir/documentreference`);
+    url.searchParams.append('token_id', tokenId);
+    url.searchParams.append('patient_id', patientId);
+    url.searchParams.append('encounter_id', encounterId);
+    url.searchParams.append('title', 'Doctor Assistant Summary');
+    url.searchParams.append('content_type', 'text/plain');
+    url.searchParams.append('note_type_system', 'http://loinc.org');
+    url.searchParams.append('note_type_code', '11506-3');
+    url.searchParams.append('note_type_display', 'Progress note');
 
-      const response = await fetch(url.toString(), {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          note_text: noteText
-        })
-      });
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        note_text: noteText
+      })
+    });
 
-      if (!response.ok) {
-        throw new Error(`Failed to create document reference: ${response.statusText}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Epic document reference creation error:', error);
-      throw error;
+    if (!response.ok) {
+      throw new Error(`Failed to create document reference: ${response.statusText}`);
     }
-  }
 
+    return await response.json();
+  } catch (error) {
+    console.error('Epic document reference creation error:', error);
+    throw error;
+  }
+}
   // In your APIService file (../service/api.ts)
 static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean; data?: any; message?: string }> {
   try {
