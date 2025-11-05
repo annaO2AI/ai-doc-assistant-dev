@@ -895,7 +895,8 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
         method: 'GET',
         headers: {
           'accept': 'application/json'
-        }
+        },
+          credentials: 'include',
       });
 
       if (!response.ok) {
@@ -930,6 +931,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
           'accept': 'application/json',
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           note_text: noteText
         })
@@ -955,6 +957,7 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
+      credentials: 'include',
     });
     
     if (!response.ok) {
@@ -989,6 +992,7 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
           headers: {
             'accept': 'application/json',
           },
+          credentials: 'include',
         }
       );
 
@@ -1007,7 +1011,7 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
     try {
       const response = await fetch(`${API_SERVICE}/epic/auth/session`, {
         method: 'GET',
-         credentials: "include",
+        credentials: "include",
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json'
