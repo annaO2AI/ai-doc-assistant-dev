@@ -1019,15 +1019,15 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
     }
   }
 
-  static async epicStartSession(patientId: string | number, practitionerId: string, tokenId: string) {
+  static async epicStartSession(patientId: string | number, practitionerId: string) {
     try {
-      const headers = await this.getAuthHeaders(tokenId);
+      // const headers = await this.getAuthHeaders(tokenId);
       
       const response = await fetch(`${API_SERVICE}/session/start?epic_practitioner_id=${practitionerId}&epic_patient_id=${patientId}`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
-          ...headers,
+          // ...headers,
         },
         credentials: 'include',
       });
