@@ -6,7 +6,7 @@ import { PatientProfile } from "./patientProfile"
 import EpicPatientSearch from "./epicPatientSearch"
 import { DoctorProfile } from "./DoctorProfile"
 import EpicDoctorSearch from "./epicDoctorSearch"
-import { epicPatientResponse, EpicPractitioner } from "../types"
+import { epicPatientResponse, EpicPractitioner, Medication } from "../types"
 import { recordingProps } from "./page"
 
 export default function CheckPatientAndDoctor({
@@ -60,6 +60,11 @@ export default function CheckPatientAndDoctor({
     handleStartSession();
   };
 
+  const handleMedicationSelect = (medication: Medication) => {
+  console.log("Selected Medication Request ID:", medication.id);
+  console.log("Full medication data:", medication);
+};
+
   return (
     <div className="flex Patient-voice mx-auto w-[80%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
       <PatientProfile
@@ -74,6 +79,7 @@ export default function CheckPatientAndDoctor({
             selectedPatient={selectedPatient}
             onClose={() => setShowEpicPatientSearch(false)}
             selectedDoctor={practitionerData}
+             onSelectMedication={handleMedicationSelect}
           />
         </div>
       )}

@@ -293,3 +293,305 @@ export type EpicDocumentReferenceResponse = {
   items: DocumentReference[]
   epic_status: number
 }
+
+// types/medication.ts
+export interface Medication {
+  resourceType: string;
+  id: string;
+  identifier: Array<{
+    use: string;
+    system: string;
+    value: string;
+  }>;
+  status: string;
+  intent: string;
+  category: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  medicationReference: {
+    reference: string;
+    display: string;
+  };
+  subject: {
+    reference: string;
+    display: string;
+  };
+  encounter?: {
+    reference: string;
+    identifier: {
+      use: string;
+      system: string;
+      value: string;
+    };
+    display: string;
+  };
+  authoredOn: string;
+  requester: {
+    reference: string;
+    type: string;
+    display: string;
+  };
+  recorder?: {
+    reference: string;
+    type: string;
+    display: string;
+  };
+  reasonCode?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  courseOfTherapyType?: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  dosageInstruction: Array<{
+    text: string;
+    patientInstruction?: string;
+    timing?: {
+      repeat?: {
+        boundsPeriod?: {
+          start: string;
+        };
+        count?: number;
+        timeOfDay?: string[];
+      };
+      code?: {
+        text: string;
+      };
+    };
+    asNeededBoolean?: boolean;
+    route?: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+      text: string;
+    };
+    method?: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+      text: string;
+    };
+    doseAndRate?: Array<{
+      type?: {
+        coding: Array<{
+          system: string;
+          code: string;
+          display: string;
+        }>;
+        text: string;
+      };
+      doseQuantity?: {
+        value: number;
+        unit: string;
+        system?: string;
+        code?: string;
+      };
+    }>;
+  }>;
+  dispenseRequest?: {
+    validityPeriod?: {
+      start: string;
+    };
+    numberOfRepeatsAllowed?: number;
+    quantity?: {
+      value: number;
+      unit: string;
+    };
+    expectedSupplyDuration?: {
+      value: number;
+      unit: string;
+      system?: string;
+      code?: string;
+    };
+  };
+}
+
+export interface MedicationsResponse {
+  resourceType: string;
+  type: string;
+  total: number;
+  link: Array<{
+    relation: string;
+    url: string;
+  }>;
+  entry: Array<{
+    link: Array<{
+      relation: string;
+      url: string;
+    }>;
+    fullUrl: string;
+    resource: Medication;
+    search: {
+      mode: string;
+    };
+  }>;
+}
+
+export interface FormattedMedication {
+  name: string;
+  status: string;
+  dosage: string;
+  prescriber: string;
+  date: string;
+  identifier: string;
+  category: string;
+  reason: string;
+  therapyType: string;
+  timing: string;
+  route: string;
+  quantity?: number;
+  unit?: string;
+  duration?: number;
+  durationUnit?: string;
+  repeatsAllowed?: number;
+  medicationRequestId: string;
+}
+
+// types/medication.ts - Add this interface
+
+export interface IndividualMedicationResponse {
+  resourceType: string;
+  id: string;
+  identifier: Array<{
+    use: string;
+    system: string;
+    value: string;
+  }>;
+  status: string;
+  intent: string;
+  category: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  medicationReference: {
+    reference: string;
+    display: string;
+  };
+  subject: {
+    reference: string;
+    display: string;
+  };
+  encounter?: {
+    reference: string;
+    identifier: {
+      use: string;
+      system: string;
+      value: string;
+    };
+    display: string;
+  };
+  authoredOn: string;
+  requester: {
+    reference: string;
+    type: string;
+    display: string;
+  };
+  recorder?: {
+    reference: string;
+    type: string;
+    display: string;
+  };
+  reasonCode?: Array<{
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  }>;
+  courseOfTherapyType?: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+    text: string;
+  };
+  dosageInstruction: Array<{
+    text: string;
+    patientInstruction?: string;
+    timing?: {
+      repeat?: {
+        boundsPeriod?: {
+          start: string;
+        };
+        count?: number;
+        timeOfDay?: string[];
+      };
+      code?: {
+        text: string;
+      };
+    };
+    asNeededBoolean?: boolean;
+    route?: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+      text: string;
+    };
+    method?: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+      text: string;
+    };
+    doseAndRate?: Array<{
+      type?: {
+        coding: Array<{
+          system: string;
+          code: string;
+          display: string;
+        }>;
+        text: string;
+      };
+      doseQuantity?: {
+        value: number;
+        unit: string;
+        system?: string;
+        code?: string;
+      };
+    }>;
+  }>;
+  dispenseRequest?: {
+    validityPeriod?: {
+      start: string;
+    };
+    numberOfRepeatsAllowed?: number;
+    quantity?: {
+      value: number;
+      unit: string;
+    };
+    expectedSupplyDuration?: {
+      value: number;
+      unit: string;
+      system?: string;
+      code?: string;
+    };
+  };
+}

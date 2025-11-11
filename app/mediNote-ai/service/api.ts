@@ -1,7 +1,83 @@
 import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, EpicPatientsResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner, EpicDocumentReferenceResponse } from "../types";
 import { API_BASE_URL_AISEARCH_MediNote, API_ROUTES } from "../../constants/api";
-import { promises } from "dns";
+
 const API_SERVICE = "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net"
+
+// Token service for managing access tokens
+class TokenService {
+  private token: string | null = null;
+  private tokenExpiry: number | null = null;
+  private tokenPromise: Promise<string> | null = null;
+  private currentTokenId: string | null = null;
+
+  async getToken(tokenId: string): Promise<string> {
+    // Clear token if tokenId changed
+    if (this.currentTokenId !== tokenId) {
+      this.clearToken();
+      this.currentTokenId = tokenId;
+    }
+
+    // Return cached token if valid
+    if (this.token && this.tokenExpiry && Date.now() < this.tokenExpiry) {
+      return this.token;
+    }
+
+    // If already fetching token, return the existing promise
+    if (this.tokenPromise) {
+      return this.tokenPromise;
+    }
+
+    // Fetch new token
+    this.tokenPromise = this.fetchToken(tokenId);
+    try {
+      const token = await this.tokenPromise;
+      return token;
+    } finally {
+      this.tokenPromise = null;
+    }
+  }
+
+  private async fetchToken(tokenId: string): Promise<string> {
+    try {
+      const response = await fetch(
+        `${API_SERVICE}/epic/token/${tokenId}/access`,
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Token fetch failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      this.token = data.access_token;
+      if (!this.token) {
+        throw new Error('Access token not found in response');
+      }
+      
+      return this.token;
+    } catch (error) {
+      console.error('Error fetching token:', error);
+      this.token = null;
+      this.tokenExpiry = null;
+      throw error;
+    }
+  }
+
+  clearToken(): void {
+    this.token = null;
+    this.tokenExpiry = null;
+    this.tokenPromise = null;
+    this.currentTokenId = null;
+  }
+}
+
+// Create singleton instance
+export const tokenService = new TokenService();
 
 export class APIService {
   static async healthCheck(): Promise<HealthResponse> {
@@ -22,7 +98,7 @@ export class APIService {
     }
   }
 
-  static async enrollVoice(speakerType: 'doctors' | 'patients', audioFile: File): Promise<any> {
+   static async enrollVoice(speakerType: 'doctors' | 'patients', audioFile: File): Promise<any> {
     try {
       const formData = new FormData();
       formData.append('file', audioFile);
@@ -815,39 +891,120 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-    static async searchEpicPatients(tokenId: string): Promise<EpicPatientsResponse> {
+private static async getAuthHeaders(tokenId: string): Promise<Record<string, string>> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (tokenId) {
+      try {
+        const token = await tokenService.getToken(tokenId);
+        headers['Authorization'] = `Bearer ${token}`;
+      } catch (error) {
+        console.warn('Failed to get token, proceeding without authorization header');
+      }
+    }
+
+    return headers;
+  }
+
+  // service/api.ts - Add this method to your APIService class
+
+static async getEpicMedicationById(medicationRequestId: string, tokenId: string): Promise<any> {
   try {
+    const headers = await this.getAuthHeaders(tokenId);
+    
     const response = await fetch(
-      `${API_SERVICE}/epic/fhir/patients/demo-names?token_id=${tokenId}`,
+      `${API_SERVICE}/epic/fhir/meds/${medicationRequestId}`,
       {
         method: 'GET',
         headers: {
           'accept': 'application/json',
+          ...headers,
         },
+        credentials: 'include',
       }
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch patients: ${response.statusText}`);
+      throw new Error(`Failed to fetch medication: ${response.statusText}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Epic patients search error:', error);
+    console.error('Epic medication by ID search error:', error);
     throw error;
   }
 }
+
+  static async getEpicMedications(patientId: string, tokenId: string): Promise<any> {
+    try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
+      const response = await fetch(
+        `${API_SERVICE}/epic/fhir/meds/search?patient=${patientId}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+            ...headers,
+          },
+          credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch medications: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Epic medications search error:', error);
+      throw error;
+    }
+  }
+
+  static async searchEpicPatients(tokenId: string): Promise<EpicPatientsResponse> {
+    try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
+      const response = await fetch(
+        `${API_SERVICE}/epic/fhir/patients/demo-names?token_id=${tokenId}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+            ...headers,
+          },
+          credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch patients: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Epic patients search error:', error);
+      throw error;
+    }
+  }
   
   // Epic FHIR Practitioner API
   static async searchEpicPractitioner(practitionerId: string, tokenId: string): Promise<EpicPractitioner> {
     try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
       const response = await fetch(
         `${API_SERVICE}/epic/fhir/practitioner/${practitionerId}/name?token_id=${tokenId}`,
         {
           method: 'GET',
           headers: {
             'accept': 'application/json',
+            ...headers,
           },
+          credentials: 'include',
         }
       );
 
@@ -862,12 +1019,15 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-  static async epicStartSession(patientId: string | number, practitionerId: string) {
+  static async epicStartSession(patientId: string | number, practitionerId: string, tokenId: string) {
     try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
       const response = await fetch(`${API_SERVICE}/session/start?epic_practitioner_id=${practitionerId}&epic_patient_id=${patientId}`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
+          ...headers,
         },
         credentials: 'include',
       });
@@ -884,8 +1044,11 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
       throw error;
     }
   }
+
   static async getEpicEncounters(tokenId: string, patientId: string, count: number = 50): Promise<any> {
     try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
       const url = new URL(`${API_SERVICE}/epic/fhir/encounters`);
       url.searchParams.append('token_id', tokenId);
       url.searchParams.append('patient_id', patientId);
@@ -894,9 +1057,10 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
       const response = await fetch(url.toString(), {
         method: 'GET',
         headers: {
-          'accept': 'application/json'
+          'accept': 'application/json',
+          ...headers,
         },
-          credentials: 'include',
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -910,75 +1074,78 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-static async createEpicDocumentReference(
-  tokenId: string,
-  patientId: string,
-  encounterId: string,
-  noteText: string,
-): Promise<any> {
-  try {
-    const url = new URL(`${API_SERVICE}/epic/fhir/documentreference`);
-    url.searchParams.append('token_id', tokenId);
-    url.searchParams.append('patient_id', patientId);
-    url.searchParams.append('encounter_id', encounterId);
-    url.searchParams.append('title', 'Doctor Assistant Summary');
-    url.searchParams.append('content_type', 'text/plain');
-    url.searchParams.append('note_type_system', 'http://loinc.org');
-    url.searchParams.append('note_type_code', '11506-3');
-    url.searchParams.append('note_type_display', 'Progress note');
+  static async createEpicDocumentReference(
+    tokenId: string,
+    patientId: string,
+    encounterId: string,
+    noteText: string,
+  ): Promise<any> {
+    try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
+      const url = new URL(`${API_SERVICE}/epic/fhir/documentreference`);
+      url.searchParams.append('token_id', tokenId);
+      url.searchParams.append('patient_id', patientId);
+      url.searchParams.append('encounter_id', encounterId);
+      url.searchParams.append('title', 'Doctor Assistant Summary');
+      url.searchParams.append('content_type', 'text/plain');
+      url.searchParams.append('note_type_system', 'http://loinc.org');
+      url.searchParams.append('note_type_code', '11506-3');
+      url.searchParams.append('note_type_display', 'Progress note');
 
-    const response = await fetch(url.toString(), {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        note_text: noteText
-      })
-    });
+      const response = await fetch(url.toString(), {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+          ...headers,
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          note_text: noteText
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(`Failed to create document reference: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Failed to create document reference: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Epic document reference creation error:', error);
+      throw error;
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Epic document reference creation error:', error);
-    throw error;
   }
-}
-  // In your APIService file (../service/api.ts)
-static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean; data?: any; message?: string }> {
-  try {
-    const response = await fetch('/api/epic/fhir/documentreference', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-      credentials: 'include',
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+
+  static async saveToEpicDocumentReference(tokenId: string, data: any): Promise<{ success: boolean; data?: any; message?: string }> {
+    try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
+      const response = await fetch('/api/epic/fhir/documentreference', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...headers,
+        },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('Error saving to Epic DocumentReference:', error);
+      return { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to save to Epic DocumentReference' 
+      };
     }
-    
-    const result = await response.json();
-    return { success: true, data: result };
-  } catch (error) {
-    console.error('Error saving to Epic DocumentReference:', error);
-    return { 
-      success: false, 
-      message: error instanceof Error ? error.message : 'Failed to save to Epic DocumentReference' 
-    };
   }
-}
-
-
-
 
   static async getEpicDocumentReferences(
     tokenId: string, 
@@ -986,12 +1153,15 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
     count: number = 100
   ): Promise<EpicDocumentReferenceResponse> {
     try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
       const response = await fetch(
-        `https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/epic/fhir/documentreference?token_id=${tokenId}&patient_id=${patientId}&count=${count}`,
+        `${API_SERVICE}/epic/fhir/documentreference?token_id=${tokenId}&patient_id=${patientId}&count=${count}`,
         {
           method: 'GET',
           headers: {
             'accept': 'application/json',
+            ...headers,
           },
           credentials: 'include',
         }
@@ -1008,14 +1178,18 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
       throw error;
     }
   }
-  static async getEpicSession(): Promise<any> {
+
+  static async getEpicSession(tokenId: string): Promise<any> {
     try {
+      const headers = await this.getAuthHeaders(tokenId);
+      
       const response = await fetch(`${API_SERVICE}/epic/auth/session`, {
         method: 'GET',
         credentials: "include",
         headers: {
           'accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          ...headers,
         }
       });
 
@@ -1027,6 +1201,22 @@ static async saveToEpicDocumentReference(data: any): Promise<{ success: boolean;
     } catch (error) {
       console.error('Error getting Epic session:', error);
       throw error;
+    }
+  }
+
+  // NEW: Method to manually refresh token if needed
+  static async refreshToken(tokenId: string): Promise<void> {
+    tokenService.clearToken();
+    await tokenService.getToken(tokenId);
+  }
+
+  // NEW: Method to check if token is available
+  static async hasValidToken(tokenId: string): Promise<boolean> {
+    try {
+      await tokenService.getToken(tokenId);
+      return true;
+    } catch {
+      return false;
     }
   }
 }

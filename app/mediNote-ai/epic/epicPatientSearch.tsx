@@ -1,27 +1,34 @@
 // components/EpicPatientSearch.tsx
-import React, { useState, useEffect } from "react";
-import { APIService } from "../service/api"; 
-import { EpicPatient } from "../types"
+import React, { useState, useEffect } from "react"
+import { APIService } from "../service/api"
+import {
+  EpicPatient,
+  Medication,
+  MedicationsResponse,
+  FormattedMedication,
+  IndividualMedicationResponse,
+} from "../types"
 
 interface EpicPatientSearchProps {
-  tokenId: string;
-  onSelectPatient: (patient: { 
-    id: string; 
-    first_name: string; 
-    last_name: string; 
-    full_name: string; 
-    mrn: string;
-    patientMId: string;
-  }) => void;
-  selectedPatient: { 
-    id: string; 
-    first_name: string; 
-    last_name: string; 
-    full_name: string; 
-    mrn: string;
-  } | null;
-  onClose: () => void;
-  selectedDoctor: any;
+  tokenId: string
+  onSelectPatient: (patient: {
+    id: string
+    first_name: string
+    last_name: string
+    full_name: string
+    mrn: string
+    patientMId: string
+  }) => void
+  selectedPatient: {
+    id: string
+    first_name: string
+    last_name: string
+    full_name: string
+    mrn: string
+  } | null
+  onClose: () => void
+  selectedDoctor: any
+  onSelectMedication?: (medication: Medication) => void
 }
 
 export default function EpicPatientSearch({
@@ -30,55 +37,137 @@ export default function EpicPatientSearch({
   selectedPatient,
   onClose,
   selectedDoctor,
+  onSelectMedication,
 }: EpicPatientSearchProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [patients, setPatients] = useState<EpicPatient[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false)
+  const [loadingPatientId, setLoadingPatientId] = useState<string | null>(null)
+  const [individualMedLoading, setIndividualMedLoading] = useState<
+    string | null
+  >(null)
+  const [error, setError] = useState<string | null>(null)
+  const [medsError, setMedsError] = useState<string | null>(null)
+  const [patients, setPatients] = useState<EpicPatient[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [medications, setMedications] = useState<Medication[]>([])
+  const [individualMedications, setIndividualMedications] = useState<{
+    [key: string]: IndividualMedicationResponse
+  }>({})
+  const [showMedications, setShowMedications] = useState(false)
+  const [selectedPatientForMeds, setSelectedPatientForMeds] =
+    useState<EpicPatient | null>(null)
+  const [selectedMedication, setSelectedMedication] =
+    useState<Medication | null>(null)
+  const [expandedMedicationId, setExpandedMedicationId] = useState<
+    string | null
+  >(null)
 
   // Fetch patients on component mount
   useEffect(() => {
-    fetchPatients();
-  }, []);
+    fetchPatients()
+  }, [])
 
   const fetchPatients = async () => {
     if (!tokenId) {
-      setError("Authentication token is required");
-      return;
+      setError("Authentication token is required")
+      return
     }
 
     try {
-      setLoading(true);
-      setError(null);
-      const data = await APIService.searchEpicPatients(tokenId);
-      
+      setLoading(true)
+      setError(null)
+      const data = await APIService.searchEpicPatients(tokenId)
+
       if (data.items && data.items.length > 0) {
-        setPatients(data.items);
+        setPatients(data.items)
       } else {
-        setError("No patients found");
+        setError("No patients found")
       }
     } catch (err) {
       setError(
-        err instanceof Error 
-          ? `Error: ${err.message}` 
+        err instanceof Error
+          ? `Error: ${err.message}`
           : "Failed to fetch patients"
-      );
-      setPatients([]);
+      )
+      setPatients([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
+  const fetchMedications = async (patientId: string) => {
+    if (!patientId) {
+      setMedsError("Patient ID is required")
+      return
+    }
+
+    try {
+      setLoadingPatientId(patientId)
+      setMedsError(null)
+      const data: MedicationsResponse = await APIService.getEpicMedications(
+        patientId,
+        tokenId
+      )
+
+      if (data.entry && data.entry.length > 0) {
+        setMedications(data.entry.map((entry) => entry.resource))
+        setShowMedications(true)
+      } else {
+        setMedsError("No medications found for this patient")
+        setMedications([])
+        setShowMedications(true)
+      }
+    } catch (err) {
+      setMedsError(
+        err instanceof Error
+          ? `Error fetching medications: ${err.message}`
+          : "Failed to fetch medications"
+      )
+      setMedications([])
+      setShowMedications(true)
+    } finally {
+      setLoadingPatientId(null)
+    }
+  }
+
+  const handleMedsSearch = (patient: EpicPatient) => {
+    if (patient) {
+      setSelectedPatientForMeds(patient)
+      fetchMedications(patient.id)
+    }
+  }
+
+  // NEW: Fetch individual medication details
+  const fetchIndividualMedication = async (medicationRequestId: string) => {
+    if (!medicationRequestId) return
+
+    try {
+      setIndividualMedLoading(medicationRequestId)
+      const medicationData = await APIService.getEpicMedicationById(
+        medicationRequestId,
+        tokenId
+      )
+
+      setIndividualMedications((prev) => ({
+        ...prev,
+        [medicationRequestId]: medicationData,
+      }))
+    } catch (err) {
+      console.error(`Error fetching medication ${medicationRequestId}:`, err)
+    } finally {
+      setIndividualMedLoading(null)
+    }
+  }
 
   const handleSelectPatient = (patient: EpicPatient) => {
     // Check if doctor is selected first
     if (!selectedDoctor) {
-      setError("Please select a practitioner first before selecting a patient");
-      return;
+      setError("Please select a practitioner first before selecting a patient")
+      return
     }
 
-    const firstName = patient.given[0] || "Patient";
-    const lastName = patient.family || "Unknown";
-    
+    const firstName = patient.given[0] || "Patient"
+    const lastName = patient.family || "Unknown"
+
     // Use MRN as the patient ID
     onSelectPatient({
       id: patient.mrn,
@@ -86,31 +175,150 @@ export default function EpicPatientSearch({
       last_name: lastName,
       full_name: patient.full_name,
       mrn: patient.mrn,
-      patientMId: patient.id || ""
-    });
-    // Don't close here - let parent handle it
-  };
+      patientMId: patient.id || "",
+    })
+
+    // Set the patient for medications
+    setSelectedPatientForMeds(patient)
+
+    // Reset medications when selecting a new patient
+    setMedications([])
+    setShowMedications(false)
+    setMedsError(null)
+    setSelectedMedication(null)
+    setIndividualMedications({})
+    setExpandedMedicationId(null)
+  }
+
+  const handleCloseMedications = () => {
+    setShowMedications(false)
+    setMedications([])
+    setMedsError(null)
+    setSelectedPatientForMeds(null)
+    setSelectedMedication(null)
+    setIndividualMedications({})
+    setExpandedMedicationId(null)
+  }
+
+  // NEW: Handle medication selection
+  const handleSelectMedication = (medication: Medication) => {
+    setSelectedMedication(medication)
+
+    // Pass medication data to parent component if callback provided
+    if (onSelectMedication) {
+      onSelectMedication(medication)
+    }
+  }
+
+  // NEW: Toggle medication details
+  const toggleMedicationDetails = (medicationId: string) => {
+    if (expandedMedicationId === medicationId) {
+      setExpandedMedicationId(null)
+    } else {
+      setExpandedMedicationId(medicationId)
+      // Fetch individual medication details if not already loaded
+      if (!individualMedications[medicationId]) {
+        fetchIndividualMedication(medicationId)
+      }
+    }
+  }
+
+  // NEW: Handle medication request ID submission
+  const handleSubmitMedicationRequest = async (medication: Medication) => {
+    try {
+      console.log("Submitting medication request:", {
+        medicationRequestId: medication.id,
+        medicationData: medication,
+      })
+    } catch (error) {
+      console.error("Error submitting medication request:", error)
+      alert("Failed to submit medication request")
+    }
+  }
 
   // Filter patients based on search query
-  const filteredPatients = patients.filter(patient =>
-    patient.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    patient.mrn.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    patient.family.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    patient.given.some(name => name.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredPatients = patients.filter(
+    (patient) =>
+      patient.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.mrn.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.family.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.given.some((name) =>
+        name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+  )
+
+  // Enhanced medication display formatter
+  const formatMedicationDisplay = (med: Medication): FormattedMedication => {
+    const medName = med.medicationReference?.display || "Unknown Medication"
+    const status = med.status
+    const dosage = med.dosageInstruction?.[0]?.text || "No dosage instructions"
+    const prescriber = med.requester?.display || "Unknown prescriber"
+    const date = med.authoredOn
+      ? new Date(med.authoredOn).toLocaleDateString()
+      : "Unknown date"
+    const identifier = med.identifier?.[0]?.value || "No identifier"
+    const category = med.category?.[0]?.text || "Unknown category"
+    const reason = med.reasonCode?.[0]?.text || "No reason specified"
+    const therapyType = med.courseOfTherapyType?.text || "Not specified"
+
+    return {
+      name: medName,
+      status,
+      dosage,
+      prescriber,
+      date,
+      identifier,
+      category,
+      reason,
+      therapyType,
+      timing:
+        med.dosageInstruction?.[0]?.timing?.repeat?.timeOfDay?.[0] ||
+        "No specific time",
+      route: med.dosageInstruction?.[0]?.route?.text || "Unknown route",
+      quantity: med.dispenseRequest?.quantity?.value,
+      unit: med.dispenseRequest?.quantity?.unit,
+      duration: med.dispenseRequest?.expectedSupplyDuration?.value,
+      durationUnit: med.dispenseRequest?.expectedSupplyDuration?.unit,
+      repeatsAllowed: med.dispenseRequest?.numberOfRepeatsAllowed,
+      medicationRequestId: med.id,
+    }
+  }
+
+  // NEW: Format individual medication details for display
+  const formatIndividualMedicationDetails = (
+    med: IndividualMedicationResponse
+  ) => {
+    const formatted = formatMedicationDisplay(med as Medication)
+
+    return {
+      ...formatted,
+      fullDetails: med,
+    }
+  }
 
   return (
-    <div className="epic-patient-search bg-white rounded-lg shadow-lg p-6 max-w-4xl w-full mx-auto max-h-[80vh] overflow-hidden flex flex-col">
+    <div className="epic-patient-search bg-white rounded-lg shadow-lg p-6 max-w-6xl w-full mx-auto max-h-[90vh] overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Search Epic Patients</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          Search Epic Patients
+        </h3>
         <button
           onClick={onClose}
           className="text-gray-400 hover:text-gray-600 transition-colors"
           aria-label="Close"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.89705 4.05379L3.96967 3.96967C4.23594 3.7034 4.6526 3.6792 4.94621 3.89705L5.03033 3.96967L10 8.939L14.9697 3.96967C15.2359 3.7034 15.6526 3.6792 15.9462 3.89705L16.0303 3.96967C16.2966 4.23594 16.3208 4.6526 16.1029 4.94621L16.0303 5.03033L11.061 10L16.0303 14.9697C16.2966 15.2359 16.3208 15.6526 16.1029 15.9462L16.0303 16.0303C15.7641 16.2966 15.3474 16.3208 15.0538 16.1029L14.9697 16.0303L10 11.061L5.03033 16.0303C4.76406 16.2966 4.3474 16.3208 4.05379 16.1029L3.96967 16.0303C3.7034 15.7641 3.6792 15.3474 3.89705 15.0538L3.96967 14.9697L8.939 10L3.96967 5.03033C3.7034 4.76406 3.6792 4.3474 3.89705 4.05379L3.96967 3.96967L3.89705 4.05379Z" fill="currentColor"/>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3.89705 4.05379L3.96967 3.96967C4.23594 3.7034 4.6526 3.6792 4.94621 3.89705L5.03033 3.96967L10 8.939L14.9697 3.96967C16.2966 3.7034 16.3208 4.6526 16.1029 4.94621L16.0303 5.03033L11.061 10L16.0303 14.9697C16.2966 15.2359 16.3208 15.6526 16.1029 15.9462L16.0303 16.0303C15.7641 16.2966 15.3474 16.3208 15.0538 16.1029L14.9697 16.0303L10 11.061L5.03033 16.0303C4.76406 16.2966 4.3474 16.3208 4.05379 16.1029L3.96967 16.0303C3.7034 15.7641 3.6792 15.3474 3.89705 15.0538L3.96967 14.9697L8.939 10L3.96967 5.03033C3.7034 4.76406 3.6792 4.3474 3.89705 4.05379L3.96967 3.96967L3.89705 4.05379Z"
+              fill="currentColor"
+            />
           </svg>
         </button>
       </div>
@@ -119,11 +327,20 @@ export default function EpicPatientSearch({
       {!selectedDoctor && (
         <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              className="w-5 h-5 text-yellow-600 mr-2 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
             <p className="text-sm text-yellow-700">
-              <strong>Please select a practitioner first</strong> before selecting a patient
+              <strong>Please select a practitioner first</strong> before
+              selecting a patient
             </p>
           </div>
         </div>
@@ -132,11 +349,20 @@ export default function EpicPatientSearch({
       {selectedDoctor && (
         <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-green-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            <svg
+              className="w-5 h-5 text-green-600 mr-2 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
             </svg>
             <p className="text-sm text-green-700">
-              Practitioner selected : <strong>{selectedDoctor.full_name}</strong>
+              Practitioner selected :{" "}
+              <strong>{selectedDoctor.full_name}</strong>
             </p>
           </div>
         </div>
@@ -153,18 +379,24 @@ export default function EpicPatientSearch({
             className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             disabled={!selectedDoctor}
           />
-          <svg 
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
         </div>
         {searchQuery && (
           <p className="text-xs text-gray-500 mt-1">
-            Found {filteredPatients.length} patient{filteredPatients.length !== 1 ? 's' : ''}
+            Found {filteredPatients.length} patient
+            {filteredPatients.length !== 1 ? "s" : ""}
           </p>
         )}
       </div>
@@ -173,8 +405,16 @@ export default function EpicPatientSearch({
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-red-600 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            <svg
+              className="w-5 h-5 text-red-600 mr-2 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
             </svg>
             <p className="text-sm text-red-600">{error}</p>
           </div>
@@ -185,9 +425,25 @@ export default function EpicPatientSearch({
       {loading && (
         <div className="flex items-center justify-center py-12">
           <div className="flex flex-col items-center gap-3">
-            <svg className="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+              className="animate-spin h-10 w-10 text-blue-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
             <p className="text-sm text-gray-600">Loading Epic patients...</p>
           </div>
@@ -195,23 +451,22 @@ export default function EpicPatientSearch({
       )}
 
       {/* Patients List */}
-      {!loading && (
+      {!loading && !showMedications && (
         <div className="flex-1 overflow-y-auto">
           {filteredPatients.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredPatients.map((patient) => {
-                const isSelected = selectedPatient?.mrn === patient.mrn;
+                const isSelected = selectedPatient?.mrn === patient.mrn
                 return (
                   <div
                     key={patient.id}
                     className={`border rounded-lg p-4 transition-all ${
-                      selectedDoctor 
+                      selectedDoctor
                         ? isSelected
                           ? "border-blue-500 bg-blue-50 shadow-md"
-                          : "border-gray-200 hover:bg-gray-50 hover:border-gray-300 cursor-pointer"
-                        : "border-gray-100 bg-gray-50 cursor-not-allowed opacity-60"
+                          : "border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                        : "border-gray-100 bg-gray-50 opacity-60"
                     }`}
-                    onClick={() => selectedDoctor && handleSelectPatient(patient)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -220,26 +475,42 @@ export default function EpicPatientSearch({
                             {patient.full_name}
                           </h4>
                           {isSelected && (
-                            <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <svg
+                              className="w-5 h-5 text-blue-600"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                           )}
                         </div>
                         <div className="mt-2 space-y-1 text-sm text-gray-600">
                           <div className="flex justify-between items-center">
                             <span className="font-medium">MRN:</span>
-                            <span className="font-semibold text-blue-600">{patient.mrn}</span>
+                            <span className="font-semibold text-blue-600">
+                              {patient.mrn}
+                            </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="font-medium">Patient ID:</span>
-                            <span className="font-mono text-xs truncate max-w-[150px]" title={patient.id}>
+                            <span
+                              className="font-mono text-xs truncate max-w-[150px]"
+                              title={patient.id}
+                            >
                               {patient.id}
                             </span>
                           </div>
                           {patient.external_id && (
                             <div className="flex justify-between items-center">
                               <span className="font-medium">External ID:</span>
-                              <span className="text-xs truncate max-w-[150px]" title={patient.external_id}>
+                              <span
+                                className="text-xs truncate max-w-[150px]"
+                                title={patient.external_id}
+                              >
                                 {patient.external_id}
                               </span>
                             </div>
@@ -247,33 +518,112 @@ export default function EpicPatientSearch({
                         </div>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          selectedDoctor 
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            selectedDoctor
+                              ? isSelected
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-gray-100 text-gray-800"
+                              : "bg-gray-100 text-gray-400"
+                          }`}
+                        >
+                          {selectedDoctor
                             ? isSelected
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-gray-100 text-gray-800"
-                            : "bg-gray-100 text-gray-400"
-                        }`}>
-                          {selectedDoctor ? (isSelected ? "Selected" : "Select") : "Disabled"}
+                              ? "Selected"
+                              : "Available"
+                            : "Disabled"}
                         </span>
                       </div>
                     </div>
+
+                    {/* Action Buttons */}
+                    {selectedDoctor && (
+                      <div className="flex gap-2 mt-4 pt-3 border-t border-gray-200">
+                        <button
+                          onClick={() => handleSelectPatient(patient)}
+                          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                            isSelected
+                              ? "bg-blue-600 text-white hover:bg-blue-700"
+                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                          }`}
+                        >
+                          {isSelected ? "✓ Selected" : "Select Patient"}
+                        </button>
+                        <button
+                          onClick={() => handleMedsSearch(patient)}
+                          disabled={loadingPatientId !== null}
+                          className="flex-1 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {loadingPatientId === patient.id ? (
+                            <>
+                              <svg
+                                className="animate-spin h-3 w-3 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                              Loading...
+                            </>
+                          ) : (
+                            <>
+                              <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                                />
+                              </svg>
+                              Search Meds
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
-                );
+                )
               })}
             </div>
           ) : (
             <div className="text-center py-12">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
               </svg>
               <p className="text-gray-500 mt-4">
-                {searchQuery 
+                {searchQuery
                   ? `No patients found matching "${searchQuery}"`
-                  : selectedDoctor 
-                    ? "No patients available"
-                    : "Please select a practitioner first to view and select patients"
-                }
+                  : selectedDoctor
+                  ? "No patients available"
+                  : "Please select a practitioner first to view and select patients"}
               </p>
               {searchQuery && (
                 <button
@@ -288,24 +638,434 @@ export default function EpicPatientSearch({
         </div>
       )}
 
+      {/* Medications View */}
+      {showMedications && (
+        <div className="flex-1 overflow-y-auto">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Medications for {selectedPatientForMeds?.full_name}
+            </h3>
+            <button
+              onClick={handleCloseMedications}
+              className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+              Back to Patients
+            </button>
+          </div>
+
+          {!loading && !showMedications && loadingPatientId !== null && (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex flex-col items-center gap-2">
+                <svg
+                  className="animate-spin h-8 w-8 text-blue-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <p className="text-sm text-gray-600">Loading medications...</p>
+              </div>
+            </div>
+          )}
+
+          {medsError && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <div className="flex items-center">
+                <svg
+                  className="w-5 h-5 text-red-600 mr-2 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <p className="text-sm text-red-600">{medsError}</p>
+              </div>
+            </div>
+          )}
+
+          {!loading && medications.length > 0 && (
+            <div className="space-y-4">
+              {medications.map((med, index) => {
+                const formattedMed = formatMedicationDisplay(med)
+                const isSelected = selectedMedication?.id === med.id
+                const isExpanded = expandedMedicationId === med.id
+                const individualMed = individualMedications[med.id]
+                const individualFormatted = individualMed
+                  ? formatIndividualMedicationDetails(individualMed)
+                  : null
+
+                return (
+                  <div
+                    key={med.id || index}
+                    className={`border rounded-lg p-4 bg-white transition-all ${
+                      isSelected
+                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        : "border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    {/* Basic Medication Info */}
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => toggleMedicationDetails(med.id)}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-gray-900 text-lg">
+                              {formattedMed.name}
+                            </h4>
+                            {isSelected && (
+                              <svg
+                                className="w-5 h-5 text-blue-600"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <span
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                formattedMed.status === "active"
+                                  ? "bg-green-100 text-green-800"
+                                  : formattedMed.status === "completed"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {formattedMed.status}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              ID: {formattedMed.medicationRequestId}
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleMedicationDetails(med.id)
+                          }}
+                          className="text-xs text-white hover:text-white flex items-center gap-1 bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded transition-colors ml-4 flex-shrink-0"
+                        >
+                          {isExpanded ? "Hide Details" : "View Details"}
+                          <svg
+                            className={`w-3 h-3 transition-transform ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="font-medium text-gray-600">
+                              Dosage:
+                            </span>
+                            <span className="text-gray-900 text-right">
+                              {formattedMed.dosage}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium text-gray-600">
+                              Route:
+                            </span>
+                            <span className="text-gray-900">
+                              {formattedMed.route}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="font-medium text-gray-600">
+                              Prescriber:
+                            </span>
+                            <span className="text-gray-900">
+                              {formattedMed.prescriber}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="font-medium text-gray-600">
+                              Prescribed:
+                            </span>
+                            <span className="text-gray-900">
+                              {formattedMed.date}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Expanded Individual Medication Details */}
+                    {isExpanded && (
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        {individualMedLoading === med.id ? (
+                          <div className="flex items-center justify-center py-4">
+                            <svg
+                              className="animate-spin h-5 w-5 text-blue-600 mr-2"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                            <span className="text-sm text-gray-600">
+                              Loading detailed information...
+                            </span>
+                          </div>
+                        ) : individualFormatted ? (
+                          <div className="space-y-3">
+                            <h5 className="font-semibold text-gray-900">
+                              Detailed Medication Information
+                            </h5>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                              <div className="space-y-2">
+                                <div className="flex justify-between">
+                                  <span className="font-medium text-gray-600">
+                                    Category:
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {individualFormatted.category}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-medium text-gray-600">
+                                    Therapy Type:
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {individualFormatted.therapyType}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="font-medium text-gray-600">
+                                    Time:
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {individualFormatted.timing}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <div className="flex justify-between">
+                                  <span className="font-medium text-gray-600">
+                                    Identifier:
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {individualFormatted.identifier}
+                                  </span>
+                                </div>
+                                {individualFormatted.quantity && (
+                                  <div className="flex justify-between">
+                                    <span className="font-medium text-gray-600">
+                                      Quantity:
+                                    </span>
+                                    <span className="text-gray-900">
+                                      {individualFormatted.quantity}{" "}
+                                      {individualFormatted.unit}
+                                      {individualFormatted.duration &&
+                                        ` for ${individualFormatted.duration} ${individualFormatted.durationUnit}`}
+                                      {individualFormatted.repeatsAllowed &&
+                                        ` (${individualFormatted.repeatsAllowed} refills)`}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {individualFormatted.reason &&
+                              individualFormatted.reason !==
+                                "No reason specified" && (
+                                <div className="p-3 bg-gray-50 rounded border">
+                                  <div className="flex justify-between text-sm">
+                                    <span className="font-medium text-gray-600">
+                                      Reason:
+                                    </span>
+                                    <span className="text-gray-900">
+                                      {individualFormatted.reason}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
+                            {/* Raw JSON view for debugging */}
+                            {/* <details className="mt-3">
+                              <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
+                                View Raw JSON
+                              </summary>
+                              <pre className="mt-2 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-40">
+                                {JSON.stringify(individualFormatted.fullDetails, null, 2)}
+                              </pre>
+                            </details> */}
+                          </div>
+                        ) : (
+                          <div className="text-center py-4 text-sm text-gray-500">
+                            Unable to load detailed medication information
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Selection and Action Buttons */}
+                    {isSelected && (
+                      <div className="mt-4 pt-3 border-t border-gray-200">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleSelectMedication(med)
+                            }}
+                            className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            Select Medication
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              console.log("Medication Request ID:", med.id)
+                              console.log("Full Medication Data:", med)
+                            }}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors"
+                          >
+                            View in Console
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Medication Request ID:{" "}
+                          <code className="bg-gray-100 px-1 py-0.5 rounded">
+                            {med.id}
+                          </code>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {!loading && medications.length === 0 && !medsError && (
+            <div className="text-center py-12">
+              <svg
+                className="mx-auto h-12 w-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
+              </svg>
+              <p className="text-gray-500 mt-4">
+                No medications found for this patient
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Selected Patient Info Footer */}
-      {selectedPatient && (
+      {selectedPatient && !showMedications && (
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
           <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-blue-800 mb-1">Currently Selected</h4>
-              <p className="text-sm text-blue-700 font-semibold">{selectedPatient.full_name}</p>
-              <p className="text-xs text-blue-600 mt-1">MRN: {selectedPatient.mrn}</p>
+            <div className="flex-1">
+              <h4 className="text-sm font-medium text-blue-800 mb-1">
+                Currently Selected
+              </h4>
+              <p className="text-sm text-blue-700 font-semibold">
+                {selectedPatient.full_name}
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                MRN: {selectedPatient.mrn}
+              </p>
             </div>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Confirm Selection
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Confirm Selection
+              </button>
+            </div>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
