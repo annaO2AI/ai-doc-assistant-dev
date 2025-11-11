@@ -28,7 +28,7 @@ export function EpicAuthentication({
     e.preventDefault()
     setLoading(true)
     try {
-      const response = await APIService.getEpicSession()
+      const response = await APIService.getEpicSession(tokenId?.token ?? "")
       if (response.token_id && response.practitioner_id) {
         setTokenId({
           token: response.token_id,
