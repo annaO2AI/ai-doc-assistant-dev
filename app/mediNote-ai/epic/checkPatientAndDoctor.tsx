@@ -92,6 +92,7 @@ export default function CheckPatientAndDoctor({
               setPractitionerData={setPractitionerData}
               practitionerData={practitionerData}
               practId={practitionerId}
+              autoFetch={true}
             />
           </div>
         )}

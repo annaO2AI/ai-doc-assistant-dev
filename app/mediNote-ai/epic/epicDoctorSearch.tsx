@@ -9,6 +9,7 @@ interface EpicDoctorSearchProps {
   setPractitionerData: (practitioner: EpicPractitioner | null) => void
   practitionerData: EpicPractitioner | null
   practId: string | null
+  autoFetch?: boolean
 }
 
 export default function EpicDoctorSearch({
@@ -17,6 +18,7 @@ export default function EpicDoctorSearch({
   setPractitionerData,
   practitionerData,
   practId,
+  autoFetch = false,
 }: EpicDoctorSearchProps) {
   const [practitionerId, setPractitionerId] = useState("")
   const [loading, setLoading] = useState(false)
@@ -25,8 +27,10 @@ export default function EpicDoctorSearch({
     null
   )
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault()
+    }
 
     if (!practitionerId.trim()) {
       setError("Please enter a Practitioner ID")
@@ -48,6 +52,8 @@ export default function EpicDoctorSearch({
 
       if (data.ok) {
         setPractitioner(data)
+        // Automatically update practitioner data without needing selection
+        setPractitionerData(data)
       } else {
         setError("Failed to fetch practitioner information")
       }
@@ -64,16 +70,44 @@ export default function EpicDoctorSearch({
   }
 
   useEffect(() => {
-    if (practId) {
+    if (practId && tokenId && autoFetch) {
+      setPractitionerId(practId)
+      // Automatically fetch practitioner data
+      const fetchPractitioner = async () => {
+        try {
+          setLoading(true)
+          setError(null)
+          const data = await APIService.searchEpicPractitioner(
+            practId.trim(),
+            tokenId
+          )
+
+          if (data.ok) {
+            setPractitioner(data)
+            setPractitionerData(data)
+            // Close modal after successful auto-fetch
+            if (autoFetch) {
+              setTimeout(() => onClose(), 500)
+            }
+          } else {
+            setError("Failed to fetch practitioner information")
+          }
+        } catch (err) {
+          setError(
+            err instanceof Error
+              ? `Error: ${err.message}`
+              : "Failed to search for practitioner"
+          )
+          setPractitioner(null)
+        } finally {
+          setLoading(false)
+        }
+      }
+      fetchPractitioner()
+    } else if (practId) {
       setPractitionerId(practId)
     }
-  }, [practId])
-
-  useEffect(() => {
-    if (practitionerId && practitionerId !== "" && practId) {
-      handleSearch(new Event("submit") as unknown as React.FormEvent)
-    }
-  }, [practitionerId])
+  }, [practId, tokenId, autoFetch])
 
   const handleSelectDoctor = (practitioner: EpicPractitioner | null) => {
     setPractitionerData(practitioner)
@@ -113,7 +147,7 @@ export default function EpicDoctorSearch({
       </div>
 
       {/* Search Form */}
-      <form onSubmit={handleSearch} className="space-y-4">
+      <div className="space-y-4">
         <div>
           <label
             htmlFor="practitionerId"
@@ -134,7 +168,7 @@ export default function EpicDoctorSearch({
         </div>
 
         <button
-          type="submit"
+          onClick={handleSearch}
           disabled={loading || !practitionerId.trim() || !tokenId}
           className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
@@ -166,7 +200,7 @@ export default function EpicDoctorSearch({
             "Search Practitioner"
           )}
         </button>
-      </form>
+      </div>
 
       {/* Error Display */}
       {error && (

@@ -16,7 +16,7 @@ export function EpicAuthentication({
   const handleOpenAuth = () => {
     setIsLoading(true)
     window.open(
-      "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/epic/auth/start?force=true",
+      "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/epic/auth/start",
       "_blank",
       "noopener,noreferrer"
     )
