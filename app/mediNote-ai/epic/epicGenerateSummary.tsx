@@ -9,6 +9,7 @@ import Image from "next/image"
 import SummaryPharmacyGen from "../pharmacy/SummaryPharmacyGen"
 import { MedicationResponse } from "../pharmacy/PharmacyGenerator"
 import ICDGenerator from "../icd-code-generator/ICDGenerator"
+import { useRouter, usePathname } from "next/navigation"
 
 type TextCase = {
   sessionId: number
@@ -124,6 +125,11 @@ export default function EpicGenerateSummary({
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
 
+  const handleBackToEpic = useCallback(() => {
+    const epicPath = "/mediNote-ai/epic"
+    window.location.href = epicPath
+  }, [])
+
   // Generate fixed waveform heights (shared for gray and blue)
   const waveformHeights = useRef<number[]>([])
   useEffect(() => {
@@ -138,26 +144,26 @@ export default function EpicGenerateSummary({
   const createDefaultEncounter = useCallback((): DefaultEncounter => {
     const timestamp = new Date().getTime()
     const randomSuffix = Math.random().toString(36).substring(2, 8)
-    
+
     return {
       id: `eoK8nLRcEypNjtns4dgnF3Q3`,
       type: ["AMB", "OFFICE_VISIT"],
       status: "in-progress",
       serviceProvider: "Default Healthcare Provider",
-      display: `Visit - ${new Date().toLocaleDateString()}`
+      display: `Visit - ${new Date().toLocaleDateString()}`,
     }
   }, [])
 
-// Get available encounters - use epicCounters if available, otherwise use default
-const getAvailableEncounters = useCallback(() => {
-  if (epicCounters && epicCounters.length > 0) {
-    return epicCounters
-  }
-  
-  // Return default encounter if no epic counters available
-  const defaultEncounter = createDefaultEncounter()
-  return [defaultEncounter]
-}, [epicCounters, createDefaultEncounter])
+  // Get available encounters - use epicCounters if available, otherwise use default
+  const getAvailableEncounters = useCallback(() => {
+    if (epicCounters && epicCounters.length > 0) {
+      return epicCounters
+    }
+
+    // Return default encounter if no epic counters available
+    const defaultEncounter = createDefaultEncounter()
+    return [defaultEncounter]
+  }, [epicCounters, createDefaultEncounter])
 
   // Define all Hooks first
   const handleApiError = useCallback((error: unknown, context: string) => {
@@ -173,34 +179,34 @@ const getAvailableEncounters = useCallback(() => {
   }, [])
 
   // Updated function to handle Create Summary button click
-// Updated function to handle Create Summary button click
-const handleCreateSummaryClick = useCallback(() => {
-  const availableEncounters = getAvailableEncounters()
-  
-  if (availableEncounters.length > 0) {
-    // Use the first available encounter
-    const encounterToUse = availableEncounters[0]
-    setSelectedEncounter(encounterToUse)
-    setShowPopup(true)
-    
-    // Show notification if using default encounter
-    if (epicCounters.length === 0) {
+  // Updated function to handle Create Summary button click
+  const handleCreateSummaryClick = useCallback(() => {
+    const availableEncounters = getAvailableEncounters()
+
+    if (availableEncounters.length > 0) {
+      // Use the first available encounter
+      const encounterToUse = availableEncounters[0]
+      setSelectedEncounter(encounterToUse)
+      setShowPopup(true)
+
+      // Show notification if using default encounter
+      if (epicCounters.length === 0) {
+        showNotification("Using default encounter for clinical note creation")
+      }
+    } else {
+      // Fallback to creating a default encounter with your specified ID
+      const defaultEncounter = {
+        id: "eoK8nLRcEypNjtns4dgnF3Q3",
+        type: ["AMB", "OFFICE_VISIT"],
+        status: "in-progress",
+        serviceProvider: "Default Healthcare Provider",
+        display: `Visit - ${new Date().toLocaleDateString()}`,
+      }
+      setSelectedEncounter(defaultEncounter)
+      setShowPopup(true)
       showNotification("Using default encounter for clinical note creation")
     }
-  } else {
-    // Fallback to creating a default encounter with your specified ID
-    const defaultEncounter = {
-      id: "eoK8nLRcEypNjtns4dgnF3Q3",
-      type: ["AMB", "OFFICE_VISIT"],
-      status: "in-progress",
-      serviceProvider: "Default Healthcare Provider",
-      display: `Visit - ${new Date().toLocaleDateString()}`
-    }
-    setSelectedEncounter(defaultEncounter)
-    setShowPopup(true)
-    showNotification("Using default encounter for clinical note creation")
-  }
-}, [getAvailableEncounters, epicCounters, showNotification])
+  }, [getAvailableEncounters, epicCounters, showNotification])
 
   // New function to fetch Epic DocumentReferences
   const fetchEpicDocumentReferences = useCallback(async () => {
@@ -379,7 +385,7 @@ const handleCreateSummaryClick = useCallback(() => {
       return
     }
     setIsCreatingNote(true)
-    
+
     // Use the selected encounter (either from epicCounters or default)
     if (selectedEncounter) {
       handleSelectedEpic(selectedEncounter, clinicalNote)
@@ -393,7 +399,13 @@ const handleCreateSummaryClick = useCallback(() => {
       setNoteTypeDisplay("")
       showNotification("Clinical note created successfully!")
     }, 2000)
-  }, [clinicalNote, noteTypeDisplay, selectedEncounter, handleSelectedEpic, showNotification])
+  }, [
+    clinicalNote,
+    noteTypeDisplay,
+    selectedEncounter,
+    handleSelectedEpic,
+    showNotification,
+  ])
 
   useEffect(() => {
     loadAudio()
@@ -911,7 +923,7 @@ const handleCreateSummaryClick = useCallback(() => {
                   showButton={true}
                   fullWidth={true}
                   editMode={false}
-                 defaultOpen={false} 
+                  defaultOpen={false}
                 />
 
                 <SummaryPharmacyGen
@@ -1027,7 +1039,7 @@ const handleCreateSummaryClick = useCallback(() => {
               </div>
             </div>
           </div>
-         <div className="rounded-lg shadow-sm p-6 my-6 bg-white z-10 relative">
+          <div className="rounded-lg shadow-sm p-6 my-6 bg-white z-10 relative">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold text-gray-900">
                 Epic FHIR Documents
@@ -1070,10 +1082,12 @@ const handleCreateSummaryClick = useCallback(() => {
             ) : epicDocuments.length > 0 ? (
               <>
                 {/* Scrollable container with custom height */}
-                <div className="max-h-80 overflow-y-auto space-y-3 pr-2 
+                <div
+                  className="max-h-80 overflow-y-auto space-y-3 pr-2 
                   /* Custom scrollbar styling */
                   scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 
-                  hover:scrollbar-thumb-blue-400">
+                  hover:scrollbar-thumb-blue-400"
+                >
                   {epicDocuments.map((doc, index) => (
                     <div
                       key={doc.id || `doc-${index}`}
@@ -1081,7 +1095,7 @@ const handleCreateSummaryClick = useCallback(() => {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold text-gray-800 text-sm">
-                        ID :   {doc.id || "No ID"}
+                          ID : {doc.id || "No ID"}
                         </h3>
                         <span
                           className={`px-2 py-1 text-xs rounded-full ${
@@ -1092,31 +1106,47 @@ const handleCreateSummaryClick = useCallback(() => {
                               : "bg-gray-100 text-gray-800"
                           }`}
                         >
-                      {doc.status || "Unknown"}
+                          {doc.status || "Unknown"}
                         </span>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
                         <div>
-                          <p className="font-medium text-xs text-gray-500">Date:</p>
-                          <p className="text-sm">{formatDisplayDate(doc.date)}</p>
+                          <p className="font-medium text-xs text-gray-500">
+                            Date:
+                          </p>
+                          <p className="text-sm">
+                            {formatDisplayDate(doc.date)}
+                          </p>
                         </div>
                         <div>
-                          <p className="font-medium text-xs text-gray-500">Type:</p>
-                          <p className="text-sm">{getDisplayTypes(doc.type).join(", ")}</p>
+                          <p className="font-medium text-xs text-gray-500">
+                            Type:
+                          </p>
+                          <p className="text-sm">
+                            {getDisplayTypes(doc.type).join(", ")}
+                          </p>
                         </div>
                         <div>
-                          <p className="font-medium text-xs text-gray-500">Authors:</p>
+                          <p className="font-medium text-xs text-gray-500">
+                            Authors:
+                          </p>
                           <p className="text-sm">
                             {doc.author.length > 0
-                              ? doc.author.map(author => 
-                                  author.includes('/') ? author.split('/')[1] : author
-                                ).join(", ")
+                              ? doc.author
+                                  .map((author) =>
+                                    author.includes("/")
+                                      ? author.split("/")[1]
+                                      : author
+                                  )
+                                  .join(", ")
                               : "No authors"}
                           </p>
                         </div>
                         <div>
-                          <p className="font-medium text-xs text-gray-500">Encounters:</p>
+                          <p className="font-medium text-xs text-gray-500">
+                            Encounters:
+                          </p>
                           <p className="text-sm">
                             {doc.encounters.length > 0
                               ? doc.encounters.length
@@ -1179,13 +1209,33 @@ const handleCreateSummaryClick = useCallback(() => {
             </svg>
           </span>
         </div>
-        <div className="flex justify-center space-x-4 mt-8 mb-8 relative z-[1]">
+        <div className="flex justify-around space-x-4 mt-8 mb-8 relative z-[1]">
           <button
             className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
             onClick={handleCreateSummaryClick}
           >
             <CheckCircle className="w-4 h-4 mr-2" />
             <span>Create Summary</span>
+          </button>
+
+          <button
+            onClick={handleBackToEpic}
+            className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            <span className="pl-2">Back To EPIC</span>
           </button>
         </div>
 
@@ -1243,7 +1293,7 @@ const handleCreateSummaryClick = useCallback(() => {
                     </p>
                     <p>
                       <span className="font-medium">Type:</span>{" "}
-                      {Array.isArray(selectedEncounter.type) 
+                      {Array.isArray(selectedEncounter.type)
                         ? selectedEncounter.type.join(", ")
                         : selectedEncounter.type || "Office Visit"}
                     </p>
@@ -1253,7 +1303,8 @@ const handleCreateSummaryClick = useCallback(() => {
                     </p>
                     <p>
                       <span className="font-medium">Provider:</span>{" "}
-                      {selectedEncounter.serviceProvider || "Default Healthcare Provider"}
+                      {selectedEncounter.serviceProvider ||
+                        "Default Healthcare Provider"}
                     </p>
                     {selectedEncounter.display && (
                       <p>
@@ -1311,10 +1362,7 @@ const handleCreateSummaryClick = useCallback(() => {
                 <button
                   onClick={handleCreateClinicalNote}
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
-                  disabled={
-                    isCreatingNote ||
-                    !clinicalNote.trim()
-                  }
+                  disabled={isCreatingNote || !clinicalNote.trim()}
                 >
                   {isCreatingNote ? (
                     <>

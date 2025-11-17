@@ -53,17 +53,29 @@ const menuItems = [
         label: "Pharmacy",
         href: "/mediNote-ai/pharmacy",
         icon: ArroTabIcon,
-      },
-         {
-        label: "Epic",
-        href: "/mediNote-ai/epic",
-        icon: ArroTabIcon,
-      },
+      }
       // {
       //   label: "History",
       //   href: "/mediNote-ai/history",
       //   icon: ArroTabIcon,
       // },
+    ],
+  },
+   {
+    id: "EPIC",
+    label: "EPIC Integration",
+    icon: AIDocAssist,
+    subItems: [
+     {
+        label: "Epic",
+        href: "/mediNote-ai/epic",
+        icon: ArroTabIcon,
+      },
+         {
+        label: "Epic Patient Search & Medication",
+        href: "/mediNote-ai/epic-search-medication",
+        icon: ArroTabIcon,
+      }
     ],
   },
 ]
