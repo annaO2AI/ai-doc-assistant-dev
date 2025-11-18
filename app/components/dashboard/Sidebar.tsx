@@ -76,6 +76,12 @@ const menuItems = [
         href: "/mediNote-ai/epic-search-medication",
         icon: ArroTabIcon,
       }
+      ,
+         {
+        label: "Epic Appointment",
+        href: "/mediNote-ai/epic-appointment",
+        icon: ArroTabIcon,
+      }
     ],
   },
 ]
