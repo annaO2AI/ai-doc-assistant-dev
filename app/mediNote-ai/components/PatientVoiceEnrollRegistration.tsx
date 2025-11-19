@@ -190,8 +190,8 @@ export const PatientVoiceEnrollRegistration: React.FC<ModalProps> = ({
           Please read the following text clearly:
           <br />
           <span className="font-bold text-xl block mt-4">
-            "Hey O2AI, I agree to enable voice recognition. I am here for a health checkup today. 
-            I understand this voice will be saved securely. Thank you, I have completed the recording"
+            &quot;Hey O2AI, I agree to enable voice recognition. I am here for a health checkup today. 
+            I understand this voice will be saved securely. Thank you, I have completed the recording&quot;
           </span>
         </p>
 
