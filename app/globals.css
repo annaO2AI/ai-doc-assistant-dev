@@ -10,14 +10,17 @@ body {
 
 /* ✅ Custom utilities using @layer if needed */
 @layer utilities {
+  body{
+     background-color: #f4feff ;
+  }
   .background-chat-ui{
     /* background-image: url(../public/bg-otwobg.png);  */
-    background-size:cover ;
+    /* background-size:cover ; */
     /* background-color: #F4F8FB; */
-    background-color: #F4FEFF;
+    background-color: #f4feff ;
   }
   .bacgroundColorSt{
-    background-color: #F4FEFF !important;
+    background-color: #f4feff  !important;
   }
   .otitle {
     /* color:#323232; */
@@ -212,8 +215,7 @@ body {
     left: 0;
     right: 0;
     top: 0;
-    background-color: #F4FEFF;
-     transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
 
   }
   .chatmassage-wrapper h3{
