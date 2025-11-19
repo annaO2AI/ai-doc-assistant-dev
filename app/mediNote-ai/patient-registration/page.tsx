@@ -42,7 +42,7 @@ export default function ProcurementSearchPage() {
           />
         )}
         <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
-         <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
+         {/* <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} /> */}
         <div
           className="flex flex-col flex-1 transition-all duration-300 ease-in-out"
           style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}

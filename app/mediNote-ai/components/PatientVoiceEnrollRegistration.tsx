@@ -174,7 +174,7 @@ export const PatientVoiceEnrollRegistration: React.FC<ModalProps> = ({
         ) : (
           <button onClick={handleStopEnrollment} className="block mx-auto">
             <Image
-              src="/Record-Stop.png"
+              src="/Record-Stop.svg"
               alt="Stop Recording"
               width={400}
               height={300}
@@ -214,6 +214,14 @@ export const PatientVoiceEnrollRegistration: React.FC<ModalProps> = ({
               <span className="font-medium">
                 {isLoading ? "Saving..." : `Stop Recording (${recordingTime}s)`}
               </span>
+              {isLoading && (
+               <Image
+                  src="/loading-svgrepo-com.svg"
+                  alt="Start Recording"
+                  width={20}
+                  height={20}
+                />
+              )}
             </button>
           )}
 

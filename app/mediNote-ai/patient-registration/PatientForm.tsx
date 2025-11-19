@@ -67,14 +67,14 @@ export default function PatientForm() {
   };
 
   return (
-    <div className=" py-12 px-4">
+    <div className=" py-0 px-4">
       {/* Header */}
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
         Patient Registration
       </h1>
 
       {/* Progress Bar */}
-      <div className="max-w-[400px] mx-auto mb-16">
+      <div className="max-w-[400px] mx-auto mb-14">
         <div className="flex items-center justify-between mr-[-110px]">
           {["Registration", "Enroll Patient Voice", "Completed Process"].map((label, index) => (
             <div key={index} className="flex items-center w-full">
@@ -96,7 +96,7 @@ export default function PatientForm() {
                     <span className="text-lg font-semibold">{index + 1}</span>
                   )}
                 </div>
-                <p className="absolute -bottom-8 text-xs font-medium text-gray-600 whitespace-nowrap">
+                <p className="absolute -bottom-6 text-xs font-medium text-gray-600 whitespace-nowrap">
                   {label}
                 </p>
               </div>
@@ -124,7 +124,7 @@ export default function PatientForm() {
                 {error}
               </div>
             )}
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               <input
                 type="text"
                 name="first_name"
