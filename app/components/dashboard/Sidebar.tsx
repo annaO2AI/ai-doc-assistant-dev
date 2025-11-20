@@ -54,16 +54,11 @@ const menuItems = [
         href: "/mediNote-ai/pharmacy",
         icon: ArroTabIcon,
       }
-      // {
-      //   label: "History",
-      //   href: "/mediNote-ai/history",
-      //   icon: ArroTabIcon,
-      // },
     ],
   },
    {
     id: "EPIC",
-    label: "EPIC Integration",
+    label: "Electronic Health Record",
     icon: AIDocAssist,
     subItems: [
      {
@@ -75,8 +70,17 @@ const menuItems = [
         label: "Epic Patient Search & Medication",
         href: "/mediNote-ai/epic-search-medication",
         icon: ArroTabIcon,
-      }
-      ,
+      },
+       {
+        label: "Explanation Of Benefit Search",
+        href: "/mediNote-ai/epic-eob-search",
+        icon: ArroTabIcon,
+      },
+       {
+        label: "Explanation Of Benefit Read",
+        href: "/mediNote-ai/epic-eob-read",
+        icon: ArroTabIcon,
+      },
          {
         label: "Epic Appointment",
         href: "/mediNote-ai/epic-appointment",

@@ -1,4 +1,4 @@
-import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, EpicPatientsResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner, EpicDocumentReferenceResponse } from "../types";
+import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner, EpicDocumentReferenceResponse,EpicPatientsResponse, EOBSearchResponse} from "../types";
 import { API_BASE_URL_AISEARCH_MediNote, API_ROUTES } from "../../constants/api";
 
 const API_SERVICE = "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net"
@@ -962,7 +962,26 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
       console.error('Epic medications search error:', error);
       throw error;
     }
+}
+
+
+ static async  getEOBByPatient(patientId: string, tokenId: string): Promise<EOBSearchResponse> {
+    const response = await fetch(
+    `${API_SERVICE}/epic/eob-search/search?patient=${patientId}&token_id=${tokenId}`,
+    {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch EOB data');
   }
+
+  return response.json();
+}
 
   static async searchEpicPatients(tokenId: string): Promise<EpicPatientsResponse> {
     try {
@@ -1177,7 +1196,7 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
       console.error('Error fetching Epic documents:', error);
       throw error;
     }
-  }
+}
 
   static async getEpicSession(tokenId: string): Promise<any> {
     try {

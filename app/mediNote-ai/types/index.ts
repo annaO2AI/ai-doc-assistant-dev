@@ -595,3 +595,293 @@ export interface IndividualMedicationResponse {
     };
   };
 }
+
+export interface EOBData {
+  resourceType: string;
+  id: string;
+  status: string;
+  type: {
+    coding: Array<{
+      system: string;
+      code: string;
+      display: string;
+    }>;
+  };
+  patient: {
+    reference: string;
+    display: string;
+  };
+  billablePeriod: {
+    start: string;
+    end: string;
+  };
+  insurer: {
+    identifier: {
+      use: string;
+      system: string;
+      value: string;
+    };
+    display: string;
+  };
+  provider: {
+    type: string;
+    identifier: {
+      use: string;
+      system: string;
+      value: string;
+    };
+    display: string;
+  };
+  outcome: string;
+  disposition: string;
+  careTeam: Array<{
+    sequence: number;
+    provider: {
+      reference: string;
+      identifier: {
+        use: string;
+        system: string;
+        value: string;
+      };
+      display: string;
+    };
+    responsible: boolean;
+    role: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+    };
+  }>;
+  diagnosis: Array<{
+    sequence: number;
+    diagnosisCodeableConcept: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+    };
+  }>;
+  item: Array<{
+    sequence: number;
+    diagnosisSequence: number[];
+    productOrService: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+    };
+    servicedPeriod: {
+      start: string;
+      end: string;
+    };
+    locationCodeableConcept: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+    };
+    quantity: {
+      value: number;
+      unit: string;
+      system: string;
+      code: string;
+    };
+    net: {
+      value: number;
+      currency: string;
+    };
+    adjudication: Array<{
+      category: {
+        coding: Array<{
+          system: string;
+          code: string;
+          display: string;
+        }>;
+      };
+      amount: {
+        value: number;
+        currency: string;
+      };
+    }>;
+  }>;
+  total: Array<{
+    category: {
+      coding: Array<{
+        system: string;
+        code: string;
+        display: string;
+      }>;
+    };
+    amount: {
+      value: number;
+      currency: string;
+    };
+  }>;
+  payment: {
+    date: string;
+    amount: {
+      value: number;
+      currency: string;
+    };
+  };
+}
+
+// types/eob.ts
+export interface Patient {
+  ok: boolean;
+  id: string;
+  full_name: string;
+  given: string[];
+  family: string;
+  mrn: string;
+  external_id: string;
+  mychart_username: string;
+  mychart_password: string;
+  source: string;
+}
+
+export interface PatientsResponse {
+  total: number;
+  items: Patient[];
+}
+
+export interface Coding {
+  system: string;
+  code: string;
+  display: string;
+}
+
+export interface Type {
+  coding: Coding[];
+}
+
+export interface PatientRef {
+  reference: string;
+  display: string;
+}
+
+export interface BillablePeriod {
+  start: string;
+  end: string;
+}
+
+export interface Identifier {
+  use: string;
+  system: string;
+  value: string;
+}
+
+export interface Insurer {
+  identifier: Identifier;
+  display: string;
+}
+
+export interface Provider {
+  type: string;
+  identifier: Identifier;
+  display: string;
+}
+
+export interface CareTeam {
+  sequence: number;
+  provider: {
+    reference: string;
+    identifier: Identifier;
+    display: string;
+  };
+  responsible: boolean;
+  role: {
+    coding: Coding[];
+  };
+}
+
+export interface Item {
+  sequence: number;
+  diagnosisSequence: number[];
+  productOrService: {
+    coding: Coding[];
+  };
+  servicedPeriod: {
+    start: string;
+    end: string;
+  };
+  locationCodeableConcept: {
+    coding: Coding[];
+  };
+  quantity: {
+    value: number;
+    unit: string;
+    system: string;
+    code: string;
+  };
+  net: {
+    value: number;
+    currency: string;
+  };
+  adjudication: Array<{
+    category: {
+      coding: Coding[];
+    };
+    amount: {
+      value: number;
+      currency: string;
+    };
+  }>;
+}
+
+export interface Total {
+  category: {
+    coding: Coding[];
+  };
+  amount: {
+    value: number;
+    currency: string;
+  };
+}
+
+export interface Payment {
+  date: string;
+  amount: {
+    value: number;
+    currency: string;
+  };
+}
+
+export interface ExplanationOfBenefit {
+  resourceType: string;
+  id: string;
+  status: string;
+  type: Type;
+  use: string;
+  patient: PatientRef;
+  billablePeriod: BillablePeriod;
+  created: string;
+  insurer: Insurer;
+  provider: Provider;
+  outcome: string;
+  disposition: string;
+  careTeam: CareTeam[];
+  item: Item[];
+  total: Total[];
+  payment: Payment;
+}
+
+export interface EOBEntry {
+  fullUrl: string;
+  resource: ExplanationOfBenefit;
+  search: {
+    mode: string;
+  };
+}
+
+export interface EOBSearchResponse {
+  resourceType: string;
+  type: string;
+  total: number;
+  entry: EOBEntry[];
+}
