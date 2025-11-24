@@ -1238,4 +1238,25 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
       return false;
     }
   }
+
+      static async getReferralsByPatient(patientId: string, tokenId: string, count: number = 10) {
+         const headers = await this.getAuthHeaders(tokenId);
+    const response = await fetch(
+      `${API_SERVICE}/epic/referral-search?patient_id=${patientId}&token_id=${tokenId}&count=${count}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          ...headers,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch referral data: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.raw || data;
+  }
 }

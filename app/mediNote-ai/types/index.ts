@@ -74,6 +74,54 @@ export interface EpicPatientsResponse {
   items: EpicPatient[]
 }
 
+
+export 
+interface ReferralEntry {
+  fullUrl?: string;
+  resource: {
+    resourceType: string;
+    id: string;
+    status?: string;
+    intent?: string;
+    priority?: string;
+    subject?: {
+      reference: string;
+      display: string;
+    };
+    requester?: {
+      reference: string;
+      display: string;
+    };
+    performer?: Array<{
+      reference: string;
+      display: string;
+    }>;
+    code?: {
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    };
+    authoredOn?: string;
+    reasonCode?: Array<{
+      coding?: Array<{
+        system?: string;
+        code?: string;
+        display?: string;
+      }>;
+      text?: string;
+    }>;
+    note?: Array<{
+      text: string;
+    }>;
+  };
+  search?: {
+    mode: string;
+  };
+}
+
 export interface ConversationEntry {
   id: string
   speaker: "doctor" | "patient"
