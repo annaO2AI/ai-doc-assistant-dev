@@ -22,6 +22,9 @@ body {
   .bacgroundColorSt{
     background-color: #f4feff  !important;
   }
+  .bacgroundColorSt-scrolled{
+     background-color: #fff  !important;
+  }
   .otitle {
     /* color:#323232; */
     /* background: linear-gradient(to right, #0A0530,  #4D5DCE, #436EE3); */
@@ -573,5 +576,23 @@ body {
   }
   .customBord{
     border: 1px dotted #3a14c233;
+  }
+  .avatar-scr{
+    background-color: #0975BB;
+    display: flex;
+    height: 36px;
+    width: 36px;
+    border-radius: 36px;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: normal;
+  }
+  .custom-shadow{
+    /* box-shadow: 1px 1px 5px #02020217; */
+  }
+  .custom-shadow:hover{
+    box-shadow: 1px 1px 50px #0000001e;
   }
 }

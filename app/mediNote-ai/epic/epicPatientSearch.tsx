@@ -297,7 +297,7 @@ export default function EpicPatientSearch({
   }
 
   return (
-    <div className="epic-patient-search bg-white rounded-lg shadow-lg p-6 max-w-6xl w-full mx-auto max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="epic-patient-search bg-white rounded-lg shadow-lg p-6 max-w-7xl w-full mx-auto max-h-[90vh] overflow-hidden flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-900">
@@ -419,7 +419,7 @@ export default function EpicPatientSearch({
 
       {/* Patients List */}
       {!loading && !showMedications && (
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1">
           {filteredPatients.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredPatients.map((patient) => {

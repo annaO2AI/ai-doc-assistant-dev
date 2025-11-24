@@ -14,8 +14,8 @@ export function TokenDisplay({
   const [showToken, setShowToken] = useState(false)
 
   return (
-    <div className="bg-white border-b border-gray-200 px-6 py-3">
-      <div className="flex items-center justify-between">
+    <div className="border rounded-lg border-gray-200 bg-white border-b border-gray-200 px-6 py-3 w-[600px] m-auto fixed top-[0] left-[0] right-[0] z-10 rounded-br-xl rounded-bl-xl">
+      <div className="flex items-center justify-between p-1">
         <div className="flex items-center space-x-4">
           <Image
             src="/epic-logo.svg"

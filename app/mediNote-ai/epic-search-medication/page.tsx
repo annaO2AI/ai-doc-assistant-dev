@@ -139,7 +139,7 @@ const [showPatientSearch, setShowPatientSearch] = useState(true)
         {!authToken && <EpicAuthentication onTokenSubmit={handleTokenSubmit} />}
 {authToken && (
   <div
-    className="flex flex-col flex-1 transition-all duration-300 ease-in-out bg-gray-50"
+    className="flex flex-col flex-1 transition-all duration-300 ease-in-out"
     style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}
   >
     <TokenDisplay token={authToken} onClear={handleClearAuth} />

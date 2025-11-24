@@ -88,7 +88,7 @@ export default function HeaderAISearch({ sidebarOpen }: HeaderProps) {
           "w-full fixed top-0 z-10 transition-all duration-300 h-18 flex items-center bacgroundColorSt",
           "backdrop-blur-xl supports-[backdrop-filter]:bg-white",
           scrolled
-            ? "shadow-md border-b border-white/30 "
+            ? "shadow-md border-b border-white/30 bacgroundColorSt-scrolled"
             : "border-b border-white/10 bg-white",
           sidebarOpen
             ? "pl-[213px]"
