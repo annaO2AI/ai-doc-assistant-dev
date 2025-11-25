@@ -96,6 +96,11 @@ const SearchPatient: React.FC = () => {
     console.log(`Enroll voice for user with ID: ${userId}`);
   };
 
+  const handleShowHistory = (user: patient) => {
+    // console.log(`Show history for user: ${user.first_name} ${user.last_name}`);
+    
+  };
+
   const handleSave = async (updatedData: PatientCreationTypes) => {
     if (!selectedUser) return;
     try {
@@ -185,6 +190,7 @@ const SearchPatient: React.FC = () => {
                   user={user}
                   onUpdate={() => handleUpdate(user)}
                   onEnrollVoice={() => handleEnrollVoice(user.id)}
+                  onShowHistory={() => handleShowHistory(user)} // Now this will work
                 />
               ))
             ) : (
