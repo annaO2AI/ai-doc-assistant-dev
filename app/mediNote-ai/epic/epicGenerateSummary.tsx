@@ -178,7 +178,19 @@ export default function EpicGenerateSummary({
     setTimeout(() => setNotification({ message: "", show: false }), 3000)
   }, [])
 
-  // Updated function to handle Create Summary button click
+  // Handler for direct save summary
+  const handleSaveSummary = useCallback(() => {
+    const availableEncounters = getAvailableEncounters()
+    const encounterToUse = availableEncounters.length > 0 ? availableEncounters[0] : createDefaultEncounter()
+    
+    handleSelectedEpic(encounterToUse, summaryContent)
+    showNotification("Summary saved successfully to Epic!")
+    
+    // Mark as approved
+    setIsApproved(true)
+    localStorage.setItem(`summaryApproved:${sessionId}`, "true")
+  }, [getAvailableEncounters, createDefaultEncounter, handleSelectedEpic, summaryContent, showNotification, sessionId])
+
   // Updated function to handle Create Summary button click
   const handleCreateSummaryClick = useCallback(() => {
     const availableEncounters = getAvailableEncounters()
@@ -1210,36 +1222,39 @@ export default function EpicGenerateSummary({
           </span>
         </div>
         <div className="flex justify-around space-x-4 mt-8 mb-8 relative z-[1]">
-          <button
-            className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            onClick={handleCreateSummaryClick}
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
-            <span>Create Summary</span>
-          </button>
+          <div className="flex gap-4">
+            {/* Save Summary Button - Direct Submit */}
+            <button
+              className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              onClick={handleSaveSummary}
+              disabled={isLoading || isApproved}
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              <span>Save Summary</span>
+            </button>
+
+            {/* Edit Summary Button - Opens Popup for Editing */}
+            <button
+              className="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              onClick={handleCreateSummaryClick}
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              <span>Edit Summary</span>
+            </button>
+          </div>
 
           <button
             onClick={handleBackToEpic}
             className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             <span className="pl-2">Back To EPIC</span>
           </button>
         </div>
 
-        {/* Popup Modal */}
+        {/* Popup Modal for Editing */}
         {showPopup && selectedEncounter && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
@@ -1372,7 +1387,7 @@ export default function EpicGenerateSummary({
                   ) : (
                     <>
                       <CheckCircle className="w-4 h-4" />
-                      <span>Create Note</span>
+                      <span>Save Summary </span>
                     </>
                   )}
                 </button>
