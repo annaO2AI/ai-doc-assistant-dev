@@ -578,16 +578,16 @@ body {
     border: 1px dotted #3a14c233;
   }
   .avatar-scr{
-    background-color: #0975BB;
+    background-color: #c6e9ff;
     display: flex;
     height: 36px;
     width: 36px;
     border-radius: 36px;
-    color: #fff;
+    color: #0b5299;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    font-weight: normal;
+    font-size: 19px;
+    font-weight: bold;
   }
   .custom-shadow{
     /* box-shadow: 1px 1px 5px #02020217; */
@@ -595,4 +595,10 @@ body {
   .custom-shadow:hover{
     box-shadow: 1px 1px 50px #0000001e;
   }
+  .glass-card {
+  background-color: rgba(250, 252, 255, 0.596);           /* White with 80% opacity */
+  backdrop-filter: blur(12px);                   /* The blur effect */
+  -webkit-backdrop-filter: blur(12px);           /* Safari support */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
 }

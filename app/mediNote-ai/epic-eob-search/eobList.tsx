@@ -97,7 +97,8 @@ export default function EOBList({ authToken }: EOBListProps) {
               className="bg-white shadow-md rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow border border-gray-200"
               onClick={() => handlePatientSelect(patient)}
             >
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2 flex gap-2 items-center">
+                <span className="avatar-scr">{patient.full_name.charAt(0).toUpperCase()}</span>
                 {patient.full_name}
               </h3>
               <div className="space-y-1 text-sm text-gray-600">

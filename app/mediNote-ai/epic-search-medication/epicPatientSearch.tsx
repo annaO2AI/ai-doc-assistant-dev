@@ -322,10 +322,10 @@ export default function EpicPatientSearch({
                   return (
                     <div
                       key={patient.id}
-                      className={`border rounded-lg p-6 transition-all bg-white custom-shadow ${
+                      className={`rounded-lg p-6 transition-all bg-white hover:shadow-xl transition-all border border-gray-200 hover:border-blue-300 ${
                         isSelected
                           ? "border-blue-500 bg-blue-50 shadow-md"
-                          : "border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+                          : "border-gray-200 hover:bg-gray-50"
                       }`}
                     >
                       <div className="flex items-start justify-between">
@@ -444,7 +444,7 @@ export default function EpicPatientSearch({
 
         {/* Medications Modal / Popup */}
         {showMedications && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={handleCloseMedications}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center glass-card" onClick={handleCloseMedications}>
             <div className="bg-white rounded-tl-lg rounded-tr-lg  shadow-2xl w-full max-w-5xl overflow-y-auto w-[500px] absolute top-[0] right-[0] h-[100vh]">
               <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
                 <h3 className="text-xl font-semibold ot-title flex gap-3 items-center">
