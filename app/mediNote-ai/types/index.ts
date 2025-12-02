@@ -933,3 +933,126 @@ export interface EOBSearchResponse {
   total: number;
   entry: EOBEntry[];
 }
+
+
+export interface DiagnosticReport {
+  resourceType: string
+  id: string
+  status: string
+  category: Array<{
+    coding?: Array<{ system?: string; code?: string; display?: string }>
+    text?: string
+  }>
+  code: {
+    coding?: Array<{ system?: string; code?: string; display?: string }>
+    text?: string
+  }
+  subject: {
+    reference: string
+    display: string
+  }
+  effectiveDateTime: string
+  issued: string
+  performer?: Array<{
+    reference?: string
+    display?: string
+  }>
+  result?: Array<{
+    reference: string
+    display: string
+  }>
+  conclusionCode?: Array<{
+    coding?: Array<{ system?: string; code?: string; display?: string }>
+    text?: string
+  }>
+  presentedForm?: Array<{
+    contentType: string
+    url: string
+    title: string
+  }>
+}
+
+export interface DiagnosticReportsModalProps {
+  isOpen: boolean
+  onClose: () => void
+  reports: DiagnosticReport[]
+  patientName: string
+  loading: boolean
+  error: string | null
+}
+
+
+
+export interface EpicPatientSearchProps {
+  tokenId: string
+  onSelectPatient: (patient: {
+    id: string
+    first_name: string
+    last_name: string
+    full_name: string
+    mrn: string
+    patientMId: string
+  }) => void
+  selectedPatient: {
+    id: string
+    first_name: string
+    last_name: string
+    full_name: string
+    mrn: string
+  } | null
+  onClose: () => void
+  onSelectMedication?: (medication: Medication) => void
+}
+
+// Define interfaces for API responses
+export interface DiagnosticReportObservation {
+  test_name: string
+  value: number
+  unit: string
+  reference_min: number
+  reference_max: number
+  reference_unit: string
+  flag: "HIGH" | "LOW" | "NORMAL" | "UNKNOWN"
+}
+
+export interface DiagnosticReportSummary {
+  patient_info: {
+    name: string
+    patient_id: string
+    birth_date: string
+    gender: string
+  }
+  provider_lab_info: {
+    ordering_provider_name: string | null
+    laboratory_name: string | null
+    laboratory_address: string | null
+  }
+  date_info: {
+    effective_datetime: string
+    issued_datetime: string
+  }
+  specimen_info: any
+  clinical_info: {
+    clinical_diagnosis: string
+    encounter_description: string
+  }
+  results: DiagnosticReportObservation[]
+  stats: {
+    total_tests: number
+    num_high: number
+    num_low: number
+    num_normal: number
+    num_unknown: number
+  }
+  conclusion: {
+    raw_conclusion: string | null
+    conclusion_codes: any[]
+    results_interpretation: string | null
+    final_diagnosis: string | null
+  }
+  raw_report: any
+}
+
+export interface DiagnosticReportObservations {
+  observations: DiagnosticReportObservation[]
+}

@@ -76,6 +76,11 @@ const menuItems = [
         href: "/mediNote-ai/epic-eob-search",
         icon: ArroTabIcon,
       },
+      {
+        label: "Epic Patient Lab Results",
+        href: "/mediNote-ai/epic-patient-lab-results",
+        icon: ArroTabIcon,
+      },
        {
         label: "Explanation Of Benefit Read",
         href: "/mediNote-ai/epic-eob-read",
