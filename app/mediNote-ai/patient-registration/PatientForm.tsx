@@ -18,6 +18,9 @@ export default function PatientForm() {
     phone: "",
     ssn_last4: "",
     address: "",
+    date_of_birth: "",
+    age: 0,
+    sex: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,9 +28,31 @@ export default function PatientForm() {
   const [registeredPatientId, setRegisteredPatientId] = useState<number | null>(null);
   const [showVoiceEnroll, setShowVoiceEnroll] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Calculate age from date of birth
+  const calculateAge = (dob: string): number => {
+    if (!dob) return 0;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    if (name === "date_of_birth") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+        age: calculateAge(value),
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,11 +61,24 @@ export default function PatientForm() {
     setError(null);
 
     try {
-      const response = await APIService.registerPatient(formData);
+       const apiData = {
+      first_name: formData.first_name || "",
+      last_name: formData.last_name || "",
+      email: formData.email || "",
+      phone: formData.phone || "",
+      ssn_last4: formData.ssn_last4 || "",
+      address: formData.address || "",
+      date_of_birth: formData.date_of_birth || "",
+      age: formData.age || 0, // Ensure it's a number, not undefined
+      sex: formData.sex || "",
+    };
+
+
+      const response = await APIService.registerPatient(apiData);
       if (!response?.id) throw new Error("Invalid response from server");
 
       setRegisteredPatientId(response.id);
-      setCurrentStep(2); // Move to Voice Enrollment
+      setCurrentStep(2);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -61,6 +99,9 @@ export default function PatientForm() {
       phone: "",
       ssn_last4: "",
       address: "",
+      date_of_birth: "",
+      age: 0,
+      sex: "",
     });
     setError(null);
     setRegisteredPatientId(null);
@@ -152,7 +193,7 @@ export default function PatientForm() {
                 required
                 className="col-span-2 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-md"
               />
-              <div className="grid grid-cols-2 gap-6 col-span-2">
+              <div className="grid grid-cols-3 gap-4 col-span-2">
                 <input
                   type="tel"
                   name="phone"
@@ -173,6 +214,40 @@ export default function PatientForm() {
                   required
                   className="px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-md"
                 />
+                <select
+                  name="sex"
+                  value={formData.sex}
+                  onChange={handleChange}
+                  required
+                  className="px-4 py-3 rounded-lg text-gray-900 bg-white focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-md"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4 col-span-2">
+                <input
+                  type="date"
+                  name="date_of_birth"
+                  placeholder="Date of Birth"
+                  value={formData.date_of_birth}
+                  onChange={handleChange}
+                  required
+                  className="px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-md"
+                />
+                <input
+                  type="number"
+                  name="age"
+                  placeholder="Age"
+                  value={formData.age || ""}
+                  onChange={handleChange}
+                  min="0"
+                  max="120"
+                  className="px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300 rounded-md"
+                  readOnly={!!formData.date_of_birth}
+                />
               </div>
               <input
                 type="text"
@@ -188,7 +263,15 @@ export default function PatientForm() {
                 <button
                   type="button"
                   onClick={() => setFormData({
-                    first_name: "", last_name: "", email: "", phone: "", ssn_last4: "", address: ""
+                    first_name: "", 
+                    last_name: "", 
+                    email: "", 
+                    phone: "", 
+                    ssn_last4: "", 
+                    address: "",
+                    date_of_birth: "",
+                    age: 0,
+                    sex: "",
                   })}
                   className="flex-1 py-3 rounded-lg bg-white/20 hover:bg-white/30 text-white font-medium transition"
                 >

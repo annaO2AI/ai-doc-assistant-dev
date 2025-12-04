@@ -8,7 +8,7 @@ import HeaderAISearch from "../../chat-ui/components/Header";
 import Breadcrumbs from "../../components/dashboard/Breadcrumbs"; // Import Breadcrumbs component
 import PatientForm from "./patient-details";
 
-export default function ProcurementSearchPage() {
+export default function DocAssistantPage() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(true);
   const [hovered, setHovered] = useState(false);

@@ -19,7 +19,7 @@ import ICDGenerator from "../icd-code-generator/ICDGenerator"
 // Define types for our state
 type AppState = "patientCheck" | "transcription" | "summary"
 
-export default function ProcurementSearchPage() {
+export default function DocAssistantPage() {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(true)
   const [hovered, setHovered] = useState(false)
@@ -97,7 +97,7 @@ export default function ProcurementSearchPage() {
 
   // Debug state changes
   useEffect(() => {
-    console.log("ProcurementSearchPage state:", { sessionId, patientId, doctorId, patientName, doctorName, currentState });
+    console.log("DocAssistantPage state:", { sessionId, patientId, doctorId, patientName, doctorName, currentState });
   }, [sessionId, patientId, doctorId, patientName, doctorName, currentState]);
 
   return (

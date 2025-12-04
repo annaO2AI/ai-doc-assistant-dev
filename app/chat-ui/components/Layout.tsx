@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import Aisearch from "./Aisearch"
-import ProcurementSearchPage from "../../mediNote-ai/doctor-patient-voice/page"
+import DocAssistantPage from "../../mediNote-ai/doctor-patient-voice/page"
 
 
 export default function Layout() {
@@ -13,7 +13,7 @@ export default function Layout() {
 
   return (
     <>
-      <ProcurementSearchPage />
+      <DocAssistantPage />
     </>
   )
 }

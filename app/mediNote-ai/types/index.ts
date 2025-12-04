@@ -219,12 +219,15 @@ export interface startConversationPayload {
 }
 
 export interface PatientCreationTypes {
-  first_name?: string
-  last_name?: string
-  email?: string
-  phone?: string
-  ssn_last4?: string
-  address?: string
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  ssn_last4?: string;
+  address?: string;
+  date_of_birth?: string;
+  age?: number;
+  sex?: string;
 }
 
 export interface patient extends PatientCreationTypes {
@@ -1055,4 +1058,28 @@ export interface DiagnosticReportSummary {
 
 export interface DiagnosticReportObservations {
   observations: DiagnosticReportObservation[]
+}
+
+export interface ObjectiveData {
+  id?: number;
+  patient_id: number;
+  session_id?: number;
+  summary_id?: number;
+  blood_pressure_systolic: number;
+  blood_pressure_diastolic: number;
+  heart_rate: number;
+  respiratory_rate: number;
+  temperature_f: number;
+  oxygen_saturation: number;
+  general_appearance: string;
+  heent: string;
+  neurological: string;
+  doctor_id?: number | null;
+  doctor_name?: string | null;
+}
+
+export interface ObjectiveUpdateData extends Omit<ObjectiveData, 'id' | 'patient_id' | 'doctor_id' | 'doctor_name'> {
+  patient_id: number;
+  session_id: number;
+  summary_id: number;
 }

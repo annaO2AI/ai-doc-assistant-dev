@@ -53,6 +53,12 @@ const menuItems = [
         label: "Pharmacy",
         href: "/mediNote-ai/pharmacy",
         icon: ArroTabIcon,
+      },
+      
+      {
+        label: "Vitals & Objective",
+        href: "/mediNote-ai/vitals-objective",
+        icon: ArroTabIcon,
       }
     ],
   },
@@ -66,7 +72,7 @@ const menuItems = [
         href: "/mediNote-ai/epic",
         icon: ArroTabIcon,
       },
-         {
+      {
         label: "Epic Patient Search & Medication",
         href: "/mediNote-ai/epic-search-medication",
         icon: ArroTabIcon,
@@ -91,7 +97,7 @@ const menuItems = [
         href: "/mediNote-ai/epic-referral-search",
         icon: ArroTabIcon,
       },
-         {
+      {
         label: "Epic Appointment",
         href: "/mediNote-ai/epic-appointment",
         icon: ArroTabIcon,
@@ -257,7 +263,7 @@ export default function Sidebar({
             <div
               className={clsx(
                 "overflow-hidden transition-all duration-300",
-                openMenu === menu.id ? "max-h-96" : "max-h-0"
+                openMenu === menu.id ? "max-h-[430px]" : "max-h-0"
               )}
             >
               {menu.subItems.map((subItem, index) => (

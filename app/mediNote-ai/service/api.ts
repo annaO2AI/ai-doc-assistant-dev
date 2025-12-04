@@ -1259,4 +1259,30 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
     const data = await response.json();
     return data.raw || data;
   }
+
+
+   static async saveObjective(data: any): Promise<any> {
+    try {
+      const response = await fetch(
+        'https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/objective/save',
+        {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error saving objective data:', error);
+      throw error;
+    }
+  }
 }
