@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react"
 import { APIService } from "../service/api"
-import { DiagnosticReportObservations, DiagnosticReportSummary, EpicPatient, EpicPatientSearchProps } from "../types"
+import {
+  DiagnosticReportObservations,
+  DiagnosticReportSummary,
+  EpicPatient,
+  EpicPatientSearchProps,
+} from "../types"
 
 export default function EpicPatientLabResults({
   tokenId,
@@ -114,11 +119,7 @@ export default function EpicPatientLabResults({
         setShowDiagnosticReports(true)
       }
     } catch (err) {
-      setDiagnosticReportsError(
-        err instanceof Error
-          ? `Error fetching diagnostic reports: ${err.message}`
-          : "Failed to fetch diagnostic reports"
-      )
+      setDiagnosticReportsError("Failed to fetch diagnostic reports")
       setDiagnosticReports([])
       setShowDiagnosticReports(true)
     } finally {
@@ -581,22 +582,56 @@ export default function EpicPatientLabResults({
               )}
 
               {diagnosticReportsError && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-                  <div className="flex items-center">
-                    <svg
-                      className="w-5 h-5 text-red-600 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <p className="text-sm text-red-600">
-                      {diagnosticReportsError}
-                    </p>
+                <div className="mb-8">
+                  <div className="bg-gradient-to-r from-blue-50 to-gray-50 border-l-4 border-blue-500 rounded-r-lg p-6">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0">
+                        <svg
+                          className="w-6 h-6 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          No diagnostic reports found for this patient
+                        </h3>
+                        {/* <div className="mt-2 text-gray-700">
+                          <p className="text-sm">{diagnosticReportsError}</p>
+                          {diagnosticReportsError.includes("400") && (
+                            <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200">
+                              <p className="text-sm font-medium text-gray-900 mb-2">
+                                Common Solutions:
+                              </p>
+                              <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
+                                <li>
+                                  Verify the patient has diagnostic reports
+                                  available
+                                </li>
+                                <li>
+                                  Check your access permissions for this patient
+                                </li>
+                                <li>
+                                  Ensure the patient ID is correctly configured
+                                </li>
+                                <li>
+                                  Try refreshing the page or using a different
+                                  patient
+                                </li>
+                              </ul>
+                            </div>
+                          )}
+                        </div> */}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
