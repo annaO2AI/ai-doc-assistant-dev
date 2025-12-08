@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useState, useRef } from "react";
 import {
-  Play, Pause, Edit, CheckCircle, SkipBack, SkipForward,
-  FileText, Calendar, User, Stethoscope, Save,
-} from "lucide-react";
+  Play, Pause, Edit, CheckCircle, User, Stethoscope, Save, Activity} from "lucide-react";
 import { APIService } from "../service/api";
-import { TranscriptionSummary } from "../types";
+import { ObjectiveData, TranscriptionSummary } from "../types";
 import { Summary } from "../transcription-summary/Summary";
 import Image from 'next/image';
 import SummaryPharmacyGen from "../pharmacy/SummaryPharmacyGen";
@@ -19,8 +17,7 @@ type TextCase = {
   summaryData: SummaryText;
   showICDGenerator: boolean;
   setShowICDGenerator: (show: boolean) => void;
-  doctorId:number
-
+  doctorId: number;
 };
 
 type SummaryText = {
@@ -65,6 +62,9 @@ export default function SummaryGeneration({
   const [duration, setDuration] = useState(0);
   const [progress, setProgress] = useState(0);
   const [pharmacyData, setPharmacyData] = useState<MedicationResponse | any>(null);
+  const [objectiveData, setObjectiveData] = useState<ObjectiveData[]>([]);
+  const [isLoadingObjective, setIsLoadingObjective] = useState(false);
+  
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -90,6 +90,35 @@ export default function SummaryGeneration({
     setNotification({ message, show: true });
     setTimeout(() => setNotification({ message: "", show: false }), 3000);
   }, []);
+
+  // Add function to fetch objective data
+  const fetchObjectiveData = useCallback(async () => {
+    if (!patientId) return;
+    
+    try {
+      setIsLoadingObjective(true);
+      const data = await APIService.getObjectiveByPatient(patientId);
+      if (Array.isArray(data)) {
+        // Filter out entries with all zeros/default values if needed
+        const validData = data.filter(item => 
+          item.blood_pressure_systolic > 0 || 
+          item.blood_pressure_diastolic > 0 ||
+          item.heart_rate > 0 ||
+          item.respiratory_rate > 0 ||
+          item.temperature_f > 0 ||
+          item.oxygen_saturation > 0 ||
+          item.general_appearance ||
+          item.heent ||
+          item.neurological
+        );
+        setObjectiveData(validData);
+      }
+    } catch (err) {
+      handleApiError(err, "Failed to fetch objective data");
+    } finally {
+      setIsLoadingObjective(false);
+    }
+  }, [patientId, handleApiError]);
 
   const loadAudio = useCallback(async () => {
     if (!sessionId) return;
@@ -257,6 +286,13 @@ export default function SummaryGeneration({
       audio.removeEventListener('loadeddata', handleLoadedData);
     };
   }, [handleTimeUpdate]);
+
+  // Fetch objective data when component mounts
+  useEffect(() => {
+    if (patientId) {
+      fetchObjectiveData();
+    }
+  }, [patientId, fetchObjectiveData]);
 
   // No revoke needed when using direct web URLs
 
@@ -460,8 +496,10 @@ export default function SummaryGeneration({
       if (!section) return null;
       const { level, title, content: sectionContent } = section;
       const displayTitle = title === "Patient Chief Concerns & Symptoms"
-        ? "Patient Concerns & Symptoms"
-        : title;
+        ? "Review of Systems"
+        : title === "Encounter Summary"
+          ? "Subjective"
+          : title
 
       const formatContent = (text: string) => {
         const lines = text.split('\n').filter(line => line.trim());
@@ -515,6 +553,9 @@ export default function SummaryGeneration({
   const followupNote = summaryId?.summary?.ui?.followup?.note?.replace(/\*\*/g, "") ?? "";
   const followupDate = summaryId?.summary?.ui?.followup?.date ?? "To be scheduled";
 
+  // Get the latest objective data
+  const latestObjective = objectiveData.length > 0 ? objectiveData[0] : null;
+
   const Loader = () => (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-50 bg-opacity-75 z-50">
       <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
@@ -545,6 +586,91 @@ export default function SummaryGeneration({
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  // Function to render objective data section inside Visit Summary
+  const renderObjectiveSection = () => {
+    if (isLoadingObjective) {
+      return (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Objective</h3>
+          <div className="flex justify-center items-center h-20">
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-blue-600"></div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!latestObjective) {
+      return null;
+    }
+
+    const {
+      blood_pressure_systolic,
+      blood_pressure_diastolic,
+      heart_rate,
+      respiratory_rate,
+      temperature_f,
+      oxygen_saturation,
+      general_appearance,
+      heent,
+      neurological
+    } = latestObjective;
+
+    return (
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Objective</h3>
+        
+        {/* Vital Signs Section */}
+        <div className="mb-4">
+          <h4 className="text-md font-medium text-gray-800 mb-3 flex items-center">
+            <Activity className="w-4 h-4 mr-2 text-blue-600" />
+            Vital Signs
+          </h4>
+          <ul className="list-none space-y-2 pl-6">
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Blood Pressure:</span> {blood_pressure_systolic}/{blood_pressure_diastolic} mmHg
+            </li>
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Heart Rate:</span> {heart_rate} bpm
+            </li>
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Respiratory Rate:</span> {respiratory_rate} breaths/min
+            </li>
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Temperature:</span> {temperature_f}°F
+            </li>
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Oxygen Saturation:</span> {oxygen_saturation}% on room air
+            </li>
+          </ul>
+        </div>
+
+        {/* Physical Exam Section */}
+        <div className="space-y-3">
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-2">General Appearance</h4>
+            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+              {general_appearance}
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-2">HEENT</h4>
+            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+              {heent}
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-2">Neurological</h4>
+            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+              {neurological}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -600,16 +726,6 @@ export default function SummaryGeneration({
               <div className="relative rounded-full overflow-hidden flex items-center px-2 py-2 border border-white">
                 {/* Control Buttons */}
                 <div className="flex items-center space-x-2 mr-3">
-                  {/* Backward 10s */}
-                  {/* <button
-                    className="p-2 text-white/70 hover:text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={handleSkipBackward}
-                    disabled={isLoadingAudio || isLoading || isApproved}
-                    title="Rewind 10 seconds"
-                  >
-                    <SkipBack className="h-4 w-4" />
-                  </button> */}
-                  
                   {/* Play/Pause Button */}
                   <button
                     className={`relative flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm transition-all duration-200 hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -627,16 +743,6 @@ export default function SummaryGeneration({
                       <Play className="h-5 w-5 text-white ml-0.5" />
                     )}
                   </button>
-                  
-                  {/* Forward 10s */}
-                  {/* <button
-                    className="p-2 text-white/70 hover:text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={handleSkipForward}
-                    disabled={isLoadingAudio || isLoading || isApproved}
-                    title="Fast forward 10 seconds"
-                  >
-                    <SkipForward className="h-4 w-4" />
-                  </button> */}
                 </div>
                 
                 {/* Layered Waveform Visualization */}
@@ -698,31 +804,27 @@ export default function SummaryGeneration({
                 </div>
               </div>
             </div>
-            {/* <Image
-              src="/audio-clip-illustrations.svg"
-              alt="Audio Clip Illustration"
-              width={449}
-              height={42}
-            /> */}
           </div>
+          
+          {/* Visit Summary Section - Now includes Objective Data */}
           <div className="rounded-lg shadow-sm p-6 mb-6 bg-white ">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold text-gray-900">Visit Summary</h2>
-                  <div className="flex gap-4">
+              <div className="flex gap-4">
                 <button
-                className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                onClick={() => setShowICDGenerator(!showICDGenerator)}
-                disabled={isLoading || isApproved}
-              >
-                ICD Code Generator
-              </button>
-                 <SummaryPharmacyGen 
-              data={pharmacyData}
-              setData={setPharmacyData}
-              sessionId={sessionId}
-              patientId={patientId}
-              doctorId={doctorId}
-              />
+                  className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  onClick={() => setShowICDGenerator(!showICDGenerator)}
+                  disabled={isLoading || isApproved}
+                >
+                  ICD Code Generator
+                </button>
+                <SummaryPharmacyGen 
+                  data={pharmacyData}
+                  setData={setPharmacyData}
+                  sessionId={sessionId}
+                  patientId={patientId}
+                  doctorId={doctorId}
+                />
               </div>
             </div>
             <div className="flex justify-between items-start">
@@ -740,7 +842,10 @@ export default function SummaryGeneration({
                     {summaryContent === "Summary content not available." ? (
                       <p>{summaryContent}</p>
                     ) : (
-                      renderContentSections(summaryContent || "")
+                      <>
+                        {renderContentSections(summaryContent || "")}
+                        {renderObjectiveSection()}
+                      </>
                     )}
                   </div>
                 )}

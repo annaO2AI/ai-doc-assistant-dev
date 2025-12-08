@@ -1063,8 +1063,8 @@ export interface DiagnosticReportObservations {
 export interface ObjectiveData {
   id?: number;
   patient_id: number;
-  session_id?: number;
-  summary_id?: number;
+  session_id: number;
+  summary_id: number;
   blood_pressure_systolic: number;
   blood_pressure_diastolic: number;
   heart_rate: number;
@@ -1079,6 +1079,9 @@ export interface ObjectiveData {
 }
 
 export interface ObjectiveUpdateData extends Omit<ObjectiveData, 'id' | 'patient_id' | 'doctor_id' | 'doctor_name'> {
+  doctor_name: null
+  doctor_id: null
+  id: number
   patient_id: number;
   session_id: number;
   summary_id: number;

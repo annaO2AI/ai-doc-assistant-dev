@@ -1,15 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useState, useRef } from "react"
-import { Play, Pause, CheckCircle, User, Stethoscope, Save } from "lucide-react"
+import { Play, Pause, CheckCircle, User, Stethoscope, Activity } from "lucide-react"
 import { APIService } from "../service/api"
-import { TranscriptionSummary } from "../types"
+import { ObjectiveData, TranscriptionSummary } from "../types"
 import { Summary } from "../transcription-summary/Summary"
 import Image from "next/image"
 import SummaryPharmacyGen from "../pharmacy/SummaryPharmacyGen"
 import { MedicationResponse } from "../pharmacy/PharmacyGenerator"
 import ICDGenerator from "../icd-code-generator/ICDGenerator"
-import { useRouter, usePathname } from "next/navigation"
 
 type TextCase = {
   sessionId: number
@@ -58,13 +57,6 @@ type DocumentReference = {
   type: DocumentReferenceType[]
 }
 
-type EpicDocumentReferenceResponse = {
-  ok: boolean
-  total: number
-  items: DocumentReference[]
-  epic_status: number
-}
-
 // Default encounter type
 type DefaultEncounter = {
   id: string
@@ -73,7 +65,7 @@ type DefaultEncounter = {
   serviceProvider: string
   display: string
 }
-
+// Move handleApiError to the top, right after the other hooks
 export default function EpicGenerateSummary({
   sessionId,
   patientId,
@@ -124,11 +116,59 @@ export default function EpicGenerateSummary({
   const [noteTypeDisplay, setNoteTypeDisplay] = useState("")
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
+  const [objectiveData, setObjectiveData] = useState<ObjectiveData[]>([]);
+  const [isLoadingObjective, setIsLoadingObjective] = useState(false);
 
-  const handleBackToEpic = useCallback(() => {
+
+    const handleBackToEpic = useCallback(() => {
     const epicPath = "/mediNote-ai/epic"
     window.location.href = epicPath
   }, [])
+  
+  // Define handleApiError FIRST
+  const handleApiError = useCallback((error: unknown, context: string) => {
+    const message =
+      error instanceof Error ? error.message : "An unknown error occurred"
+    setApiError(`${context}: ${message}`)
+    console.error(`${context} error:`, error)
+  }, [])
+
+  const showNotification = useCallback((message: string) => {
+    setNotification({ message, show: true })
+    setTimeout(() => setNotification({ message: "", show: false }), 3000)
+  }, [])
+
+  // Now fetchObjectiveData can use handleApiError safely
+  const fetchObjectiveData = useCallback(async () => {
+    if (!patientId) return;
+    
+    try {
+      setIsLoadingObjective(true);
+      const data = await APIService.getObjectiveByPatient(patientId);
+      if (Array.isArray(data)) {
+        // Filter out entries with all zeros/default values if needed
+        const validData = data.filter(item => 
+          item.blood_pressure_systolic > 0 || 
+          item.blood_pressure_diastolic > 0 ||
+          item.heart_rate > 0 ||
+          item.respiratory_rate > 0 ||
+          item.temperature_f > 0 ||
+          item.oxygen_saturation > 0 ||
+          item.general_appearance ||
+          item.heent ||
+          item.neurological
+        );
+        setObjectiveData(validData);
+      }
+    } catch (err) {
+      handleApiError(err, "Failed to fetch objective data"); // Now this works
+    } finally {
+      setIsLoadingObjective(false);
+    }
+  }, [patientId, handleApiError]);
+
+
+
 
   // Generate fixed waveform heights (shared for gray and blue)
   const waveformHeights = useRef<number[]>([])
@@ -164,19 +204,6 @@ export default function EpicGenerateSummary({
     const defaultEncounter = createDefaultEncounter()
     return [defaultEncounter]
   }, [epicCounters, createDefaultEncounter])
-
-  // Define all Hooks first
-  const handleApiError = useCallback((error: unknown, context: string) => {
-    const message =
-      error instanceof Error ? error.message : "An unknown error occurred"
-    setApiError(`${context}: ${message}`)
-    console.error(`${context} error:`, error)
-  }, [])
-
-  const showNotification = useCallback((message: string) => {
-    setNotification({ message, show: true })
-    setTimeout(() => setNotification({ message: "", show: false }), 3000)
-  }, [])
 
   // Handler for direct save summary
   const handleSaveSummary = useCallback(() => {
@@ -455,6 +482,13 @@ export default function EpicGenerateSummary({
     }
   }, [handleTimeUpdate])
 
+   // Fetch objective data when component mounts
+    useEffect(() => {
+      if (patientId) {
+        fetchObjectiveData();
+      }
+    }, [patientId, fetchObjectiveData]);
+
   // No revoke needed when using direct web URLs
 
   useEffect(() => {
@@ -635,9 +669,10 @@ export default function EpicGenerateSummary({
     return sections.map((section, index) => {
       if (!section) return null
       const { level, title, content: sectionContent } = section
-      const displayTitle =
-        title === "Patient Chief Concerns & Symptoms"
-          ? "Patient Concerns & Symptoms"
+      const displayTitle = title === "Patient Chief Concerns & Symptoms"
+        ? "Review of Systems"
+        : title === "Encounter Summary"
+          ? "Subjective"
           : title
 
       const formatContent = (text: string) => {
@@ -709,6 +744,10 @@ export default function EpicGenerateSummary({
   const followupDate =
     summaryId?.summary?.ui?.followup?.date ?? "To be scheduled"
 
+  // Get the latest objective data
+  const latestObjective = objectiveData.length > 0 ? objectiveData[0] : null;
+
+
   const Loader = () => (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-50 bg-opacity-75 z-50">
       <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600"></div>
@@ -764,6 +803,93 @@ export default function EpicGenerateSummary({
     if (loincType) return [loincType.display]
     return types.map((t) => t.display).filter(Boolean)
   }
+
+  
+    // Function to render objective data section inside Visit Summary
+    const renderObjectiveSection = () => {
+      if (isLoadingObjective) {
+        return (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Objective</h3>
+            <div className="flex justify-center items-center h-20">
+              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-blue-600"></div>
+            </div>
+          </div>
+        );
+      }
+  
+      if (!latestObjective) {
+        return null;
+      }
+  
+      const {
+        blood_pressure_systolic,
+        blood_pressure_diastolic,
+        heart_rate,
+        respiratory_rate,
+        temperature_f,
+        oxygen_saturation,
+        general_appearance,
+        heent,
+        neurological
+      } = latestObjective;
+  
+      return (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Objective</h3>
+          
+          {/* Vital Signs Section */}
+          <div className="mb-4">
+            <h4 className="text-md font-medium text-gray-800 mb-3 flex items-center">
+              <Activity className="w-4 h-4 mr-2 text-blue-600" />
+              Vital Signs
+            </h4>
+            <ul className="list-none space-y-2 pl-6">
+              <li className="text-gray-700 text-sm leading-relaxed">
+                <span className="font-medium">Blood Pressure:</span> {blood_pressure_systolic}/{blood_pressure_diastolic} mmHg
+              </li>
+              <li className="text-gray-700 text-sm leading-relaxed">
+                <span className="font-medium">Heart Rate:</span> {heart_rate} bpm
+              </li>
+              <li className="text-gray-700 text-sm leading-relaxed">
+                <span className="font-medium">Respiratory Rate:</span> {respiratory_rate} breaths/min
+              </li>
+              <li className="text-gray-700 text-sm leading-relaxed">
+                <span className="font-medium">Temperature:</span> {temperature_f}°F
+              </li>
+              <li className="text-gray-700 text-sm leading-relaxed">
+                <span className="font-medium">Oxygen Saturation:</span> {oxygen_saturation}% on room air
+              </li>
+            </ul>
+          </div>
+  
+          {/* Physical Exam Section */}
+          <div className="space-y-3">
+            <div>
+              <h4 className="text-md font-medium text-gray-800 mb-2">General Appearance</h4>
+              <p className="text-gray-700 text-sm leading-relaxed pl-4">
+                {general_appearance}
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-md font-medium text-gray-800 mb-2">HEENT</h4>
+              <p className="text-gray-700 text-sm leading-relaxed pl-4">
+                {heent}
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-md font-medium text-gray-800 mb-2">Neurological</h4>
+              <p className="text-gray-700 text-sm leading-relaxed pl-4">
+                {neurological}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+  
 
   return (
     <>
@@ -953,7 +1079,10 @@ export default function EpicGenerateSummary({
                   {summaryContent === "Summary content not available." ? (
                     <p>{summaryContent}</p>
                   ) : (
-                    renderContentSections(summaryContent || "")
+                         <>
+                           {renderContentSections(summaryContent || "")}
+                           {renderObjectiveSection()}
+                         </>
                   )}
                 </div>
               </div>

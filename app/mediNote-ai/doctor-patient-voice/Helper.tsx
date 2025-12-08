@@ -75,7 +75,7 @@
       // If no sections were found, add the entire content as one section
       if (sections.length === 0) {
         sections.push({
-          title: "Encounter Summary",
+          title: "Subjective",
           content: [summaryContent || "No summary available"]
         });
       }
@@ -93,7 +93,7 @@ export function formatArrayToString(sectionsArray:any) {
   
   sectionsArray.forEach((section:any, index:number) => {
     // Add section title
-    if (section.title === 'Encounter Summary') {
+    if (section.title === 'Subjective') {
       result += `# ${section.title}\n`;
     } else {
       result += `## ${section.title}\n`;

@@ -1,4 +1,4 @@
-import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner, EpicDocumentReferenceResponse,EpicPatientsResponse, EOBSearchResponse} from "../types";
+import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner, EpicDocumentReferenceResponse,EpicPatientsResponse, EOBSearchResponse, ObjectiveUpdateData} from "../types";
 import { API_BASE_URL_AISEARCH_MediNote, API_ROUTES } from "../../constants/api";
 
 const API_SERVICE = "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net"
@@ -1282,6 +1282,29 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
       return await response.json();
     } catch (error) {
       console.error('Error saving objective data:', error);
+      throw error;
+    }
+  }
+
+    static async getObjectiveByPatient(patientId: number): Promise<ObjectiveUpdateData[]> {
+    try {
+      const response = await fetch(
+        `https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/objective/by-patient/${patientId}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching objective data:', error);
       throw error;
     }
   }
