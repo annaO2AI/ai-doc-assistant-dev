@@ -123,7 +123,7 @@ export default function EpicDoctorSearch({
   return (
     <div className="epic-doctor-search bg-white rounded-lg shadow-lg p-6 max-w-md w-full mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-gray-900">
           Search Epic Practitioner
         </h3>

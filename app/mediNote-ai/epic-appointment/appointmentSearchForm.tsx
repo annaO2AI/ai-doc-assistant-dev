@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState } from "react";
+import Image from "next/image"
 
 interface AppointmentSearchFormProps {
   tokenId: string
@@ -490,9 +491,9 @@ export function AppointmentSearchForm({ tokenId }: AppointmentSearchFormProps) {
 
       {/* Results Section */}
       {searchResults && !showSearchForm && (
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-12">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Search Results</h2>
+            <h2 className="text-[28px] font-bold text-gray-900">Search Results</h2>
             <button
               onClick={handleNewSearch}
               className="px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
@@ -501,28 +502,20 @@ export function AppointmentSearchForm({ tokenId }: AppointmentSearchFormProps) {
             </button>
           </div>
           
-          {/* Results Summary */}
-          {/* <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-sm font-medium text-blue-800">
-              Total Results: <span className="font-bold">{searchResults.total}</span>
-            </p>
-            <p className="text-sm text-blue-700">
-              Resource Type: <span className="font-mono">{searchResults.resourceType}</span>
-            </p>
-            {error && error.includes("Method not implemented") && (
-              <p className="text-sm text-orange-700 mt-1">
-                Note: This is a simulated response due to API implementation issues
-              </p>
-            )}
-          </div> */}
-          
           {searchResults.total === 0 ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-              <p className="text-sm font-medium text-yellow-800 mb-2">No appointments found</p>
+            <div className="rounded-md p-4 text-center">
+              <p className="text-[22px] font-medium text-[#34334B] mb-2">No appointments found</p>
+              <Image
+                src="/No data.gif"
+                alt="Epic logo"
+                width={180}
+                height={180}
+                className="flex-shrink-0 m-auto"
+              />
               {searchResults.entry && searchResults.entry.length > 0 && searchResults.entry[0].resource?.issue && (
                 <div className="space-y-2">
                   {searchResults.entry[0].resource.issue.map((issue: any, index: number) => (
-                    <div key={index} className="text-sm text-yellow-700">
+                    <div key={index} className="text-sm text-[#34334B] w-[350px] m-auto">
                       {issue.diagnostics || issue.details?.text}
                     </div>
                   ))}

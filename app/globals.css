@@ -596,7 +596,7 @@ body {
     box-shadow: 1px 1px 50px #0000001e;
   }
   .glass-card {
-  background-color: rgba(250, 252, 255, 0.596);           /* White with 80% opacity */
+  background-color: rgba(250, 252, 255, 0.596) !important;           /* White with 80% opacity */
   backdrop-filter: blur(12px);                   /* The blur effect */
   -webkit-backdrop-filter: blur(12px);           /* Safari support */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);

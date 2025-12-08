@@ -246,8 +246,8 @@ export default function EpicPatientSearch({
     <div className="epic-patient-search rounded-lg w-[83%] mx-auto flex flex-col">
       <div className="ml-[-26px]">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-[24px] font-semibold ot-title mt-6">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-[24px] font-semibold ot-title mt-2">
             Search Epic Patients
           </h3>
         </div>

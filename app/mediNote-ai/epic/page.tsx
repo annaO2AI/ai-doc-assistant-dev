@@ -189,7 +189,7 @@ export default function Page() {
             setHovered={setHovered}
           />
         )}
-        <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
+        {/* <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} /> */}
         {!authToken && <EpicAuthentication onTokenSubmit={handleTokenSubmit} />}
         {authToken && (
           <div
