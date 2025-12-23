@@ -8,7 +8,7 @@ interface ModalProps {
   isOpen: boolean
   onClose: () => void
   id: number
-  onSuccess: () => void   // Add this prop to trigger Step 3 in parent
+  onSuccess?: () => void 
 }
 
 const convertToWav = async (audioBlob: Blob): Promise<Blob> => {
@@ -137,7 +137,10 @@ export const DoctorVoiceEnroll: React.FC<ModalProps> = ({
       const response = await APIService.enrollDoctorVoice(id, audioFile)
       if (response) {
         // Success! Trigger parent success handler → goes to Step 3
-        onSuccess()
+        // Check if onSuccess exists before calling it
+        if (onSuccess) {
+          onSuccess()
+        }
       }
     } catch (err) {
       setError(
