@@ -268,7 +268,7 @@ export default function Sidebar({
             <div
               className={clsx(
                 "overflow-hidden transition-all duration-300",
-                openMenu === menu.id ? "max-h-[430px]" : "max-h-0"
+                openMenu === menu.id ? " " : "max-h-0"
               )}
             >
               {menu.subItems.map((subItem, index) => (
