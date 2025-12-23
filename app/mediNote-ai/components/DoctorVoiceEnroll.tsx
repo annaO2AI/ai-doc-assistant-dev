@@ -188,9 +188,9 @@ export const DoctorVoiceEnroll: React.FC<ModalProps> = ({
           Please read the following text clearly:
           <br />
           <span className="font-bold text-xl block mt-4">
-            "As a medical professional, I authorize the use of voice authentication for secure access. 
+            &quot;As a medical professional, I authorize the use of voice authentication for secure access. 
             I understand this voice signature will be used exclusively for authorized healthcare interactions 
-            and will be stored with the highest level of security and confidentiality."
+            and will be stored with the highest level of security and confidentiality.&quot;
           </span>
         </p>
 
