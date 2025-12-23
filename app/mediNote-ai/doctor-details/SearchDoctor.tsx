@@ -1,143 +1,148 @@
-import React, { useState, useEffect, useCallback } from "react";
-import DoctorCard from "../components/DoctorCard";
-import { APIService } from "../service/api";
-import { UpdateDoctorModal } from "../components/UpdateDoctorModal";
-import { DoctorVoiceEnroll } from "../components/DoctorVoiceEnroll";
-import Image from 'next/image';
+import React, { useState, useEffect, useCallback } from "react"
+import DoctorCard from "../components/DoctorCard"
+import { APIService } from "../service/api"
+import { UpdateDoctorModal } from "../components/UpdateDoctorModal"
+import { DoctorVoiceEnroll } from "../components/DoctorVoiceEnroll"
+import Image from "next/image"
 
 interface ApiResponse {
-  results: doctor[];
+  results: doctor[]
 }
 
 interface doctor {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  voice_enrolled: boolean;
-  full_name: string;
+  id: number
+  first_name: string
+  last_name: string
+  email: string
+  voice_enrolled: boolean
+  full_name: string
 }
 
 interface DoctorCreationTypes {
-  first_name: string;
-  last_name: string;
-  email: string;
+  first_name: string
+  last_name: string
+  email: string
 }
 
 const SearchDoctor: React.FC = () => {
-  const [doctors, setDoctors] = useState<doctor[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
-  const [selectedDoctor, setSelectedDoctor] = useState<doctor | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [doctors, setDoctors] = useState<doctor[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false)
+  const [selectedDoctor, setSelectedDoctor] = useState<doctor | null>(null)
+  const [hasSearched, setHasSearched] = useState(false)
 
   // Memoized fetchDoctors function
   const fetchDoctors = useCallback(async () => {
     if (!searchQuery.trim()) {
-      setDoctors([]);
-      setHasSearched(false);
-      return;
+      setDoctors([])
+      setHasSearched(false)
+      return
     }
 
     try {
-      const data: ApiResponse = await APIService.SearchDoctor(searchQuery);
+      const data: ApiResponse = await APIService.SearchDoctor(searchQuery)
       if (!data) {
-        setError("Something went wrong");
-        throw new Error("No response received from server");
+        setError("Something went wrong")
+        throw new Error("No response received from server")
       } else {
-        const doctorsWithFullName = data.results.map(doctor => ({
+        const doctorsWithFullName = data.results.map((doctor) => ({
           ...doctor,
-          full_name: `${doctor.first_name} ${doctor.last_name}`
-        }));
-        setDoctors(doctorsWithFullName);
-        setDoctors(data.results);
-        setHasSearched(true);
-        setLoading(false);
-        setError(null);
+          full_name: `${doctor.first_name} ${doctor.last_name}`,
+        }))
+        setDoctors(doctorsWithFullName)
+        setDoctors(data.results)
+        setHasSearched(true)
+        setLoading(false)
+        setError(null)
       }
     } catch (err) {
       if (err instanceof Error) {
-        setError(`Failed to fetch doctors: ${err.message}`);
+        setError(`Failed to fetch doctors: ${err.message}`)
       } else {
-        setError("Failed to fetch doctors");
+        setError("Failed to fetch doctors")
       }
-      setLoading(false);
-      setHasSearched(true);
+      setLoading(false)
+      setHasSearched(true)
     }
-  }, [searchQuery]);
+  }, [searchQuery])
 
   // Debounce search input
   useEffect(() => {
     const timerId = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 500);
+      setDebouncedSearchQuery(searchQuery)
+    }, 500)
 
     return () => {
-      clearTimeout(timerId);
-    };
-  }, [searchQuery]);
+      clearTimeout(timerId)
+    }
+  }, [searchQuery])
 
   // Fetch doctors with search query
   useEffect(() => {
-    let isMounted = true;
+    let isMounted = true
 
     const fetchData = async () => {
       try {
-        await fetchDoctors();
+        await fetchDoctors()
       } catch (err) {
         if (isMounted) {
-          setError("Failed to fetch doctors");
-          setLoading(false);
+          setError("Failed to fetch doctors")
+          setLoading(false)
         }
       }
-    };
+    }
 
-    fetchData();
+    fetchData()
 
     return () => {
-      isMounted = false;
-    };
-  }, [debouncedSearchQuery, fetchDoctors]);
+      isMounted = false
+    }
+  }, [debouncedSearchQuery, fetchDoctors])
 
   const handleUpdate = (doctorData: doctor) => {
     if (doctorData) {
-      setSelectedDoctor(doctorData);
-      setIsModalOpen(true);
+      setSelectedDoctor(doctorData)
+      setIsModalOpen(true)
     }
-  };
+  }
 
   const handleEnrollVoice = (doctor: doctor) => {
-    setSelectedDoctor(doctor);
-    setIsVoiceModalOpen(true);
-    console.log(`Enroll voice for doctor with ID: ${doctor.id}`);
-  };
+    setSelectedDoctor(doctor)
+    setIsVoiceModalOpen(true)
+    console.log(`Enroll voice for doctor with ID: ${doctor.id}`)
+  }
 
   const handleSave = async (updatedData: DoctorCreationTypes) => {
-    if (!selectedDoctor) return;
+    if (!selectedDoctor) return
     try {
-      const response = await APIService.updateDoctor(updatedData, selectedDoctor.id);
+      const response = await APIService.updateDoctor(
+        updatedData,
+        selectedDoctor.id
+      )
       if (!response) {
         // alert("Failed to update doctor");
       } else {
-        await fetchDoctors();
-        setSelectedDoctor(null);
-        setIsModalOpen(false);
+        await fetchDoctors()
+        setSelectedDoctor(null)
+        setIsModalOpen(false)
         // alert("Doctor updated successfully!");
       }
     } catch (error) {
-      console.error("Update failed:", error);
-      setError(error instanceof Error ? error.message : "Update failed");
+      console.error("Update failed:", error)
+      setError(error instanceof Error ? error.message : "Update failed")
     }
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 mt-12 ">
       <div className="flex flex-col space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800 text-center">Doctor Details</h1>
+        <h1 className="text-2xl font-bold text-gray-800 text-center">
+          Doctor Details
+        </h1>
         {/* Search Input */}
         <div className="relative  m-auto w-[500px]">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -220,12 +225,12 @@ const SearchDoctor: React.FC = () => {
         {!loading && !error && !hasSearched && (
           <div className="col-span-full text-center py-8">
             <p className="text-gray-500">
-              <Image 
-                  src="/File searching.gif" 
-                  alt="I Search" 
-                  width={240} 
-                  height={240} 
-                  className="imagfilter m-auto"
+              <Image
+                src="/File searching.gif"
+                alt="I Search"
+                width={240}
+                height={240}
+                className="imagfilter m-auto"
               />
               Enter a search query to find doctors
             </p>
@@ -251,11 +256,12 @@ const SearchDoctor: React.FC = () => {
             isOpen={isVoiceModalOpen}
             onClose={() => setIsVoiceModalOpen(false)}
             id={selectedDoctor?.id || 0}
+            showAsModal={true}
           />
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SearchDoctor;
+export default SearchDoctor
