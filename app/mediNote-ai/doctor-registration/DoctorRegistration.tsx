@@ -117,11 +117,11 @@ export default function DoctorForm() {
       </div>
 
       {/* Step Content Card */}
-      <div className="mx-auto bg-white rounded-2xl shadow-xl overflow-hidden flex justify-center w-[65%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
+      <div className="mx-auto bg-white rounded-2xl shadow-xl overflow-hidden flex justify-center w-[65%] mt-6 transcription-welcommassege-main rounded-[1vw] relative auto-hight-vr">
         {/* Step 1: Registration Form */}
         {currentStep === 1 && (
           <>
-            <div className="p-16 text-white relative z-10 w-[55%]">
+            <div className="p-16 text-white relative z-10 w-[55%] flex flex-col justify-center">
               <h2 className="text-2xl font-semibold mb-8">Doctor Registration</h2>
               {error && (
                 <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">
@@ -181,11 +181,11 @@ export default function DoctorForm() {
                 </div>
               </form>
             </div>
-            <div className="flex w-[45%] items-center justify-center">
+            <div className="flex w-[45%] items-left justify-left z-10">
               <Image
-                src="/doctorRegistration-ill.svg"
+                src="/Doctor-pana-Registration.svg"
                 alt="Doctor Illustration"
-                width={250}
+                width={400}
                 height={170}
                 className=""
               />

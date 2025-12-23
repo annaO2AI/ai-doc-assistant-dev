@@ -26,6 +26,7 @@ export { default as MicIcon } from './MicIcon';
 export { default as AudioLineIcon } from './AudioLineIcon';
 export { default as StopRecoding } from './StopRecoding';
 export { default as MicOffIcon } from './MicOffIcon';
+export { default as ElectronicHealthRecord } from './ElectronicHealthRecord';
 
 
 

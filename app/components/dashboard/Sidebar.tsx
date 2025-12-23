@@ -10,6 +10,7 @@ import {
   AiIcon,
   AiOps,
   AIDocAssist,
+  ElectronicHealthRecord,
 } from "../../chat-ui/components/icons"
 
 // Define menu items for dropdowns
@@ -65,7 +66,7 @@ const menuItems = [
    {
     id: "EPIC",
     label: "Electronic Health Record",
-    icon: AIDocAssist,
+    icon: ElectronicHealthRecord,
     subItems: [
      {
         label: "Epic",
