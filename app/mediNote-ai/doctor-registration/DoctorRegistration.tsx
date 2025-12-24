@@ -207,21 +207,21 @@ export default function DoctorForm() {
 
         {/* Step 3: Success */}
         {currentStep === 3 && registeredDoctorId && (
-          <div className="p-16 text-white text-center">
+          <div className="p-10 text-white text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-32 h-32 mx-auto mb-8 bg-green-500 rounded-full flex items-center justify-center shadow-2xl">
+              <div className="w-24 h-24 mx-auto mb-4 bg-green-500 rounded-full flex items-center justify-center shadow-2xl">
                 <Image
                   src="/successsgully-yes.svg"
                   alt="Success"
-                  width={120}
-                  height={120}
+                  width={90}
+                  height={90}
                   className=""
                 />
               </div>
 
-              <h2 className="text-4xl font-bold mb-3">O2 AI Is Ready</h2>
-              <h3 className="text-2xl font-semibold mb-3">Doctor registered successfully</h3>
-              <p className="text-lg opacity-90 mb-8 leading-relaxed">
+              {/* <h2 className="text-4xl font-bold mb-3">O2 AI Is Ready</h2> */}
+              <h2 className="text-[34px] font-semibold mb-3">Doctor registered successfully</h2>
+              <p className="text-[16px] opacity-90 mb-8 leading-relaxed">
                 Thank you for your submission. We have received your information.
                 Your doctor profile has been created
               </p>

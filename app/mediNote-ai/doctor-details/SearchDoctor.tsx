@@ -233,7 +233,7 @@ const SearchDoctor: React.FC = () => {
   const renderDoctorList = () => (
     <>
       {/* Search Input */}
-      <div className="relative m-auto w-full max-w-[500px]">
+      <div className="relative w-full max-w-[600px]">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <svg
             className="h-5 w-5 text-gray-400"
@@ -263,8 +263,8 @@ const SearchDoctor: React.FC = () => {
       {loadingAllDoctors && (
         <div className="flex justify-center items-center py-12">
           <div className="flex flex-col items-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-            <p className="text-gray-600">Loading doctors...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+            <p className="text-[#fff]">Loading doctors...</p>
           </div>
         </div>
       )}
@@ -298,11 +298,11 @@ const SearchDoctor: React.FC = () => {
       {!loadingAllDoctors && !error && (
         <div className="mt-4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-gray-700">
+            <h2 className="text-lg font-semibold text-[#fff]">
               {searchQuery.trim() ? "Search Results" : "All Doctors"}
             </h2>
             {doctors.length > 0 && (
-              <span className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
+              <span className="px-3 py-1 text-[16px]  text-[#fff]">
                 {doctors.length} doctor{doctors.length !== 1 ? 's' : ''}
               </span>
             )}
@@ -416,9 +416,9 @@ const SearchDoctor: React.FC = () => {
   )
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-12">
+    <div className="container mx-auto px-16 py-16 mt-12 transcription-welcommassege-main rounded-[20px]">
       <div className="flex flex-col space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800 text-center">
+        <h1 className="text-2xl font-bold text-[#fff] text-left">
           Doctor Details
         </h1>
 

@@ -603,5 +603,27 @@ body {
 }
   .auto-hight-vr{
         height: calc(100vh - 321px);
+        overflow: auto;
   }
+  /* width */
+.auto-hight-vr::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+.auto-hight-vr::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+.auto-hight-vr::-webkit-scrollbar-thumb {
+    background: #223e99bf;
+    border-radius: 100px;
+}
+
+/* Handle on hover */
+.auto-hight-vr::-webkit-scrollbar-thumb:hover {
+    background: #223e99bf;
+    border-radius: 100px;
+}
 }
