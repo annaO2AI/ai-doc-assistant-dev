@@ -50,7 +50,7 @@ export default function ICDCodeGeneratorPage() {
         >
           <main
             className={clsx(
-              "flex-1 overflow-auto p-2 background-chat-ui mt-16"
+              "flex-1 overflow-auto p-2 background-chat-ui mt-10"
             )}
           >
             <ICDGenerator sessionId={0} showButton={false} fullWidth={true}   editMode={false}/>

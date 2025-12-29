@@ -42,10 +42,10 @@ export default function Breadcrumbs({ sidebarOpen }: HeaderProps) {
     <div className={clsx(
                 " w-[80%] mt-12 mx-auto bradcurame-section", 
                 sidebarOpen
-                  ? "pl-[192px]"
+                  ? "pl-[200px]"
                   : pathname === "/" || pathname === "/aiops" || pathname === "/talent-acquisition" || pathname === "/human-resources"
-                  ? "pl-[80px]"
-                  : "pl-[80px]"
+                  ? "pl-[20px]"
+                  : "pl-[20px]"
               )}
     >
       <nav className="flex py-2 px-4 mt-8 w-[100%]">

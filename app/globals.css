@@ -626,4 +626,7 @@ body {
     background: #223e99bf;
     border-radius: 100px;
 }
+.autopharmacySearch-min{
+  min-height: calc(100vh - 240px);
+}
 }

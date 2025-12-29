@@ -49,7 +49,7 @@ const SearchDrugById = ({data,setData}:{
   }
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">
+      <h1 className="text-2xl font-bold text-[#fff] mb-6">
         Search Drug By ID
       </h1>
 
@@ -72,7 +72,7 @@ const SearchDrugById = ({data,setData}:{
       </div>
 
       {/* 3. Conditional Output */}
-      {loading && <p className="text-blue-500">Loading...</p>}
+      {loading && <p className="text-[#fff]">Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {data && (
           <div className="bg-white p-4 shadow rounded space-y-4">
@@ -85,7 +85,7 @@ const SearchDrugById = ({data,setData}:{
             </div>
 
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">Synonyms</h2>
+              <h2 className="text-xl font-semibold text-[#fff]">Synonyms</h2>
               <ul className="list-disc list-inside">
                 {data.rxnorm_synonyms.map((syn, idx) => (
                   <li key={idx}>
@@ -97,13 +97,13 @@ const SearchDrugById = ({data,setData}:{
             </div>
 
             <div className="overflow-auto h-[800px]">
-              <h2 className="text-xl font-semibold text-gray-800">OpenFDA Labels</h2>
+              <h2 className="text-xl font-semibold text-[#fff]">OpenFDA Labels</h2>
               {data.openfda_labels.length > 0 ? (
                 <pre className="bg-gray-100 p-2 rounded text-sm">
                   {JSON.stringify(data.openfda_labels, null, 2)}
                 </pre>
               ) : (
-                <p className="text-gray-500">No label data available.</p>
+                <p className="text-[#ffffffb3]">No label data available.</p>
               )}
             </div>
           </div>

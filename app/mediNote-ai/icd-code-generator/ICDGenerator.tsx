@@ -365,118 +365,128 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
     <div
       className={`${
         showButton 
-          ? 'fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50'
+          ? 'fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50 '
           : fullWidth 
-            ? 'w-full bg-white shadow-lg rounded-lg'
+            ? 'transcription-welcommassege-main w-[84%] mx-auto  rounded-lg autopharmacySearch-min relative'
             : 'w-[800px] max-w-screen-lg bg-white shadow-lg rounded-lg'
       }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-gray-200">
-        <h3 className="text-xl font-semibold text-gray-800">ICD Code Generator</h3>
-        <button
-          onClick={handleClose}
-          className="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded"
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3.89705 4.05379L3.96967 3.96967C4.23594 3.7034 4.6526 3.6792 4.94621 3.89705L5.03033 3.96967L10 8.939L14.9697 3.96967C15.2359 3.7034 15.6526 3.6792 15.9462 3.89705L16.0303 3.96967C16.2966 4.23594 16.3208 4.6526 16.1029 4.94621L16.0303 5.03033L11.061 10L16.0303 14.9697C16.2966 15.2359 16.3208 15.6526 16.1029 15.9462L16.0303 16.0303C15.7641 16.2966 15.3474 16.3208 15.0538 16.1029L14.9697 16.0303L10 11.061L5.03033 16.0303C4.76406 16.2966 4.3474 16.3208 4.05379 16.1029L3.96967 16.0303C3.7034 15.7641 3.6792 15.3474 3.89705 15.0538L3.96967 14.9697L8.939 10L3.96967 5.03033C3.7034 4.76406 3.6792 4.3474 3.89705 4.05379L3.96967 3.96967L3.89705 4.05379Z" fill="#34334B"/>
-          </svg>
-        </button>
+        <h3 className="text-xl font-semibold text-[#fff]">ICD Code Generator</h3>
       </div>
 
       {/* Content */}
-      <div className={`${showButton ? 'p-6 overflow-y-auto h-[calc(100%-80px)]' : 'p-6'}`}>
+      <div className={`${showButton ? 'p-6 overflow-y-auto h-[calc(100%-80px)]' : 'p-6 z-[2] relative'}`}>
         <div className="space-y-4 mb-8">
-          {/* Search Query Input */}
-          <div>
-            <label htmlFor="searchQuery" className="block text-sm font-medium text-gray-700 mb-1">
-              Search ICD Code / Diagnostics
-            </label>
-            <input
-              id="searchQuery"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="e.g., cholera"
-            />
-          </div>
-          
-          <div className='flex gap-3'>
-            {/* Search System Dropdown */}
-            <div className='w-full'>
-              <label htmlFor="searchSystem" className="block text-sm font-medium text-gray-700 mb-1">
-                ICD Code System
-              </label>
-              <select
-                id="searchSystem"
-                value={searchSystem}
-                onChange={(e) => setSearchSystem(e.target.value)}
-                className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="" disabled>
-                  Select a system
-                </option>
-                <option value="ICD11">ICD11</option>
-                <option value="ICD10">ICD10</option>
-              </select>
-            </div>
-
-            {/* Search Limit Input */}
-            <div className='w-full'>
-              <label htmlFor="searchLimit" className="block text-sm font-medium text-gray-700 mb-1">
-                Limit Results
+            {/* Search Query Input */}
+            <div>
+              <label htmlFor="searchQuery" className="block text-sm font-medium text-[#fff] mb-1">
+                Search ICD Code / Diagnostics
               </label>
               <input
-                id="searchLimit"
-                type="number"
-                value={searchLimit}
-                onChange={(e) => setSearchLimit(e.target.value)}
+                id="searchQuery"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="10"
-                min="1"
-                max="50"
+                placeholder="e.g., cholera"
               />
             </div>
-          </div>
-          
-          {/* Search Button */}
-          <button
-            onClick={handleSearch}
-            disabled={searchLoading}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-          >
-            {searchLoading ? 'Searching...' : 'Search'}
-          </button>
+            
+            <div className='flex gap-3'>
+              {/* Search System Dropdown */}
+              <div className='w-full'>
+                <label htmlFor="searchSystem" className="block text-sm font-medium text-[#fff] mb-1">
+                  ICD Code System
+                </label>
+                <select
+                  id="searchSystem"
+                  value={searchSystem}
+                  onChange={(e) => setSearchSystem(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="" disabled>
+                    Select a system
+                  </option>
+                  <option value="ICD11">ICD11</option>
+                  <option value="ICD10">ICD10</option>
+                </select>
+              </div>
 
-          {/* Search Results */}
-          {searchError && <p className="text-red-500 text-sm">{searchError}</p>}
-          
-          {icdCodes.length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-md font-semibold mb-3 text-gray-800">
-                Search Results
-              </h4>
-              <div className="space-y-3 max-h-64 overflow-y-auto">
-                {icdCodes.map((code) => {
-                  const itemId = createItemId(code);
-                  const checkboxId = `${itemId}__select`;
-                  const isSelected = selectedItems.has(itemId);
-                  const displayCode = cleanCodeForDisplay(code.code);
-                  const isPersistent = persistentICDCodes.some(pc => pc.id === itemId);
-                  
-                  return (
-                    <div key={itemId} className={`border rounded-lg p-3 ${isPersistent ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}>
-                      {isEditMode ? (
-                        <div className="flex items-start gap-3">
-                          <input
-                            id={checkboxId}
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => toggleItemSelection(itemId)}
-                            className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                          />
-                          <label htmlFor={checkboxId} className="cursor-pointer flex-1">
+              {/* Search Limit Input */}
+              <div className='w-full'>
+                <label htmlFor="searchLimit" className="block text-sm font-medium text-[#fff] mb-1 ">
+                  Limit Results
+                </label>
+                <input
+                  id="searchLimit"
+                  type="number"
+                  value={searchLimit}
+                  onChange={(e) => setSearchLimit(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="10"
+                  min="1"
+                  max="50"
+                />
+              </div>
+            </div>
+            
+            {/* Search Button */}
+            <button
+              onClick={handleSearch}
+              disabled={searchLoading}
+              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              {searchLoading ? 'Searching...' : 'Search'}
+            </button>
+
+            {/* Search Results */}
+            {searchError && <p className="text-red-500 text-sm">{searchError}</p>}
+            
+            {icdCodes.length > 0 && (
+              <div className="mt-4">
+                <h4 className="text-md font-semibold mb-3 text-[#fff]">
+                  Search Results
+                </h4>
+                <div className="space-y-3">
+                  {icdCodes.map((code) => {
+                    const itemId = createItemId(code);
+                    const checkboxId = `${itemId}__select`;
+                    const isSelected = selectedItems.has(itemId);
+                    const displayCode = cleanCodeForDisplay(code.code);
+                    const isPersistent = persistentICDCodes.some(pc => pc.id === itemId);
+                    
+                    return (
+                      <div key={itemId} className={`border rounded-lg p-3 ${isPersistent ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}>
+                        {isEditMode ? (
+                          <div className="flex items-start gap-3">
+                            <input
+                              id={checkboxId}
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleItemSelection(itemId)}
+                              className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <label htmlFor={checkboxId} className="cursor-pointer flex-1">
+                              <div className="font-medium text-gray-900">
+                                Code: {displayCode}
+                              </div>
+                              <div className="text-sm text-gray-600 mt-1">
+                                {code.title}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                System: {code.system}
+                              </div>
+                              {isPersistent && (
+                                <div className="text-xs text-green-600 font-medium mt-1">
+                                  Already selected
+                                </div>
+                              )}
+                            </label>
+                          </div>
+                        ) : (
+                          <div>
                             <div className="font-medium text-gray-900">
                               Code: {displayCode}
                             </div>
@@ -488,44 +498,42 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
                             </div>
                             {isPersistent && (
                               <div className="text-xs text-green-600 font-medium mt-1">
-                                Already selected
+                                Selected
                               </div>
                             )}
-                          </label>
-                        </div>
-                      ) : (
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            Code: {displayCode}
                           </div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            {code.title}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-1">
-                            System: {code.system}
-                          </div>
-                          {isPersistent && (
-                            <div className="text-xs text-green-600 font-medium mt-1">
-                              Selected
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
-{editMode && !isEditMode && (
-      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <p className="text-sm text-yellow-800">
-          Enable Edit Summary mode to select/deselect ICD codes.
-        </p>
+        {editMode && !isEditMode && (
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            Enable Edit Summary mode to select/deselect ICD codes.
+          </p>
+        </div>
+        )}
       </div>
-    )}
-      </div>
+      <span className="rightlinerGrading">
+        <svg width="461" height="430" viewBox="0 0 461 430" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.476 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z" fill="#C2F5F9" fillOpacity="0.2" />
+        </svg>
+      </span>
+      <span className="bottomlinerGrading">
+        <svg width="289" height="199" viewBox="0 0 289 199" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M74.4604 14.9961C29.4945 21.2278 -3.5762 38.2063 -12.2914 45.6118L-26.7382 51.5987L-18.129 238.328L15.9938 288.05L59.727 287.301L185.831 257.872C186.478 228.034 237.253 176.817 262.56 154.938C307.047 107.868 284.151 58.3168 267.142 39.4252C236.04 -2.0024 184.942 -2.74081 158.943 2.76831C155.608 3.47505 152.272 4.08963 148.876 4.38837C134.405 5.6613 97.5463 9.50809 74.4604 14.9961Z" fill="url(#paint0_linear_3427_90583)" fillOpacity="0.4" />
+          <defs>
+            <linearGradient id="paint0_linear_3427_90583" x1="307.848" y1="2.45841" x2="-6.38578" y2="289.124" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#45CEF1" />
+              <stop offset="1" stopColor="#219DF1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
     </div>
   );
 };

@@ -48,7 +48,7 @@ export default function PharmacyGeneratorPage() {
           className="flex flex-col flex-1 transition-all duration-300 ease-in-out"
           style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}
         >
-          <main     className={clsx("flex-1 overflow-auto p-2 background-chat-ui mt-16")}>
+          <main     className={clsx("flex-1 overflow-auto p-2 background-chat-ui mt-10")}>
              <PharmacyGenerator defaultOpen={true} showButton={false} fullWidth={true}/>
           </main>
         </div>

@@ -442,7 +442,7 @@ const VitalsObjectiveForm: React.FC = () => {
         <div className="flex justify-center items-center py-12">
           <div className="flex flex-col items-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-            <p className="text-gray-600">Loading patients...</p>
+            <p className="text-[#ffffffb3]">Loading patients...</p>
           </div>
         </div>
       )}
@@ -476,7 +476,7 @@ const VitalsObjectiveForm: React.FC = () => {
       {!loadingAllPatients && !error && (
         <div className="mt-4">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-gray-700">
+            <h2 className="text-lg font-semibold text-[#fff]">
               {searchQuery.trim() ? "Search Results" : "All Patients"}
             </h2>
             {patients.length > 0 && (
@@ -714,9 +714,10 @@ const VitalsObjectiveForm: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-12">
-      <div className="flex flex-col space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800 text-center">
+    <div className="overflow-auto mt-12 ">
+      <div className="flex flex-col w-[83%] mx-auto transcription-welcommassege-main p-10 rounded-lg relative autopharmacySearch-min">
+        <div className="relative z-[2]">
+        <h1 className="text-2xl font-bold text-[#fff] text-center mb-3">
           Patient Objective Data
         </h1>
 
@@ -755,7 +756,27 @@ const VitalsObjectiveForm: React.FC = () => {
             error={saveObjectiveError}
           />
         )}
+        </div>
+
+         <span className="rightlinerGrading">
+        <svg width="461" height="430" viewBox="0 0 461 430" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.476 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z" fill="#C2F5F9" fillOpacity="0.2" />
+        </svg>
+      </span>
+      <span className="bottomlinerGrading">
+        <svg width="289" height="199" viewBox="0 0 289 199" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M74.4604 14.9961C29.4945 21.2278 -3.5762 38.2063 -12.2914 45.6118L-26.7382 51.5987L-18.129 238.328L15.9938 288.05L59.727 287.301L185.831 257.872C186.478 228.034 237.253 176.817 262.56 154.938C307.047 107.868 284.151 58.3168 267.142 39.4252C236.04 -2.0024 184.942 -2.74081 158.943 2.76831C155.608 3.47505 152.272 4.08963 148.876 4.38837C134.405 5.6613 97.5463 9.50809 74.4604 14.9961Z" fill="url(#paint0_linear_3427_90583)" fillOpacity="0.4" />
+          <defs>
+            <linearGradient id="paint0_linear_3427_90583" x1="307.848" y1="2.45841" x2="-6.38578" y2="289.124" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#45CEF1" />
+              <stop offset="1" stopColor="#219DF1" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+
       </div>
+     
     </div>
   );
 };

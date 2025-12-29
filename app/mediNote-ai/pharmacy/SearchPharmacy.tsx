@@ -107,7 +107,7 @@ const SearchPharmacy = ({
     <>
       {/* Query Input */}
       <div>
-        <label htmlFor="q" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="q" className="block text-sm font-medium text-[#fff] mb-2">
           Search Medications <span className="text-red-500">*</span>
         </label>
         <div className="relative">
@@ -124,13 +124,13 @@ const SearchPharmacy = ({
           />
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             {loading ? (
-              <Loader2 size={20} className="text-gray-400 animate-spin" />
+              <Loader2 size={20} className="text-gray-700 animate-spin" />
             ) : (
-              <Search size={20} className="text-gray-400" />
+              <Search size={20} className="text-gray-700 " />
             )}
           </div>
         </div>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-[#ffffffb3]">
           {loading ? 'Searching...' : 'Start typing to search medications automatically'}
         </p>
       </div>
@@ -138,7 +138,7 @@ const SearchPharmacy = ({
       <div className='grid grid-cols-2 gap-4'>
         {/* Limit Selection */}
         <div>
-          <label htmlFor="limit" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="limit" className="block text-sm font-medium text-[#fff] mb-2">
             Results Limit
           </label>
           <select
@@ -154,12 +154,12 @@ const SearchPharmacy = ({
               </option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-gray-500">Number of results to show</p>
+          <p className="mt-1 text-xs text-[#ffffffb3]">Number of results to show</p>
         </div>
 
         {/* Source Selection */}
         <div>
-          <label htmlFor="source" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="source" className="block text-sm font-medium text-[#fff] mb-2">
             Data Source
           </label>
           <select
@@ -173,7 +173,7 @@ const SearchPharmacy = ({
             <option value="rxnorm">RxNorm</option>
             <option value="openfda">OpenFDA</option>
           </select>
-          <p className="mt-1 text-xs text-gray-500">Data source for search</p>
+          <p className="mt-1 text-xs text-[#ffffffb3]">Data source for search</p>
         </div>
       </div>
 
@@ -198,8 +198,8 @@ const SearchPharmacy = ({
       {loading && (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 size={48} className="animate-spin text-indigo-600 mb-4" />
-          <p className="text-lg text-gray-700">Searching for medications...</p>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-lg text-[#fff]">Searching for medications...</p>
+          <p className="text-sm text-[#ffffffb3] mt-2">
             Looking for {debouncedQuery}
           </p>
         </div>
@@ -208,7 +208,7 @@ const SearchPharmacy = ({
       {/* Results Section - Only show when not loading and there&apos;s something to display */}
       {!loading && !searchError && (hasSearched || data) && (
         <div className="mx-auto mt-6">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">
+          <h2 className="text-2xl font-bold mb-6 text-[#fff]">
             {data?.query ? `Results for ${data.query}` : 'Search Results'}
           </h2>
 
@@ -242,7 +242,7 @@ const SearchPharmacy = ({
 
                     {/* Active Ingredients */}
                     <div className="mt-2">
-                      <strong className="text-sm text-gray-800">Ingredients:</strong>
+                      <strong className="text-sm text-[#ffffffb3]">Ingredients:</strong>
                       <ul className="list-disc list-inside text-sm text-gray-600">
                         {getActiveIngredients(item).length > 0 ? (
                           getActiveIngredients(item).map((ing: any, index: number) => (
@@ -251,7 +251,7 @@ const SearchPharmacy = ({
                             </li>
                           ))
                         ) : (
-                          <li className="text-gray-400">No ingredients listed</li>
+                          <li className="text-[#ffffffb3]">No ingredients listed</li>
                         )}
                       </ul>
                     </div>
@@ -265,7 +265,7 @@ const SearchPharmacy = ({
                             <li key={index}>{rxcui}</li>
                           ))
                         ) : (
-                          <li className="text-gray-400">N/A</li>
+                          <li className="text-[#ffffffb3]">N/A</li>
                         )}
                       </ul>
                     </div>
@@ -279,7 +279,7 @@ const SearchPharmacy = ({
                             <li key={index}>{pack.description || 'N/A'}</li>
                           ))
                         ) : (
-                          <li className="text-gray-400">No packaging information</li>
+                          <li className="text-[#ffffffb3]">No packaging information</li>
                         )}
                       </ul>
                     </div>
@@ -298,12 +298,12 @@ const SearchPharmacy = ({
           ) : (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-4">
-                <Search size={48} className="mx-auto opacity-50" />
+                <Search size={48} className="mx-auto opacity-100" />
               </div>
-              <p className="text-gray-500 text-lg mb-2">
+              <p className="text-[#fff] text-lg mb-2">
                 No medications found {debouncedQuery && `for &quot;${debouncedQuery}&quot;`}
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[#ffffffb3]">
                 {debouncedQuery ? 'Try a different search term or check the spelling' : 'Start typing to search for medications'}
               </p>
             </div>
