@@ -20,9 +20,11 @@ const VitalsObjectiveForm: React.FC = () => {
   const [loadingAllPatients, setLoadingAllPatients] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchId, setSearchId] = useState<string>("");
   const [selectedPatient, setSelectedPatient] = useState<PatientWithFullName | null>(null);
   const [selectedPatientIds, setSelectedPatientIds] = useState<number[]>([]);
   const [showPatientDetails, setShowPatientDetails] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
   
   // Objective data states
   const [objectiveData, setObjectiveData] = useState<ObjectiveData[]>([]);
@@ -62,49 +64,26 @@ const VitalsObjectiveForm: React.FC = () => {
     fetchAllPatients();
   }, [fetchAllPatients]);
 
-  // Memoized search function
-  const searchPatients = useCallback(async (query: string): Promise<void> => {
-    if (!query.trim()) {
-      setPatients(allPatients);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data: ApiResponse = await APIService.SearchPatient(query);
-      
-      if (!data || !data.results) {
-        setPatients([]);
-        return;
-      }
-      
-      const patientsWithFullName: PatientWithFullName[] = data.results.map((patient: patient) => ({
-        ...patient,
-        full_name: `${patient.first_name} ${patient.last_name}`,
-      }));
-      
-      setPatients(patientsWithFullName);
-    } catch (err) {
-      console.error("Search patients error:", err);
-      setError(err instanceof Error ? `Failed to search patients: ${err.message}` : "Failed to search patients");
-      setPatients([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [allPatients]);
-
-  // Debounce search input
+  // Client-side filtering
   useEffect(() => {
-    const timerId = setTimeout(() => {
-      searchPatients(searchQuery);
-    }, 500);
+    const queryLower = searchQuery.trim().toLowerCase();
+    
+    const filtered = allPatients.filter((patient) => {
+      const matchesQuery = searchQuery.trim()
+        ? patient.full_name.toLowerCase().includes(queryLower) ||
+          (patient.email && patient.email.toLowerCase().includes(queryLower)) ||
+          (patient.phone && patient.phone.toLowerCase().includes(queryLower))
+        : true;
 
-    return () => {
-      clearTimeout(timerId);
-    };
-  }, [searchQuery, searchPatients]);
+      const matchesId = searchId.trim()
+        ? patient.id.toString().includes(searchId)
+        : true;
+
+      return matchesQuery && matchesId;
+    });
+
+    setPatients(filtered);
+  }, [searchQuery, searchId, allPatients]);
 
   // Fetch objective data by patient ID
   const fetchObjectiveData = useCallback(async (patientId: number) => {
@@ -216,11 +195,9 @@ const VitalsObjectiveForm: React.FC = () => {
     setSelectedObjective(null);
   };
 
-  const handleCardClick = (patientId: number) => {
-    const patient = patients.find(p => p.id === patientId);
-    if (patient) {
-      handleSelectPatient(patient);
-    }
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setSearchId("");
   };
 
   const handleAddNewObjective = () => {
@@ -254,7 +231,6 @@ const VitalsObjectiveForm: React.FC = () => {
       
       if (response) {
         await fetchAllPatients();
-        await searchPatients(searchQuery);
         if (showPatientDetails && selectedPatient) {
           const updatedPatient = patients.find(p => p.id === selectedPatient.id);
           if (updatedPatient) {
@@ -303,11 +279,23 @@ const VitalsObjectiveForm: React.FC = () => {
     }
   };
 
+  // Objective Data Count Status
+  const getObjectiveStatus = (count: number) => {
+    if (count === 0) {
+      return { text: "No Data", className: "bg-yellow-100 text-yellow-800" };
+    } else if (count <= 2) {
+      return { text: `${count} Records`, className: "bg-green-100 text-green-800" };
+    } else {
+      return { text: `${count} Records`, className: "bg-blue-100 text-blue-800" };
+    }
+  };
+
   // Patient Details View
   const renderPatientDetails = () => {
     if (!selectedPatient) return null;
 
     const age = calculateAge(selectedPatient.date_of_birth);
+    const objectiveStatus = getObjectiveStatus(objectiveData.length);
 
     return (
       <div className="bg-white rounded-lg shadow-lg p-6">
@@ -322,11 +310,17 @@ const VitalsObjectiveForm: React.FC = () => {
             Back to List
           </button>
           <div className="flex space-x-4">
-           <button
-              onClick={handleAddNewObjective}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            <button
+              onClick={() => handleUpdate(selectedPatient)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
-              Add New Objective Data
+              Edit Patient
+            </button>
+            <button
+              onClick={handleAddNewObjective}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              + Add New Objective Data
             </button>
             <button
               onClick={() => handleShowObjective(selectedPatient)}
@@ -396,8 +390,8 @@ const VitalsObjectiveForm: React.FC = () => {
             <div>
               <label className="block text-sm font-medium text-gray-500">Objective Data Status</label>
               <div className="mt-1">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  {objectiveData.length} record{objectiveData.length !== 1 ? 's' : ''} available
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${objectiveStatus.className}`}>
+                  {objectiveStatus.text}
                 </span>
               </div>
             </div>
@@ -407,145 +401,255 @@ const VitalsObjectiveForm: React.FC = () => {
     );
   };
 
-  // Patient List View
-  const renderPatientList = () => (
-    <>
-      {/* Search Input */}
-      <div className="relative m-auto w-full max-w-[500px]">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg
-            className="h-5 w-5 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+  // Card View
+  const renderCardView = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {patients.map((patient: PatientWithFullName) => {
+        const age = calculateAge(patient.date_of_birth);
+        return (
+          <div
+            key={patient.id}
+            className="rounded-lg shadow-sm bg-white cursor-pointer hover:shadow-md transition-shadow duration-200"
+            onClick={() => handleSelectPatient(patient)}
           >
-            <path
-              fillRule="evenodd"
-              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-        <input
-          type="text"
-          className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          placeholder="Search patients by name, email, or phone"
-          value={searchQuery}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setSearchQuery(e.target.value);
-          }}
-        />
-      </div>
-
-      {/* Loading State for initial fetch */}
-      {loadingAllPatients && (
-        <div className="flex justify-center items-center py-12">
-          <div className="flex flex-col items-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
-            <p className="text-[#ffffffb3]">Loading patients...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Error State */}
-      {error && !loading && !loadingAllPatients && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-red-400"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Search Results / All Patients List */}
-      {!loadingAllPatients && !error && (
-        <div className="mt-4">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-[#fff]">
-              {searchQuery.trim() ? "Search Results" : "All Patients"}
-            </h2>
-            {patients.length > 0 && (
-              <span className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                {patients.length} patient{patients.length !== 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-          
-          {patients.length > 0 ? (
-            <div className="space-y-4">
-              {patients.map((patient: PatientWithFullName) => (
-                <div
-                  key={patient.id}
-                  className="rounded-lg shadow-sm bg-white cursor-pointer hover:shadow-md transition-shadow duration-200"
-                  onClick={() => handleSelectPatient(patient)}
-                >
-                  <div className="px-6 py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-800 text-lg font-semibold">
-                          {patient.full_name.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {patient.full_name}
-                          </h3>
-                          <p className="text-sm text-gray-500">{patient.email}</p>
-                          <div className="flex items-center space-x-4 mt-1">
-                            <span className="text-sm text-gray-600">ID: {patient.id}</span>
-                            {calculateAge(patient.date_of_birth) && (
-                              <span className="text-sm px-2 py-1 bg-gray-100 text-gray-800 rounded">
-                                {calculateAge(patient.date_of_birth)} years
-                              </span>
-                            )}
-                            <span className="text-sm px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                              View Objective Data
-                            </span>
-                          </div>
-                        </div>
-                      </div>
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-800 text-lg font-semibold">
+                    {patient.full_name.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {patient.full_name}
+                    </h3>
+                    <p className="text-sm text-gray-500">{patient.email || "No email"}</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded">
+                        ID: {patient.id}
+                      </span>
+                      {age && (
+                        <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                          {age} years
+                        </span>
+                      )}
+                      <span className="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded">
+                        View Data
+                      </span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            !searchQuery.trim() ? (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <div className="mb-4">
-                  <Image
-                    src="/File searching.gif"
-                    alt="Search for patients"
-                    width={200}
-                    height={200}
-                    className="mx-auto"
-                    priority
-                  />
-                </div>
-                <h3 className="text-xl font-medium text-gray-900 mb-3">
-                  No Patients Found
-                </h3>
-                <p className="text-gray-500 max-w-md mx-auto">
-                  There are no patients in the system. Add a patient to get started.
-                </p>
               </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // Table View
+  const renderTableView = () => (
+    <div className="overflow-x-auto rounded-[10px]">
+      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {patients.map((patient: PatientWithFullName) => {
+            const age = calculateAge(patient.date_of_birth);
+            return (
+              <tr
+                key={patient.id}
+                className="hover:bg-gray-50"
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-blue-100 text-blue-800 font-semibold">
+                      {patient.full_name.charAt(0)}
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">{patient.full_name}</div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.email || "Not specified"}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.id}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {age ? `${age} years` : "N/A"}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{patient.phone || "N/A"}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleSelectPatient(patient)}
+                      className="text-blue-600 hover:text-blue-900"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUpdate(patient);
+                      }}
+                      className="text-green-600 hover:text-green-900"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleShowObjective(patient);
+                      }}
+                      className="text-purple-600 hover:text-purple-900"
+                    >
+                      Data
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  // Patient List View
+  const renderPatientList = () => {
+    const hasSearch = searchQuery.trim() || searchId.trim();
+
+    return (
+      <>
+        {/* Filters & Actions Row */}
+        <div className="flex justify-between mb-6">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative flex-1 min-w-[380px] max-w-[400px]">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Search patients by name, email, or phone"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <input
+              type="text"
+              className="w-[90px] px-3 py-3 border border-gray-300 rounded-lg bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Search ID"
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
+            />
+
+            <button
+              onClick={handleClearFilters}
+              className="px-2 py-2 text-[#fff] rounded-lg"
+            >
+              Clear Filter
+            </button>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex gap-2 justify-end">
+            <div className="flex bg-[#0c9bcf] rounded-md p-1 justify-center items-center h-[48px]">
+              <button
+                onClick={() => setViewMode('card')}
+                className={`px-4 py-2 mr-2 rounded-md h-[42px] ${viewMode === 'card' ? 'bg-blue-600 text-white' : 'text-gray-700'}`}
+              >
+                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6.20225 9.28961C6.64904 9.28961 7.01124 9.66393 7.01124 10.1257V16.1639C7.01124 16.6257 6.64904 17 6.20225 17H0.808989C0.362197 17 3.0577e-07 16.6257 0 16.1639V10.1257L0.000263343 10.1041C0.0113442 9.65232 0.369182 9.28961 0.808989 9.28961H6.20225ZM15.191 9.28961C15.6378 9.28961 16 9.66393 16 10.1257V16.1639C16 16.6257 15.6378 17 15.191 17H9.79775C9.35096 17 8.98876 16.6257 8.98876 16.1639V10.1257C8.98876 9.66393 9.35096 9.28961 9.79775 9.28961H15.191ZM10.6067 15.3279H14.382V10.9617H10.6067V15.3279ZM1.61798 15.3279H5.39326V10.9617H1.61798V15.3279ZM6.20225 0C6.64904 1.14918e-07 7.01124 0.374319 7.01124 0.836066V6.87433C7.01124 7.33607 6.64904 7.71039 6.20225 7.71039H0.808989C0.3622 7.71039 4.86447e-06 7.33607 0 6.87433V0.836066L0.000263343 0.814484C0.0113398 0.362712 0.369179 0 0.808989 0H6.20225ZM15.191 0C15.6378 0 16 0.374319 16 0.836066V6.87433C16 7.33607 15.6378 7.71039 15.191 7.71039H9.79775C9.35096 7.71039 8.98876 7.33606 8.98876 6.87433V0.836066C8.98876 0.374322 9.35096 4.71129e-06 9.79775 0H15.191ZM10.6067 6.03826H14.382V1.67213H10.6067V6.03826ZM1.61798 6.03826H5.39326V1.67213H1.61798V6.03826Z" fill="white"/>
+                </svg>
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`px-4 py-2 rounded-md h-[42px] ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-700'}`}
+              >
+                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M5.81849 2.18194C5.81849 0.976889 4.8416 0 3.63656 0H2.18194C0.976889 0 0 0.976889 0 2.18194V3.63656C0 4.8416 0.976889 5.81849 2.18194 5.81849H3.63656C4.8416 5.81849 5.81849 4.8416 5.81849 3.63656V2.18194ZM4.36387 2.18194C4.36387 1.78026 4.03824 1.45462 3.63656 1.45462H2.18194C1.78026 1.45462 1.45462 1.78026 1.45462 2.18194V3.63656C1.45462 4.03824 1.78026 4.36387 2.18194 4.36387H3.63656C4.03824 4.36387 4.36387 4.03824 4.36387 3.63656V2.18194Z" fill="white"/>
+                  <path d="M7.27344 2.90895C7.27344 2.50727 7.59906 2.18164 8.00075 2.18164H15.2739C15.6756 2.18164 16.0012 2.50727 16.0012 2.90895C16.0012 3.31063 15.6756 3.63626 15.2739 3.63626H8.00075C7.59906 3.63626 7.27344 3.31063 7.27344 2.90895Z" fill="white"/>
+                  <path fillRule="evenodd" clipRule="evenodd" d="M5.81849 9.45537C5.81849 8.25029 4.8416 7.27344 3.63656 7.27344H2.18194C0.976889 7.27344 0 8.25029 0 9.45537V10.91C0 12.1151 0.976889 13.0919 2.18194 13.0919H3.63656C4.8416 13.0919 5.81849 12.1151 5.81849 10.91V9.45537ZM4.36387 9.45537C4.36387 9.05368 4.03824 8.72806 3.63656 8.72806H2.18194C1.78026 8.72806 1.45462 9.05368 1.45462 9.45537V10.91C1.45462 11.3117 1.78026 11.6373 2.18194 11.6373H3.63656C4.03824 11.6373 4.36387 11.3117 4.36387 10.91V9.45537Z" fill="white"/>
+                  <path d="M7.27344 10.1824C7.27344 9.7807 7.59906 9.45508 8.00075 9.45508H15.2739C15.6756 9.45508 16.0012 9.7807 16.0012 10.1824C16.0012 10.5841 15.6756 10.9097 15.2739 10.9097H8.00075C7.59906 10.9097 7.27344 10.5841 7.27344 10.1824Z" fill="white"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Loading State for initial fetch */}
+        {loadingAllPatients && (
+          <div className="flex justify-center items-center py-12">
+            <div className="flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+              <p className="text-[#ffffffb3]">Loading patients...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loadingAllPatients && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md mb-6">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Search Results / All Patients List */}
+        {!loadingAllPatients && !error && (
+          <div>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-semibold text-[#fff]">
+                {hasSearch ? "Search Results" : "All Patients"}
+              </h2>
+              {patients.length > 0 && (
+                <span className="text-white">
+                  {patients.length} patient{patients.length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+            
+            {patients.length > 0 ? (
+              viewMode === 'card' ? renderCardView() : renderTableView()
             ) : (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <div className="mb-4">
+              !hasSearch ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <div className="mb-4">
+                    <Image
+                      src="/File searching.gif"
+                      alt="Search for patients"
+                      width={200}
+                      height={200}
+                      className="mx-auto"
+                      priority
+                    />
+                  </div>
+                  <h3 className="text-xl font-medium text-gray-900 mb-3">
+                    No Patients Found
+                  </h3>
+                  <p className="text-gray-500 max-w-md mx-auto">
+                    There are no patients in the system. Add a patient to get started.
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
                   <svg
                     className="mx-auto h-16 w-16 text-gray-300"
                     fill="none"
@@ -559,20 +663,20 @@ const VitalsObjectiveForm: React.FC = () => {
                       d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No patients found
+                  </h3>
+                  <p className="text-gray-500">
+                    No patients match your search criteria. Try different keywords.
+                  </p>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No patients found
-                </h3>
-                <p className="text-gray-500">
-                  No patients match your search criteria. Try different keywords.
-                </p>
-              </div>
-            )
-          )}
-        </div>
-      )}
-    </>
-  );
+              )
+            )}
+          </div>
+        )}
+      </>
+    );
+  };
 
   // Objective Data Modal
   const ObjectiveDataModal: React.FC = () => {
@@ -624,15 +728,6 @@ const VitalsObjectiveForm: React.FC = () => {
                         Record ID: {objective.id}
                       </h3>
                     </div>
-                    {/* <button
-                      onClick={() => {
-                        setSelectedObjective(objective);
-                        setOpenModal('objective-edit');
-                      }}
-                      className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                      Edit
-                    </button> */}
                   </div>
                   
                   {/* Vital Signs */}
@@ -714,10 +809,9 @@ const VitalsObjectiveForm: React.FC = () => {
   };
 
   return (
-    <div className="overflow-auto mt-12 ">
-      <div className="flex flex-col w-[83%] mx-auto transcription-welcommassege-main p-10 rounded-lg relative autopharmacySearch-min">
-        <div className="relative z-[2]">
-        <h1 className="text-2xl font-bold text-[#fff] text-center mb-3">
+    <div className="container mx-auto px-16 py-16 mt-12 transcription-welcommassege-main rounded-[20px] w-[82%]">
+      <div className="flex flex-col space-y-2">
+        <h1 className="text-2xl font-bold text-[#fff] text-left">
           Patient Objective Data
         </h1>
 
@@ -756,27 +850,7 @@ const VitalsObjectiveForm: React.FC = () => {
             error={saveObjectiveError}
           />
         )}
-        </div>
-
-         <span className="rightlinerGrading">
-        <svg width="461" height="430" viewBox="0 0 461 430" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.476 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z" fill="#C2F5F9" fillOpacity="0.2" />
-        </svg>
-      </span>
-      <span className="bottomlinerGrading">
-        <svg width="289" height="199" viewBox="0 0 289 199" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M74.4604 14.9961C29.4945 21.2278 -3.5762 38.2063 -12.2914 45.6118L-26.7382 51.5987L-18.129 238.328L15.9938 288.05L59.727 287.301L185.831 257.872C186.478 228.034 237.253 176.817 262.56 154.938C307.047 107.868 284.151 58.3168 267.142 39.4252C236.04 -2.0024 184.942 -2.74081 158.943 2.76831C155.608 3.47505 152.272 4.08963 148.876 4.38837C134.405 5.6613 97.5463 9.50809 74.4604 14.9961Z" fill="url(#paint0_linear_3427_90583)" fillOpacity="0.4" />
-          <defs>
-            <linearGradient id="paint0_linear_3427_90583" x1="307.848" y1="2.45841" x2="-6.38578" y2="289.124" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#45CEF1" />
-              <stop offset="1" stopColor="#219DF1" />
-            </linearGradient>
-          </defs>
-        </svg>
-      </span>
-
       </div>
-     
     </div>
   );
 };
