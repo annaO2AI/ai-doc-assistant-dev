@@ -367,13 +367,13 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
         showButton 
           ? 'fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50 '
           : fullWidth 
-            ? 'transcription-welcommassege-main w-[84%] mx-auto  rounded-lg autopharmacySearch-min relative'
+            ? 'transcription-welcommassege-main w-[84%] mx-auto  rounded-lg autopharmacySearch-min relative '
             : 'w-[800px] max-w-screen-lg bg-white shadow-lg rounded-lg'
       }`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-200">
-        <h3 className="text-xl font-semibold text-[#fff]">ICD Code Generator</h3>
+      <div className="flex items-center justify-between p-6 border-b border-[#1b71a3]">
+        <h3 className="text-xl font-semibold text-[#fff] ">ICD Code Generator</h3>
       </div>
 
       {/* Content */}

@@ -9,6 +9,7 @@ import { TranscriptionSummary } from "../types"
 import EpicPatientSearch from "./epicPatientSearch"
 import { TokenDisplay } from "../epic/tokenDisplay"
 import { EpicAuthentication } from "../epic/epicAuthentication"
+import Breadcrumbs from "../../components/dashboard/Breadcrumbs"; // Import Breadcrumbs component
 
 export interface recordingProps {
   patientId: string | number
@@ -136,6 +137,7 @@ const [showPatientSearch, setShowPatientSearch] = useState(true)
           />
         )}
         <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
+         <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
         {!authToken && <EpicAuthentication onTokenSubmit={handleTokenSubmit} />}
 {authToken && (
   <div

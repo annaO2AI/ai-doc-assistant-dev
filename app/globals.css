@@ -629,4 +629,7 @@ body {
 .autopharmacySearch-min{
   min-height: calc(100vh - 240px);
 }
+.centerdivh-a{
+      height: calc(100vh - 160px);
+}
 }

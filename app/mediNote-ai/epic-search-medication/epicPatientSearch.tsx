@@ -53,6 +53,9 @@ export default function EpicPatientSearch({
   const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null)
   const [expandedMedicationId, setExpandedMedicationId] = useState<string | null>(null)
 
+  // New state for view toggle
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card')
+
   // Fetch patients on component mount
   useEffect(() => {
     fetchPatients()
@@ -243,25 +246,52 @@ export default function EpicPatientSearch({
   }
 
   return (
-    <div className="epic-patient-search rounded-lg w-[83%] mx-auto flex flex-col">
-      <div className="ml-[-26px]">
+    <div className="epic-patient-search  mt-10">
+      <div className="w-[84%] mx-auto flex flex-col transcription-welcommassege-main rounded-[20px] p-10 ">
         {/* Header */}
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-[24px] font-semibold ot-title mt-2">
+        <div className="mb-4">
+          <h3 className="text-[24px] font-semibold text-[#fff] mb-3">
             Search Epic Patients
           </h3>
+
+          {/* View Toggle Buttons */}
+          <div className="flex items-center gap-2 justify-between">
+            <div className="w-[600px]">
+              <input
+                type="text"
+                placeholder="Search by name or MRN..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-[48px]"
+              />
+            </div>
+            <div className="flex bg-[#0c9bcf] rounded-md p-1 justify-center items-center h-[48px]">
+              <button
+                onClick={() => setViewMode('card')}
+                className={`px-4 py-3 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === 'card'
+                    ? 'bg-[#0975BB] text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.20225 9.28961C6.64904 9.28961 7.01124 9.66393 7.01124 10.1257V16.1639C7.01124 16.6257 6.64904 17 6.20225 17H0.808989C0.362197 17 3.0577e-07 16.6257 0 16.1639V10.1257L0.000263343 10.1041C0.0113442 9.65232 0.369182 9.28961 0.808989 9.28961H6.20225ZM15.191 9.28961C15.6378 9.28961 16 9.66393 16 10.1257V16.1639C16 16.6257 15.6378 17 15.191 17H9.79775C9.35096 17 8.98876 16.6257 8.98876 16.1639V10.1257C8.98876 9.66393 9.35096 9.28961 9.79775 9.28961H15.191ZM10.6067 15.3279H14.382V10.9617H10.6067V15.3279ZM1.61798 15.3279H5.39326V10.9617H1.61798V15.3279ZM6.20225 0C6.64904 1.14918e-07 7.01124 0.374319 7.01124 0.836066V6.87433C7.01124 7.33607 6.64904 7.71039 6.20225 7.71039H0.808989C0.3622 7.71039 4.86447e-06 7.33607 0 6.87433V0.836066L0.000263343 0.814484C0.0113398 0.362712 0.369179 0 0.808989 0H6.20225ZM15.191 0C15.6378 0 16 0.374319 16 0.836066V6.87433C16 7.33607 15.6378 7.71039 15.191 7.71039H9.79775C9.35096 7.71039 8.98876 7.33606 8.98876 6.87433V0.836066C8.98876 0.374322 9.35096 4.71129e-06 9.79775 0H15.191ZM10.6067 6.03826H14.382V1.67213H10.6067V6.03826ZM1.61798 6.03826H5.39326V1.67213H1.61798V6.03826Z" fill="white"></path></svg>
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`px-4 py-3 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === 'table'
+                    ? 'bg-[#0975BB] text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+               <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.81849 2.18194C5.81849 0.976889 4.8416 0 3.63656 0H2.18194C0.976889 0 0 0.976889 0 2.18194V3.63656C0 4.8416 0.976889 5.81849 2.18194 5.81849H3.63656C4.8416 5.81849 5.81849 4.8416 5.81849 3.63656V2.18194ZM4.36387 2.18194C4.36387 1.78026 4.03824 1.45462 3.63656 1.45462H2.18194C1.78026 1.45462 1.45462 1.78026 1.45462 2.18194V3.63656C1.45462 4.03824 1.78026 4.36387 2.18194 4.36387H3.63656C4.03824 4.36387 4.36387 4.03824 4.36387 3.63656V2.18194Z" fill="white"></path><path d="M7.27344 2.90895C7.27344 2.50727 7.59906 2.18164 8.00075 2.18164H15.2739C15.6756 2.18164 16.0012 2.50727 16.0012 2.90895C16.0012 3.31063 15.6756 3.63626 15.2739 3.63626H8.00075C7.59906 3.63626 7.27344 3.31063 7.27344 2.90895Z" fill="white"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M5.81849 9.45537C5.81849 8.25029 4.8416 7.27344 3.63656 7.27344H2.18194C0.976889 7.27344 0 8.25029 0 9.45537V10.91C0 12.1151 0.976889 13.0919 2.18194 13.0919H3.63656C4.8416 13.0919 5.81849 12.1151 5.81849 10.91V9.45537ZM4.36387 9.45537C4.36387 9.05368 4.03824 8.72806 3.63656 8.72806H2.18194C1.78026 8.72806 1.45462 9.05368 1.45462 9.45537V10.91C1.45462 11.3117 1.78026 11.6373 2.18194 11.6373H3.63656C4.03824 11.6373 4.36387 11.3117 4.36387 10.91V9.45537Z" fill="white"></path><path d="M7.27344 10.1824C7.27344 9.7807 7.59906 9.45508 8.00075 9.45508H15.2739C15.6756 9.45508 16.0012 9.7807 16.0012 10.1824C16.0012 10.5841 15.6756 10.9097 15.2739 10.9097H8.00075C7.59906 10.9097 7.27344 10.5841 7.27344 10.1824Z" fill="white"></path></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Search Input */}
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Search by name or MRN..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
+        
 
         {/* Error Display */}
         {error && (
@@ -312,103 +342,190 @@ export default function EpicPatientSearch({
           </div>
         )}
 
-        {/* Patients List */}
+        {/* Patients List - Conditional Rendering based on viewMode */}
         {!loading && (
           <div className="flex-1">
             {filteredPatients.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {filteredPatients.map((patient) => {
-                  const isSelected = selectedPatient?.mrn === patient.mrn
-                  return (
-                    <div
-                      key={patient.id}
-                      className={`rounded-lg p-6 transition-all bg-white hover:shadow-xl transition-all border border-gray-200 hover:border-blue-300 ${
-                        isSelected
-                          ? "border-blue-500 bg-blue-50 shadow-md"
-                          : "border-gray-200 hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h4 className="font-semibold ot-title text-lg flex justify-center items-center gap-2">
-                              <span className="avatar-scr">{patient.full_name.charAt(0).toUpperCase()}</span>
-                              <span className="">{patient.full_name}</span>
-                            </h4>
-                            {isSelected && (
-                              <svg
-                                className="w-5 h-5 text-blue-600"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            )}
-                          </div>
-                          <div className="mt-3 space-y-1 text-sm ot-title">
-                            <div className="flex gap-2 items-center">
-                              <span className="font-medium">MRN:</span>
-                              <span className="font-semibold text-blue-600">
-                                {patient.mrn}
-                              </span>
-                            </div>
-                            <div className="flex gap-2 items-center">
-                              <span className="font-medium">Patient ID:</span>
-                              <span
-                                className="font-mono text-xs truncate max-w-[150px]"
-                                title={patient.id}
-                              >
-                                {patient.id}
-                              </span>
-                            </div>
-                            {patient.external_id && (
-                              <div className="flex gap-2 items-center">
-                                <span className="font-medium">External ID:</span>
-                                <span className="text-md truncate max-w-[150px]" title={patient.external_id} >
-                                  {patient.external_id}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="ml-4 flex-shrink-0">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                              isSelected
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
-                            }`}
-                          >
-                            {isSelected ? "Selected" : "Available"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-2 mt-2 pt-2 ">
-                        <button
-                          onClick={() => handleMedsSearch(patient)}
-                          disabled={loadingPatientId !== null}
-                          className="px-3 py-2 bg-[#0975BB] text-white text-sm font-medium rounded-md  hover:bg-[#04609C] transition-colors flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed w-[160px]"
+              <>
+                {viewMode === 'card' ? (
+                  // Existing Card/Grid View
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {filteredPatients.map((patient) => {
+                      const isSelected = selectedPatient?.mrn === patient.mrn
+                      return (
+                        <div
+                          key={patient.id}
+                          className={`rounded-lg p-6 transition-all bg-white hover:shadow-xl transition-all border border-gray-200 hover:border-blue-300 ${
+                            isSelected
+                              ? "border-blue-500 bg-blue-50 shadow-md"
+                              : "border-gray-200 hover:bg-gray-50"
+                          }`}
                         >
-                          {loadingPatientId === patient.id ? (
-                            <>
-                              Loading...
-                            </>
-                          ) : (
-                            <>
-                              Search Meds
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-semibold ot-title text-lg flex justify-center items-center gap-2">
+                                  <span className="avatar-scr">{patient.full_name.charAt(0).toUpperCase()}</span>
+                                  <span className="">{patient.full_name}</span>
+                                </h4>
+                                {isSelected && (
+                                  <svg
+                                    className="w-5 h-5 text-blue-600"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                )}
+                              </div>
+                              <div className="mt-3 space-y-1 text-sm ot-title">
+                                <div className="flex gap-2 items-center">
+                                  <span className="font-medium">MRN:</span>
+                                  <span className="font-semibold text-blue-600">
+                                    {patient.mrn}
+                                  </span>
+                                </div>
+                                <div className="flex gap-2 items-center">
+                                  <span className="font-medium">Patient ID:</span>
+                                  <span
+                                    className="font-mono text-xs truncate max-w-[150px]"
+                                    title={patient.id}
+                                  >
+                                    {patient.id}
+                                  </span>
+                                </div>
+                                {patient.external_id && (
+                                  <div className="flex gap-2 items-center">
+                                    <span className="font-medium">External ID:</span>
+                                    <span className="text-md truncate max-w-[150px]" title={patient.external_id} >
+                                      {patient.external_id}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="ml-4 flex-shrink-0">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                  isSelected
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-green-100 text-green-800"
+                                }`}
+                              >
+                                {isSelected ? "Selected" : "Available"}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2 mt-2 pt-2 ">
+                            <button
+                              onClick={() => handleMedsSearch(patient)}
+                              disabled={loadingPatientId !== null}
+                              className="px-3 py-2 bg-[#0975BB] text-white text-sm font-medium rounded-md  hover:bg-[#04609C] transition-colors flex items-center justify-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed w-[160px]"
+                            >
+                              {loadingPatientId === patient.id ? (
+                                <>
+                                  Loading...
+                                </>
+                              ) : (
+                                <>
+                                  Search Meds
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  // New Table View
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 bg-white rounded-lg shadow">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Patient Name
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            MRN
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Patient ID
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            External ID
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredPatients.map((patient) => {
+                          const isSelected = selectedPatient?.mrn === patient.mrn
+                          return (
+                            <tr
+                              key={patient.id}
+                              className={`hover:bg-gray-50 ${isSelected ? 'bg-blue-50' : ''}`}
+                            >
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="avatar-scr text-lg mr-3">
+                                    {patient.full_name.charAt(0).toUpperCase()}
+                                  </div>
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {patient.full_name}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="text-sm font-semibold text-blue-600">
+                                  {patient.mrn}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <code className="bg-gray-100 px-1 py-0.5 rounded text-xs">
+                                  {patient.id}
+                                </code>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {patient.external_id || '-'}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                    isSelected
+                                      ? "bg-blue-100 text-blue-800"
+                                      : "bg-green-100 text-green-800"
+                                  }`}
+                                >
+                                  {isSelected ? "Selected" : "Available"}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <button
+                                  onClick={() => handleMedsSearch(patient)}
+                                  disabled={loadingPatientId !== null}
+                                  className="px-4 py-2 bg-[#0975BB] text-white text-sm font-medium rounded-md hover:bg-[#04609C] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  {loadingPatientId === patient.id ? "Loading..." : "Search Meds"}
+                                </button>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-12">
                 <svg
@@ -497,7 +614,7 @@ export default function EpicPatientSearch({
                               : "hover:shadow-lg  "
                           }`}
                         >
-                          {/* Same medication card content as before */}
+                          {/* Medication card content remains unchanged */}
                           <div
                             className="cursor-pointer"
                             onClick={() => toggleMedicationDetails(med.id)}
