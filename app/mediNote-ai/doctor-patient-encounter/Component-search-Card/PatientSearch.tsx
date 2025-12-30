@@ -1,5 +1,5 @@
 import React from "react";
-import ViewPatientList from "./../ViewPatientList";
+import ViewPatientList from "../ViewPatientList";
 
 export interface PatientCardProps {
   patient_id: number;

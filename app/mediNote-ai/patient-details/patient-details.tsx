@@ -3,7 +3,7 @@ import { patient, PatientCreationTypes } from "../types"
 import { APIService } from "../service/api"
 import { UpdateUserModal } from "../components/UpdateUserModal"
 import { PatientVoiceEnroll } from "../components/PatientVoiceEnroll"
-import PatientHistory from "../doctor-patient-voice/PatientHistory"
+import PatientHistory from "../doctor-patient-encounter/PatientHistory"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 

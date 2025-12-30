@@ -1,7 +1,7 @@
 //page.tsx
 "use client"
 import React, { useState } from "react"
-import WelcomeMessage from "../doctor-patient-voice/WelcomeMessage"
+import WelcomeMessage from "../doctor-patient-encounter/WelcomeMessage"
 import { PatientProfile } from "./patientProfile"
 import EpicPatientSearch from "./epicPatientSearch"
 import { DoctorProfile } from "./DoctorProfile"

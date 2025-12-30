@@ -71,7 +71,7 @@ export default function DocAssistantPage() {
   const sidebarWidth = isSidebarExpanded ? 256 : 64
 
   // Show sidebar on the talent-acquisition page
-  const showSidebar = pathname === "/mediNote-ai/doctor-patient-voice" ||  pathname === "http://localhost:3000/" ||  pathname === "/";
+  const showSidebar = pathname === "/mediNote-ai/doctor-patient-encounter" ||  pathname === "http://localhost:3000/" ||  pathname === "/";
 
   const startRecording = async (patientId: number, doctorIdParam: number, patientName: string, doctorName: string) => {
     try {

@@ -53,7 +53,6 @@ export default function LayoutWrapper({ children }: { children: ReactNode }) {
          {/* <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} /> */}
         <div
           className="flex flex-col flex-1 transition-all duration-300 ease-in-out"
-          style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}
         >
           <>
            
@@ -61,6 +60,7 @@ export default function LayoutWrapper({ children }: { children: ReactNode }) {
             <PopupComponent />
             {/* <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} /> */}
           </>
+          
           <main
             className={clsx("flex-1 overflow-auto p-2 background-chat-ui", {
               "mt-1": isAltLayout,

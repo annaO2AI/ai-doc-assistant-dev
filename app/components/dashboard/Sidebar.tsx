@@ -41,8 +41,8 @@ const menuItems = [
         icon: ArroTabIcon,
       },
       {
-        label: "Doctor & Patient Voice",
-        href: "/mediNote-ai/doctor-patient-voice",
+        label: "Doctor Patient Encounter",
+        href: "/mediNote-ai/doctor-patient-encounter",
         icon: ArroTabIcon,
       },
       {
@@ -69,7 +69,7 @@ const menuItems = [
     icon: ElectronicHealthRecord,
     subItems: [
      {
-        label: "Epic",
+        label: "Doctor Patient Encounter (Epic)",
         href: "/mediNote-ai/epic",
         icon: ArroTabIcon,
       },
@@ -207,7 +207,7 @@ export default function Sidebar({
         )}
       >
         <a
-          href="/mediNote-ai/doctor-patient-voice"
+          href="/mediNote-ai/doctor-patient-encounter"
           className={clsx(
             "w-full py-3 flex items-center gap-3 transition-colors bg-white rounded",
             isExpanded
