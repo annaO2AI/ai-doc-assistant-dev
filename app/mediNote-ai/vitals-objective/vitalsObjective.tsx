@@ -809,7 +809,7 @@ const VitalsObjectiveForm: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-16 py-16 mt-12 transcription-welcommassege-main rounded-[20px] w-[82%]">
+    <div className="mx-auto px-16 py-16 mt-12 transcription-welcommassege-main rounded-[20px] w-[88%]">
       <div className="flex flex-col space-y-2">
         <h1 className="text-2xl font-bold text-[#fff] text-left">
           Patient Objective Data

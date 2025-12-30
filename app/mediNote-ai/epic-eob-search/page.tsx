@@ -8,6 +8,8 @@ import { usePathname } from "next/navigation"
 import { TokenDisplay } from "../epic/tokenDisplay"
 import { EpicAuthentication } from "../epic/epicAuthentication"
 import EOBList from "./eobList" // Import EOBList which manages both list and details
+import FooterAISearch from "../../chat-ui/components/Footer";
+import Breadcrumbs from "../../components/dashboard/Breadcrumbs"
 
 export default function Page() {
   const pathname = usePathname()
@@ -76,7 +78,7 @@ export default function Page() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -86,6 +88,7 @@ export default function Page() {
           />
         )}
         <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
+        <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
         {!authToken && <EpicAuthentication onTokenSubmit={handleTokenSubmit} />}
         {authToken && (
           <div
@@ -99,6 +102,7 @@ export default function Page() {
             </div>
           </div>
         )}
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )

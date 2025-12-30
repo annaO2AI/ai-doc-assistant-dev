@@ -268,291 +268,293 @@ export function AppointmentSearchForm({ tokenId }: AppointmentSearchFormProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Search Form Section */}
-      {showSearchForm && (
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Find Appointments
-          </h2>
+    <div className="w-full mt-9">
+      <div className="w-[88%] mx-auto flex flex-col transcription-welcommassege-main rounded-[20px] p-12 autopharmacySearch-min relative">
+        {/* Search Form Section */}
+        {showSearchForm && (
+          <div className="">
+            <h2 className="text-2xl font-bold text-[#fff] mb-6">
+              Find Appointments
+            </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Patient Information */}
-            <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Patient Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    value={patientFirstName}
-                    onChange={(e) => setPatientFirstName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    value={patientLastName}
-                    onChange={(e) => setPatientLastName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Patient EPIC ID
-                  </label>
-                  <input
-                    type="text"
-                    value={patientEpicId}
-                    onChange={(e) => setPatientEpicId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Patient MRN
-                  </label>
-                  <input
-                    type="text"
-                    value={patientMRN}
-                    onChange={(e) => setPatientMRN(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-               
-              </div>
-            </div>
-
-            {/* Time Range */}
-            <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Appointment Time</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Date Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-
-                {/* Start Time Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Start Time
-                  </label>
-                  <select
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  >
-                    {START_TIME_SLOTS.map((slot) => (
-                      <option key={slot.value} value={slot.value}>
-                        {slot.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Duration Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Duration
-                  </label>
-                  <select
-                    value={duration}
-                    onChange={(e) => setDuration(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  >
-                    {DURATION_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Patient Information */}
+              <div className="border-b border-[#1b71a3] pb-6">
+                <h3 className="text-lg font-semibold text-[#fff] mb-4">Patient Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      value={patientFirstName}
+                      onChange={(e) => setPatientFirstName(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      value={patientLastName}
+                      onChange={(e) => setPatientLastName(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Patient EPIC ID
+                    </label>
+                    <input
+                      type="text"
+                      value={patientEpicId}
+                      onChange={(e) => setPatientEpicId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Patient MRN
+                    </label>
+                    <input
+                      type="text"
+                      value={patientMRN}
+                      onChange={(e) => setPatientMRN(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                
                 </div>
               </div>
 
-              {/* Selected Time Range Display */}
-              {/* <div className="mt-4 p-3 bg-gray-50 rounded-md">
-                <p className="text-sm font-medium text-gray-700">
-                  Selected Time Range:
-                </p>
-                <p className="text-sm text-gray-600">
-                  {new Date(startDateTime).toLocaleString()} - {new Date(endDateTime).toLocaleString()}
-                </p>
-              </div> */}
-            </div>
+              {/* Time Range */}
+              <div className="border-b border-[#1b71a3] pb-6">
+                <h3 className="text-lg font-semibold text-[#fff] mb-4">Appointment Time</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Date Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
 
-            {/* Service Type */}
-            <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Service Type</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Service Code
-                  </label>
-                  <input
-                    type="text"
-                    value={serviceTypeCode}
-                    onChange={(e) => setServiceTypeCode(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
+                  {/* Start Time Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Start Time
+                    </label>
+                    <select
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    >
+                      {START_TIME_SLOTS.map((slot) => (
+                        <option key={slot.value} value={slot.value}>
+                          {slot.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Duration Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Duration
+                    </label>
+                    <select
+                      value={duration}
+                      onChange={(e) => setDuration(Number(e.target.value))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    >
+                      {DURATION_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Service Display
-                  </label>
-                  <input
-                    type="text"
-                    value={serviceTypeDisplay}
-                    onChange={(e) => setServiceTypeDisplay(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
+
+                {/* Selected Time Range Display */}
+                {/* <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                  <p className="text-sm font-medium text-[#fff]">
+                    Selected Time Range:
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {new Date(startDateTime).toLocaleString()} - {new Date(endDateTime).toLocaleString()}
+                  </p>
+                </div> */}
+              </div>
+
+              {/* Service Type */}
+              <div className="border-b border-[#1b71a3] pb-6">
+                <h3 className="text-lg font-semibold text-[#fff] mb-4">Service Type</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Service Code
+                    </label>
+                    <input
+                      type="text"
+                      value={serviceTypeCode}
+                      onChange={(e) => setServiceTypeCode(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Service Display
+                    </label>
+                    <input
+                      type="text"
+                      value={serviceTypeDisplay}
+                      onChange={(e) => setServiceTypeDisplay(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Indications */}
-            <div className="border-b border-gray-200 pb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Indications</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Indication Code
-                  </label>
-                  <input
-                    type="text"
-                    value={indicationCode}
-                    onChange={(e) => setIndicationCode(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Indication Display
-                  </label>
-                  <input
-                    type="text"
-                    value={indicationDisplay}
-                    onChange={(e) => setIndicationDisplay(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Indication Text
-                  </label>
-                  <input
-                    type="text"
-                    value={indicationText}
-                    onChange={(e) => setIndicationText(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                  />
+              {/* Indications */}
+              <div className="border-b border-[#1b71a3] pb-6">
+                <h3 className="text-lg font-semibold text-[#fff] mb-4">Indications</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Indication Code
+                    </label>
+                    <input
+                      type="text"
+                      value={indicationCode}
+                      onChange={(e) => setIndicationCode(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Indication Display
+                    </label>
+                    <input
+                      type="text"
+                      value={indicationDisplay}
+                      onChange={(e) => setIndicationDisplay(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-[#fff] mb-2">
+                      Indication Text
+                    </label>
+                    <input
+                      type="text"
+                      value={indicationText}
+                      onChange={(e) => setIndicationText(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
+              {/* Submit Button */}
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={loading || !tokenId}
+                  className="px-6 py-3 bg-[#0975BB] text-white font-medium rounded-md hover:bg-[#0975BB] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {loading ? "Searching..." : "Search Appointments"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Results Section */}
+        {searchResults && !showSearchForm && (
+          <div className="bg-white rounded-xl shadow-md border border-[#1b71a3] p-12">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-[28px] font-bold text-[#fff]">Search Results</h2>
               <button
-                type="submit"
-                disabled={loading || !tokenId}
-                className="px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={handleNewSearch}
+                className="px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
               >
-                {loading ? "Searching..." : "Search Appointments"}
+                New Search
               </button>
             </div>
-          </form>
-        </div>
-      )}
+            
+            {searchResults.total === 0 ? (
+              <div className="rounded-md p-4 text-center">
+                <p className="text-[22px] font-medium text-[#34334B] mb-2">No appointments found</p>
+                <Image
+                  src="/No data.gif"
+                  alt="Epic logo"
+                  width={180}
+                  height={180}
+                  className="flex-shrink-0 m-auto"
+                />
+                {searchResults.entry && searchResults.entry.length > 0 && searchResults.entry[0].resource?.issue && (
+                  <div className="space-y-2">
+                    {searchResults.entry[0].resource.issue.map((issue: any, index: number) => (
+                      <div key={index} className="text-sm text-[#34334B] w-[350px] m-auto">
+                        {issue.diagnostics || issue.details?.text}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {searchResults.entry?.map((entry: any, index: number) => (
+                  <div key={index} className="border border-[#1b71a3] rounded-md p-4">
+                    <div className="mb-2">
+                      <span className="text-sm font-medium text-[#fff]">Mode:</span>
+                      <span className="ml-2 text-sm text-gray-600 capitalize">{entry.search.mode}</span>
+                    </div>
+                    <pre className="text-xs overflow-auto bg-gray-50 p-3 rounded border">
+                      {JSON.stringify(entry.resource, null, 2)}
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-      {/* Results Section */}
-      {searchResults && !showSearchForm && (
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-[28px] font-bold text-gray-900">Search Results</h2>
+        {/* Error Display */}
+        {error && (
+          <div className="mt-6 bg-red-50 border border-red-200 rounded-md p-4">
+            <p className="text-sm font-medium text-red-800">Error</p>
+            <p className="text-sm text-red-700 mt-1">{error}</p>
             <button
               onClick={handleNewSearch}
-              className="px-4 py-2 bg-blue-500 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+              className="mt-3 px-4 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
             >
-              New Search
+              Try Again
             </button>
           </div>
-          
-          {searchResults.total === 0 ? (
-            <div className="rounded-md p-4 text-center">
-              <p className="text-[22px] font-medium text-[#34334B] mb-2">No appointments found</p>
-              <Image
-                src="/No data.gif"
-                alt="Epic logo"
-                width={180}
-                height={180}
-                className="flex-shrink-0 m-auto"
-              />
-              {searchResults.entry && searchResults.entry.length > 0 && searchResults.entry[0].resource?.issue && (
-                <div className="space-y-2">
-                  {searchResults.entry[0].resource.issue.map((issue: any, index: number) => (
-                    <div key={index} className="text-sm text-[#34334B] w-[350px] m-auto">
-                      {issue.diagnostics || issue.details?.text}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {searchResults.entry?.map((entry: any, index: number) => (
-                <div key={index} className="border border-gray-200 rounded-md p-4">
-                  <div className="mb-2">
-                    <span className="text-sm font-medium text-gray-700">Mode:</span>
-                    <span className="ml-2 text-sm text-gray-600 capitalize">{entry.search.mode}</span>
-                  </div>
-                  <pre className="text-xs overflow-auto bg-gray-50 p-3 rounded border">
-                    {JSON.stringify(entry.resource, null, 2)}
-                  </pre>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Error Display */}
-      {error && (
-        <div className="mt-6 bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-sm font-medium text-red-800">Error</p>
-          <p className="text-sm text-red-700 mt-1">{error}</p>
-          <button
-            onClick={handleNewSearch}
-            className="mt-3 px-4 py-2 bg-red-600 text-white font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

@@ -176,7 +176,7 @@ export default function CheckPatientVoice({
 
   /* ---------- RENDER ---------- */
   return (
-    <div className="flex Patient-voice mx-auto w-[80%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
+    <div className="flex Patient-voice mx-auto w-[88%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
       {error && selectedPatientIds.length === 0 && (
         <div className="flex gap-2 absolute left-[220px] top-[30px] z-30 w-[500px]">
           <div className="patientError">

@@ -1,13 +1,15 @@
 "use client"
-import HeaderAISearch from "@/app/chat-ui/components/Header"
-import Sidebar from "@/app/components/dashboard/Sidebar"
-import { DashboardProvider } from "@/app/context/DashboardContext"
-import React, { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
-import { TokenDisplay } from "../epic/tokenDisplay"
-import { EpicAuthentication } from "../epic/epicAuthentication"
-import { EOBDisplay } from "./eobDisplay"
-import { EOBData } from "../types"
+import HeaderAISearch from "@/app/chat-ui/components/Header";
+import Sidebar from "@/app/components/dashboard/Sidebar";
+import { DashboardProvider } from "@/app/context/DashboardContext";
+import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { TokenDisplay } from "../epic/tokenDisplay";
+import { EpicAuthentication } from "../epic/epicAuthentication";
+import { EOBDisplay } from "./eobDisplay";
+import { EOBData } from "../types";
+import FooterAISearch from "../../chat-ui/components/Footer";
+import Breadcrumbs from "../../components/dashboard/Breadcrumbs";
 
 export default function Page() {
   const pathname = usePathname()
@@ -116,7 +118,7 @@ export default function Page() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -126,6 +128,7 @@ export default function Page() {
           />
         )}
         <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
+        <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
         {!authToken && <EpicAuthentication onTokenSubmit={handleTokenSubmit} />}
         {authToken && (
           <div
@@ -161,6 +164,7 @@ export default function Page() {
             </div>
           </div>
         )}
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )

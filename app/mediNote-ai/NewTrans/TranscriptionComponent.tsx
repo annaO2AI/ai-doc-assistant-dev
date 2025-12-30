@@ -110,7 +110,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
   }
 
   return (
-<div className="flex Patient-voice mx-auto w-[80%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
+<div className="flex Patient-voice mx-auto w-[88%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
   {/* Top-right PharmacyGenerator */}
       <div className="absolute top-[5px] right-[190px] mt-4 mr-4 z-50">
     <PharmacyGenerator defaultOpen={false} showButton={true} fullWidth={false}/>
@@ -166,8 +166,8 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       <div
         className={
           transcription.length === 0
-            ? "mediNote-widthfix-warpper-center m-auto w-[80%]"
-            : "mediNote-widthfix-warpper m-auto w-[80%]"
+            ? "mediNote-widthfix-warpper-center m-auto w-[88%]"
+            : "mediNote-widthfix-warpper m-auto w-[88%]"
         }
       >
         {/* Transcription Display */}

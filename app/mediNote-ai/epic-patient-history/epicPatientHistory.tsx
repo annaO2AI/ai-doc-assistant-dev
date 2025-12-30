@@ -212,12 +212,12 @@ export default function EpicPatientHistory({
   )
 
   return (
-    <>
-      <div className="epic-patient-search rounded-lg w-[83%] mx-auto flex flex-col">
-        <div className="ml-[-26px]">
+    <div className="w-full mt-6">
+      <div className="epic-patient-search  w-[88%] mx-auto flex flex-col transcription-welcommassege-main rounded-[20px] p-12 autopharmacySearch-min relative">
+        <div className="relative z-[2]">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-[24px] font-semibold ot-title mt-6">
+            <h3 className="text-[24px] font-semibold text-[#fff]">
               Search Epic Patients - Patient History
             </h3>
           </div>
@@ -258,7 +258,7 @@ export default function EpicPatientHistory({
             <div className="flex items-center justify-center py-12">
               <div className="flex flex-col items-center gap-3">
                 <svg
-                  className="animate-spin h-10 w-10 text-blue-600"
+                  className="animate-spin h-10 w-10 text-[#fff]"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -277,7 +277,7 @@ export default function EpicPatientHistory({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                <p className="text-sm ot-title">Loading Epic patients...</p>
+                <p className="text-sm text-[#ffffffb3]">Loading Epic patients...</p>
               </div>
             </div>
           )}
@@ -442,6 +442,22 @@ export default function EpicPatientHistory({
             </div>
           )}
         </div>
+        <span className="rightlinerGrading">
+          <svg width="461" height="430" viewBox="0 0 461 430" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.476 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z" fill="#C2F5F9" fillOpacity="0.2" />
+          </svg>
+        </span>
+        <span className="bottomlinerGrading">
+          <svg width="289" height="199" viewBox="0 0 289 199" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M74.4604 14.9961C29.4945 21.2278 -3.5762 38.2063 -12.2914 45.6118L-26.7382 51.5987L-18.129 238.328L15.9938 288.05L59.727 287.301L185.831 257.872C186.478 228.034 237.253 176.817 262.56 154.938C307.047 107.868 284.151 58.3168 267.142 39.4252C236.04 -2.0024 184.942 -2.74081 158.943 2.76831C155.608 3.47505 152.272 4.08963 148.876 4.38837C134.405 5.6613 97.5463 9.50809 74.4604 14.9961Z" fill="url(#paint0_linear_3427_90583)" fillOpacity="0.4" />
+            <defs>
+              <linearGradient id="paint0_linear_3427_90583" x1="307.848" y1="2.45841" x2="-6.38578" y2="289.124" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#45CEF1" />
+                <stop offset="1" stopColor="#219DF1" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
       </div>
 
       {/* Document References Modal - Simplified */}
@@ -736,6 +752,7 @@ export default function EpicPatientHistory({
           </div>
         </div>
       )}
-    </>
+      
+    </div>
   )
 }

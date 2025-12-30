@@ -48,7 +48,7 @@ export default function Breadcrumbs({ sidebarOpen }: HeaderProps) {
                   : "pl-[64px]"
               )}
     >
-      <nav className="flex mt-8 w-[80%] m-auto">
+      <nav className="flex mt-8 w-[88%] m-auto">
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.href} className="flex items-center text-sm">
             <Link href={crumb.href} className="text-blue-600">

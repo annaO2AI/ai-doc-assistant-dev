@@ -66,7 +66,7 @@ export default function CheckPatientAndDoctor({
 };
 
   return (
-    <div className="flex Patient-voice mx-auto w-[80%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
+    <div className="flex Patient-voice mx-auto w-[88%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
       <PatientProfile
         patient={selectedPatient}
         onEditClick={() => setShowEpicPatientSearch(true)}

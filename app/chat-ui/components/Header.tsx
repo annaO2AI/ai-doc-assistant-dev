@@ -97,7 +97,7 @@ export default function HeaderAISearch({ sidebarOpen }: HeaderProps) {
             : "pl-[64px]"
         )}
       >
-        <div className="w-[80%] mx-auto flex items-center justify-between">
+        <div className="w-[88%] mx-auto flex items-center justify-between">
           <div>
             <Image
               src="/Otow-log.svg"

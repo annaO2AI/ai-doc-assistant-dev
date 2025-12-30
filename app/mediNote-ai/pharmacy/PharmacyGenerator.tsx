@@ -65,7 +65,7 @@ const PharmacyGenerator = ({
             showButton 
               ? 'fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50'
               : fullWidth 
-                ? 'bg-white shadow-lg rounded-lg transcription-welcommassege-main w-[84%] mx-auto  rounded-lg autopharmacySearch-min relative'
+                ? 'bg-white shadow-lg rounded-lg transcription-welcommassege-main w-[88%] mx-auto rounded-[20px] autopharmacySearch-min relative'
                 : 'w-[800px] max-w-screen-lg bg-white shadow-lg rounded-lg'
           }`}
         >

@@ -1,13 +1,15 @@
 "use client"
 
-import HeaderAISearch from "@/app/chat-ui/components/Header"
-import Sidebar from "@/app/components/dashboard/Sidebar"
-import { DashboardProvider } from "@/app/context/DashboardContext"
-import React, { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
-import { TokenDisplay } from "../epic/tokenDisplay"
-import { EpicAuthentication } from "../epic/epicAuthentication"
-import ReferralList from "./referralList"
+import HeaderAISearch from "@/app/chat-ui/components/Header";
+import Sidebar from "@/app/components/dashboard/Sidebar";
+import { DashboardProvider } from "@/app/context/DashboardContext";
+import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { TokenDisplay } from "../epic/tokenDisplay";
+import { EpicAuthentication } from "../epic/epicAuthentication";
+import ReferralList from "./referralList";
+import FooterAISearch from "../../chat-ui/components/Footer";
+import Breadcrumbs from "../../components/dashboard/Breadcrumbs";
 
 type TabType = "eob" | "referrals";
 
@@ -74,7 +76,7 @@ export default function Page() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -83,7 +85,8 @@ export default function Page() {
             setHovered={setHovered}
           />
         )}
-        {/* <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} /> */}
+        <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
+        <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
         {!authToken && <EpicAuthentication onTokenSubmit={handleTokenSubmit} />}
         {authToken && (
           <div
@@ -94,6 +97,7 @@ export default function Page() {
             <ReferralList authToken={authToken} />
           </div>
         )}
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )

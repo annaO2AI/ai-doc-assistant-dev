@@ -1,14 +1,16 @@
 "use client"
-import HeaderAISearch from "@/app/chat-ui/components/Header"
-import Sidebar from "@/app/components/dashboard/Sidebar"
-import { DashboardProvider } from "@/app/context/DashboardContext"
-import React, { useRef, useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
-import { AppointmentAuthentication } from "./appointmentAuthentication"
-import { AppointmentTokenDisplay } from "./appointmentTokenDisplay"
-import { AppointmentSearchForm } from "./appointmentSearchForm"
-import { APIService } from "../service/api"
-import { TranscriptionSummary } from "../types"
+import HeaderAISearch from "@/app/chat-ui/components/Header";
+import Sidebar from "@/app/components/dashboard/Sidebar";
+import { DashboardProvider } from "@/app/context/DashboardContext";
+import React, { useRef, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { AppointmentAuthentication } from "./appointmentAuthentication";
+import { AppointmentTokenDisplay } from "./appointmentTokenDisplay";
+import { AppointmentSearchForm } from "./appointmentSearchForm";
+import { APIService } from "../service/api";
+import { TranscriptionSummary } from "../types";
+import FooterAISearch from "../../chat-ui/components/Footer";
+import Breadcrumbs from "../../components/dashboard/Breadcrumbs";
 
 export interface recordingProps {
   patientId: string | number
@@ -102,7 +104,7 @@ export default function AppointmentPage() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -112,6 +114,7 @@ export default function AppointmentPage() {
           />
         )}
         <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
+        <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
         {!authToken && <AppointmentAuthentication onTokenSubmit={handleTokenSubmit} />}
         {authToken && (
           <div
@@ -123,13 +126,14 @@ export default function AppointmentPage() {
               fhirUser={fhirUser ?? null}
               onClear={handleClearAuth}
             />
-            <div className="flex-1 overflow-auto p-6">
+            <div className="overflow-auto">
               <AppointmentSearchForm 
                 tokenId={authToken}
               />
             </div>
           </div>
         )}
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )
