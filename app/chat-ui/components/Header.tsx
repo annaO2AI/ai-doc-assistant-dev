@@ -85,19 +85,19 @@ export default function HeaderAISearch({ sidebarOpen }: HeaderProps) {
     <>
       <header
         className={clsx(
-          "w-full fixed top-0 z-10 transition-all duration-300 h-18 flex items-center bacgroundColorSt",
+          "w-full fixed top-0 z-10 transition-all duration-300 h-18 flex items-center bacgroundColorSt right-0",
           "backdrop-blur-xl supports-[backdrop-filter]:bg-white",
           scrolled
             ? "shadow-md border-b border-white/30 glass-card"
             : "border-b border-white/10 bg-white",
           sidebarOpen
-            ? "pl-[213px]"
+            ? "pl-[254px]"
             : pathname === "/" || pathname === "/aiops" || pathname === "/talent-acquisition" || pathname === "/human-resources"
-            ? "pl-[0]"
-            : "w-full"
+            ? "pl-[64px]"
+            : "pl-[64px]"
         )}
       >
-        <div className="w-[80%] mx-auto px-4 flex items-center justify-between">
+        <div className="w-[80%] mx-auto flex items-center justify-between">
           <div>
             <Image
               src="/Otow-log.svg"
@@ -149,7 +149,7 @@ export default function HeaderAISearch({ sidebarOpen }: HeaderProps) {
               onClick={toggleProfile}
             >
               {initials && (
-                <div className="w-9 h-9 bg-blue-500 text-white rounded-full flex items-center justify-center font-normal text-sm">
+                <div className="w-9 h-9 bg-[#0975BB] text-white rounded-full flex items-center justify-center font-normal text-sm">
                   {initials}
                 </div>
               )}

@@ -7,6 +7,7 @@ import { DashboardProvider } from "../../context/DashboardContext";
 import HeaderAISearch from "../../chat-ui/components/Header";
 import Breadcrumbs from "../../components/dashboard/Breadcrumbs"; // Import Breadcrumbs component
 import DoctorForm from "./DoctorRegistration";
+import FooterAISearch from "../../chat-ui/components/Footer";
 
 export default function DoctorRegistrationPage() {
   const pathname = usePathname();
@@ -32,7 +33,7 @@ export default function DoctorRegistrationPage() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -51,6 +52,7 @@ export default function DoctorRegistrationPage() {
               <DoctorForm />
           </main>
         </div>
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   );

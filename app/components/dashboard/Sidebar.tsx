@@ -144,7 +144,7 @@ export default function Sidebar({
     <aside
       className={clsx(
         "h-screen fixed top-0 left-0 bg-white border-r shadow transition-all duration-300 z-40 ease-in-out aside-style-left",
-        isExpanded ? "w-64" : "w-16"
+        isExpanded ? "w-[254px]" : "w-[64px]"
       )}
     >
       <span className="showdo-gradiant absolute">

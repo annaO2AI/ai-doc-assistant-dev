@@ -14,6 +14,7 @@ import ICDGenerator from "../icd-code-generator/ICDGenerator"
 import { TranscriptionSummary } from "../types"
 import { sampleData } from "../transcription-summary/Summary"
 import EpicGenerateSummary from "./epicGenerateSummary"
+import FooterAISearch from "../../chat-ui/components/Footer";
 
 export interface recordingProps {
   patientId: string | number
@@ -180,7 +181,7 @@ export default function Page() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -189,7 +190,7 @@ export default function Page() {
             setHovered={setHovered}
           />
         )}
-        {/* <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} /> */}
+        <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
         {!authToken && <EpicAuthentication onTokenSubmit={handleTokenSubmit} />}
         {authToken && (
           <div
@@ -251,6 +252,8 @@ export default function Page() {
             )}
           </div>
         )}
+        
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )

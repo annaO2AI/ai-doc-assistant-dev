@@ -7,6 +7,7 @@ import { DashboardProvider } from "../../context/DashboardContext";
 import HeaderAISearch from "../../chat-ui/components/Header";
 import Breadcrumbs from "../../components/dashboard/Breadcrumbs"; // Import Breadcrumbs component
 import VitalsObjectiveForm from "./vitalsObjective";
+import FooterAISearch from "../../chat-ui/components/Footer";
 
 export default function DocAssistantPage() {
   const pathname = usePathname();
@@ -32,7 +33,7 @@ export default function DocAssistantPage() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -42,7 +43,7 @@ export default function DocAssistantPage() {
           />
         )}
         <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
-         <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
+        <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
         <div
           className="flex flex-col flex-1 transition-all duration-300 ease-in-out"
           style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}
@@ -51,6 +52,7 @@ export default function DocAssistantPage() {
               <VitalsObjectiveForm />
           </main>
         </div>
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   );

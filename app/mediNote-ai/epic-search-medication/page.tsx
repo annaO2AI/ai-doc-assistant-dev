@@ -10,6 +10,7 @@ import EpicPatientSearch from "./epicPatientSearch"
 import { TokenDisplay } from "../epic/tokenDisplay"
 import { EpicAuthentication } from "../epic/epicAuthentication"
 import Breadcrumbs from "../../components/dashboard/Breadcrumbs"; // Import Breadcrumbs component
+import FooterAISearch from "../../chat-ui/components/Footer";
 
 export interface recordingProps {
   patientId: string | number
@@ -127,7 +128,7 @@ const [showPatientSearch, setShowPatientSearch] = useState(true)
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -139,26 +140,27 @@ const [showPatientSearch, setShowPatientSearch] = useState(true)
         <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
          <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
         {!authToken && <EpicAuthentication onTokenSubmit={handleTokenSubmit} />}
-{authToken && (
-  <div
-    className="flex flex-col flex-1 transition-all duration-300 ease-in-out"
-    style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}
-  >
-    <TokenDisplay token={authToken} onClear={handleClearAuth} />
-    
-    {showPatientSearch && (
-      <div className="flex-1 p-4">
-        <EpicPatientSearch
-          tokenId={authToken || ""}
-          onSelectPatient={handleSelectPatient}
-          selectedPatient={selectedPatient}
-          onClose={() => setShowPatientSearch(false)}
-          onSelectMedication={handleSelectMedication}
-        />
-      </div>
-    )}
-  </div>
-)}
+        {authToken && (
+          <div
+            className="flex flex-col flex-1 transition-all duration-300 ease-in-out"
+            style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}
+          >
+            <TokenDisplay token={authToken} onClear={handleClearAuth} />
+            
+            {showPatientSearch && (
+              <div className="flex-1 p-4">
+                <EpicPatientSearch
+                  tokenId={authToken || ""}
+                  onSelectPatient={handleSelectPatient}
+                  selectedPatient={selectedPatient}
+                  onClose={() => setShowPatientSearch(false)}
+                  onSelectMedication={handleSelectMedication}
+                />
+              </div>
+            )}
+          </div>
+        )}
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )

@@ -7,7 +7,7 @@ import Sidebar from "../../components/dashboard/Sidebar"
 import { DashboardProvider } from "../../context/DashboardContext"
 import HeaderAISearch from "../../chat-ui/components/Header"
 import Breadcrumbs from "../../components/dashboard/Breadcrumbs"
-
+import FooterAISearch from "../../chat-ui/components/Footer";
 import CheckPatientVoice from "./CheckPatientVoice"
 import { APIService } from "../service/api"
 import TranscriptionComponent from "../NewTrans/TranscriptionComponent"
@@ -71,7 +71,7 @@ export default function DocAssistantPage() {
   const sidebarWidth = isSidebarExpanded ? 256 : 64
 
   // Show sidebar on the talent-acquisition page
-  const showSidebar = pathname === "/mediNote-ai/doctor-patient-voice"
+  const showSidebar = pathname === "/mediNote-ai/doctor-patient-voice" ||  pathname === "http://localhost:3000/" ||  pathname === "/";
 
   const startRecording = async (patientId: number, doctorIdParam: number, patientName: string, doctorName: string) => {
     try {
@@ -102,7 +102,7 @@ export default function DocAssistantPage() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -118,7 +118,6 @@ export default function DocAssistantPage() {
           style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}
         >
           <main>
-            <div className="enrollDoctorVoice">
               {currentState === "patientCheck" && 
                 <CheckPatientVoice handleStartCon={startRecording} />
               }
@@ -148,9 +147,9 @@ export default function DocAssistantPage() {
                     <ICDGenerator sessionId={sessionId} showButton={false} fullWidth={true}  editMode={true}  />
                 </div>
               )}
-            </div>
           </main>
         </div>
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )

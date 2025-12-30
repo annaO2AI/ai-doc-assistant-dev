@@ -8,6 +8,7 @@ import HeaderAISearch from "../../chat-ui/components/Header"
 import Breadcrumbs from "../../components/dashboard/Breadcrumbs" // Import Breadcrumbs component
 import clsx from "clsx"
 import ICDGenerator from "./ICDGenerator"
+import FooterAISearch from "../../chat-ui/components/Footer";
 
 export default function ICDCodeGeneratorPage() {
   const pathname = usePathname()
@@ -33,7 +34,7 @@ export default function ICDCodeGeneratorPage() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -56,6 +57,7 @@ export default function ICDCodeGeneratorPage() {
             <ICDGenerator sessionId={0} showButton={false} fullWidth={true}   editMode={false}/>
           </main>
         </div>
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )

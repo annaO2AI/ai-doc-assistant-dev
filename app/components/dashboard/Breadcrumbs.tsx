@@ -40,15 +40,15 @@ export default function Breadcrumbs({ sidebarOpen }: HeaderProps) {
 
   return (
     <div className={clsx(
-                " w-[80%] mt-12 mx-auto bradcurame-section", 
+                " w-full mt-12 mx-auto bradcurame-section transition-all duration-300", 
                 sidebarOpen
-                  ? "pl-[200px]"
+                  ? "pl-[254px]"
                   : pathname === "/" || pathname === "/aiops" || pathname === "/talent-acquisition" || pathname === "/human-resources"
-                  ? "pl-[20px]"
-                  : "pl-[20px]"
+                  ? "pl-[64px]"
+                  : "pl-[64px]"
               )}
     >
-      <nav className="flex py-2 px-4 mt-8 w-[100%]">
+      <nav className="flex mt-8 w-[80%] m-auto">
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.href} className="flex items-center text-sm">
             <Link href={crumb.href} className="text-blue-600">

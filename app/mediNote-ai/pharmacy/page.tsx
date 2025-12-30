@@ -8,6 +8,7 @@ import HeaderAISearch from "../../chat-ui/components/Header";
 import Breadcrumbs from "../../components/dashboard/Breadcrumbs"; // Import Breadcrumbs component
 import PharmacyGenerator from "./PharmacyGenerator";
 import clsx from "clsx";
+import FooterAISearch from "../../chat-ui/components/Footer";
 
 export default function PharmacyGeneratorPage() {
   const pathname = usePathname();
@@ -33,7 +34,7 @@ export default function PharmacyGeneratorPage() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden">
+      <div className="overflow-hidden">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -43,7 +44,7 @@ export default function PharmacyGeneratorPage() {
           />
         )}
         <HeaderAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
-         <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
+        <Breadcrumbs sidebarOpen={showSidebar && isSidebarExpanded} />
         <div
           className="flex flex-col flex-1 transition-all duration-300 ease-in-out"
           style={{ marginLeft: showSidebar ? sidebarWidth : 0 }}
@@ -52,6 +53,7 @@ export default function PharmacyGeneratorPage() {
              <PharmacyGenerator defaultOpen={true} showButton={false} fullWidth={true}/>
           </main>
         </div>
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   );
