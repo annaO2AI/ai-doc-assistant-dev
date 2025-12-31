@@ -268,7 +268,7 @@ body {
   .summaryGenerationSection{
     background: #161D5D;
     background: linear-gradient(73deg,rgba(22, 29, 93, 1) 2%, rgba(59, 202, 245, 1) 100%);
-    width: 82%;
+    width: 88%;
   }
   .controle-search-AIDocAssist{
     background-color: #fff;
@@ -508,14 +508,14 @@ body {
     background: #3089c9;       /* handle on hover */
   }
   .patent-active{
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     background-color: #03D361;
     border-radius: 100px;
   }
   .patent-inactive{
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     background-color: #7E83A2;
     border-radius: 100px;
   }
@@ -532,8 +532,9 @@ body {
     height: calc(100vh - 177px);
   }
   .DoctorResultslist{
-    overflow-y: auto;
+    overflow: hidden;
     height: calc(100vh - 347px);
+    overflow-y: auto;
   }
      /* Custom scrollbar */
   .DoctorResultslist::-webkit-scrollbar {
@@ -621,15 +622,38 @@ body {
     border-radius: 100px;
 }
 
-/* Handle on hover */
-.auto-hight-vr::-webkit-scrollbar-thumb:hover {
-    background: #223e99bf;
-    border-radius: 100px;
-}
-.autopharmacySearch-min{
-  min-height: calc(100vh - 240px);
-}
-.centerdivh-a{
-      height: calc(100vh - 160px);
-}
+  /* Handle on hover */
+  .auto-hight-vr::-webkit-scrollbar-thumb:hover {
+      background: #223e99bf;
+      border-radius: 100px;
+  }
+  .autopharmacySearch-min{
+    min-height: calc(100vh - 240px);
+  }
+  .centerdivh-a{
+        height: calc(100vh - 160px);
+  }
+  .docterAvatar{
+      width: 40px !important;
+      max-width: 40px !important;
+      min-width: 40px !important;
+  }
+    /* Custom scrollbar */
+  .custom-scroole::-webkit-scrollbar {
+    width: 8px;              /* width of the scrollbar */
+  }
+
+  .custom-scroole::-webkit-scrollbar-track {
+    background: transparent;       /* track color */
+    border-radius: 8px;
+  }
+
+  .custom-scroole::-webkit-scrollbar-thumb {
+    background: #fff;       /* scrollbar handle */
+    border-radius: 8px;
+  }
+
+  .custom-scroole::-webkit-scrollbar-thumb:hover {
+    background: #fff;       /* handle on hover */
+  }
 }

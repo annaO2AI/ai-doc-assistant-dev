@@ -94,7 +94,7 @@ export default function DoctorSearch({
               >
                 <span className="flex flex-col gap-2">
                   <span className="flex gap-2 items-center">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white text-sm font-semibold">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white text-sm font-semibold docterAvatar">
                       {initials}
                     </div>
                     <span className="flex flex-col">

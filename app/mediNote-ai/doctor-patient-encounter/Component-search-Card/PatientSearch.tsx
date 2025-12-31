@@ -54,7 +54,7 @@ export default function PatientSearch({
     : patients;
 
   return (
-    <div className="patientSearch w-full searchPatients-bg py-6 px-6 pt-16 h-full relative z-10">
+    <div className="patientSearch w-full searchPatients-bg py-6 px-6 pt-16 h-full relative z-10 inset-0 backdrop-blur-sm">
       <form onSubmit={onSubmit} className="flex items-center gap-3">
         <div className="relative w-full">
           <div className="absolute inset-y-0 top-0 left-0 pl-3 flex items-center pointer-events-none">

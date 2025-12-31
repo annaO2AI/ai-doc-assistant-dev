@@ -174,6 +174,12 @@ export default function CheckPatientVoice({
     setSelectedPatientIds([]); // Optional: Clear selections when closing modal
   };
 
+  const handleSelectDoctor = (doc: doctor) => {
+    setSelectedDoctor(doc);
+    setShowDoctorSearch(false); // CLOSE popup after selection
+    setDoctorError(null); // optional: clear error
+  };
+
   /* ---------- RENDER ---------- */
   return (
     <div className="flex Patient-voice mx-auto w-[88%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
@@ -273,7 +279,7 @@ export default function CheckPatientVoice({
           </button>
         )}
         {showDoctorSearch && (
-          <div className="relative w-full SearchDoctorToggle pt-12 z-30">
+          <div className="relative w-full SearchDoctorToggle pt-12 z-30 inset-0 backdrop-blur-sm">
             <button
               className="absolute top-6 left-4 px-3 py-1 text-white rounded-md"
               onClick={() => setShowDoctorSearch(false)}
@@ -291,7 +297,7 @@ export default function CheckPatientVoice({
               doctorError={null}
               doctorResults={doctorResults}
               selectedDoctor={selectedDoctor}
-              onSelectDoctor={setSelectedDoctor}
+              onSelectDoctor={handleSelectDoctor}
             />
           </div>
         )}
@@ -300,10 +306,10 @@ export default function CheckPatientVoice({
         <div className="flex flex-col gap-3">
           <div className="full">
             {selectedPatientIds.length > 0 && showHistoryModal && (
-              <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50">
-                <div className="bg-white rounded-lg shadow-sm p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto relative">
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50 inset-0 bg-black/50 backdrop-blur-sm">
+                <div className="bg-white rounded-[20px] shadow-sm p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto relative garadiantProfile-details border-custome-profile custom-scroole">
                   <button
-                    className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                    className="absolute top-4 right-4 text-[#fff] hover:text-gray-700"
                     onClick={handleCloseModal}
                   >
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
