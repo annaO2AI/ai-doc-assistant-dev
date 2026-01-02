@@ -291,9 +291,20 @@ export interface doctor {
 }
 
 export interface DoctorCreationTypes {
-  first_name: string
-  last_name: string
-  email: string
+  first_name: string;
+  last_name: string;
+  email: string;
+  areas_of_focus?: string;
+  awards?: string;
+  certifications?: string;
+  fellowship?: string;
+  is_license_active?: boolean;
+  license_expiry_date?: string;
+  license_type?: string;
+  medical_school?: string;
+  professional_memberships?: string;
+  residency?: string;
+  sex?: string;
 }
 
 // API Response types
