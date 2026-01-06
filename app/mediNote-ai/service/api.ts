@@ -1,4 +1,4 @@
-import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner, EpicDocumentReferenceResponse,EpicPatientsResponse, EOBSearchResponse, ObjectiveUpdateData} from "../types";
+import { CreateDoctorResponse, DoctorCreationTypes, HealthResponse, PatientCreationTypes, SearchDoctorsResponse, startConversationPayload, UpdateDoctorResponse, EpicPractitioner, EpicDocumentReferenceResponse, EpicPatientsResponse, EOBSearchResponse, ObjectiveUpdateData, UserCreationTypes, UserResponse, User, UserUpdateData, ActivationResponse } from "../types";
 import { API_BASE_URL_AISEARCH_MediNote, API_ROUTES } from "../../constants/api";
 
 const API_SERVICE = "https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net"
@@ -58,7 +58,7 @@ class TokenService {
       if (!this.token) {
         throw new Error('Access token not found in response');
       }
-      
+
       return this.token;
     } catch (error) {
       console.error('Error fetching token:', error);
@@ -88,7 +88,7 @@ export class APIService {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (!response?.ok) {
         throw new Error(`Health check failed: ${response.status}`);
       }
@@ -98,7 +98,136 @@ export class APIService {
     }
   }
 
-   static async enrollVoice(speakerType: 'doctors' | 'patients', audioFile: File): Promise<any> {
+
+  static async getUsers(skip: number = 0, limit: number = 100): Promise<UserResponse> {
+    try {
+      const response = await fetch(
+        `${API_SERVICE}/api/admin/users?skip=${skip}&limit=${limit}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+          },
+           credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      throw error;
+    }
+  }
+
+  // Get user by ID
+  static async getUserById(userId: number): Promise<User> {
+    try {
+      const response = await fetch(
+        `${API_SERVICE}/api/admin/users/${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+          },
+           credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      throw error;
+    }
+  }
+
+  // Update user
+  static async updateUser(userId: number, userData: UserUpdateData): Promise<User> {
+    try {
+      const response = await fetch(
+        `${API_SERVICE}/api/admin/users/${userId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+           credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  }
+
+
+  // Activate user
+  static async activateUser(userId: number): Promise<ActivationResponse> {
+    try {
+      const response = await fetch(
+        `${API_SERVICE}/api/admin/users/${userId}/activate`,
+        {
+          method: 'PATCH',
+          headers: {
+            'accept': 'application/json',
+          },
+           credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error activating user:', error);
+      throw error;
+    }
+  }
+
+  // Deactivate user
+  static async deactivateUser(userId: number): Promise<ActivationResponse> {
+    try {
+      const response = await fetch(
+        `${API_SERVICE}/api/admin/users/${userId}/deactivate`,
+        {
+          method: 'PATCH',
+          headers: {
+            'accept': 'application/json',
+          },
+           credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+      throw error;
+    }
+  }
+
+
+  static async enrollVoice(speakerType: 'doctors' | 'patients', audioFile: File): Promise<any> {
     try {
       const formData = new FormData();
       formData.append('file', audioFile);
@@ -146,8 +275,8 @@ export class APIService {
     }
   }
 
-  static async startConversation(data:startConversationPayload): Promise<any>{
-    try{
+  static async startConversation(data: startConversationPayload): Promise<any> {
+    try {
       const response = await fetch(`${API_BASE_URL_AISEARCH_MediNote}api/patients/${data?.patient_id}/start-conversation`, {
         method: "POST",
         headers: {
@@ -167,45 +296,45 @@ export class APIService {
     }
   }
 
-static async SearchDoctor(
-  text?: string | number | boolean, 
-  limit: number = 500, 
-  offset: number = 0
-): Promise<SearchDoctorsResponse> {
-  try {
-    // Build the URL with proper encoding
-    const url = new URL(`${API_SERVICE}/doctors/doctors/search`);
-    
-    // Only add query parameter if text has a meaningful value
-    if (text !== undefined && text !== null && text !== '') {
-      url.searchParams.append('q', String(text));
+  static async SearchDoctor(
+    text?: string | number | boolean,
+    limit: number = 500,
+    offset: number = 0
+  ): Promise<SearchDoctorsResponse> {
+    try {
+      // Build the URL with proper encoding
+      const url = new URL(`${API_SERVICE}/doctors/doctors/search`);
+
+      // Only add query parameter if text has a meaningful value
+      if (text !== undefined && text !== null && text !== '') {
+        url.searchParams.append('q', String(text));
+      }
+
+      // Add pagination parameters
+      url.searchParams.append('limit', limit.toString());
+      url.searchParams.append('offset', offset.toString());
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('Search doctors error:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Search doctors error:', error);
+      throw error;
     }
-    
-    // Add pagination parameters
-    url.searchParams.append('limit', limit.toString());
-    url.searchParams.append('offset', offset.toString());
-
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      console.error('Search doctors error:', errorData);
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Search doctors error:', error);
-    throw error;
   }
-}
 
   static async updateDoctor(doctorData: DoctorCreationTypes, doctorId: number): Promise<UpdateDoctorResponse> {
     try {
@@ -215,7 +344,7 @@ static async SearchDoctor(
           'accept': 'application/json',
           'Content-Type': 'application/json',
         },
-         credentials: 'include',
+        credentials: 'include',
         body: JSON.stringify(doctorData),
       });
 
@@ -277,50 +406,74 @@ static async SearchDoctor(
     }
   }
 
-static async SearchPatient(text: string | number | boolean): Promise<any> {
-  try {
-    // Build the URL with proper encoding
-    const url = new URL(`${API_SERVICE}/patients/patients/search`);
-    
-    // Only add query parameter if text has a meaningful value
-    if (text !== undefined && text !== null && text !== '') {
-      url.searchParams.append('query', String(text));
+  static async createUser(userData: UserCreationTypes): Promise<any> {
+    try {
+      const response = await fetch(`${API_SERVICE}/api/admin/users`, {
+        method: "POST",
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || 'User creation failed');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('User creation error:', error);
+      throw error;
     }
-    
-    // Add pagination parameters
-    url.searchParams.append('limit', '500');
-    url.searchParams.append('offset', '0');
-
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      console.error('Search error:', errorData);
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Search error:', error);
-    throw error;
   }
-}
 
-  static async updatePatient(patientData: PatientCreationTypes, id:number): Promise<any> {
+  static async SearchPatient(text: string | number | boolean): Promise<any> {
+    try {
+      // Build the URL with proper encoding
+      const url = new URL(`${API_SERVICE}/patients/patients/search`);
+
+      // Only add query parameter if text has a meaningful value
+      if (text !== undefined && text !== null && text !== '') {
+        url.searchParams.append('query', String(text));
+      }
+
+      // Add pagination parameters
+      url.searchParams.append('limit', '500');
+      url.searchParams.append('offset', '0');
+
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: {
+          'accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error('Search error:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Search error:', error);
+      throw error;
+    }
+  }
+
+  static async updatePatient(patientData: PatientCreationTypes, id: number): Promise<any> {
     try {
       const response = await fetch(`${API_SERVICE}/patients/patients/update/${id}`, {
         method: "PUT",
         headers: {
-          'Content-Type': 'application/json', 
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(patientData) ,
+        body: JSON.stringify(patientData),
         credentials: 'include',
       });
 
@@ -402,7 +555,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-  static async startSession(patientId: number, doctorId: string| number) {
+  static async startSession(patientId: number, doctorId: string | number) {
     try {
       const response = await fetch(`${API_SERVICE}/session/start?doctor_id=${doctorId}&patient_id=${patientId}`, {
         method: "POST",
@@ -455,7 +608,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     original_text: string;
     summary_text: string;
     edited_text?: string;
-}): Promise<any> {
+  }): Promise<any> {
     try {
       const response = await fetch(`${API_SERVICE}/summary/summary/summary/save`, {
         method: "POST",
@@ -526,7 +679,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-  static async saveFinalSummary(data: { session_id: number}): Promise<any> {
+  static async saveFinalSummary(data: { session_id: number }): Promise<any> {
     try {
       const response = await fetch(`${API_SERVICE}/summary/summary/summary/approve`, {
         method: "POST",
@@ -551,7 +704,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-  static async editSummary(data: {summaryId: number, edited_text: string}): Promise<any> {
+  static async editSummary(data: { summaryId: number, edited_text: string }): Promise<any> {
     try {
       const url = `${API_SERVICE}/summary/summary/summary/edit/${data.summaryId}`;
       const response = await fetch(url, {
@@ -638,15 +791,15 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
       },
       credentials: "include",
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     return await response.json();
   }
 
-  static async transcribeFromFile(formData:any): Promise<any> {
+  static async transcribeFromFile(formData: any): Promise<any> {
     try {
       const response = await fetch(`${API_SERVICE}/transcribe/from-file`, {
         method: "POST",
@@ -688,10 +841,10 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
       }
 
       const blob = await response.blob()
-      
+
       const contentDisposition = response.headers.get('content-disposition')
       let filename = `session_${sessionId}_recording.wav`
-      
+
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/)
         if (filenameMatch) {
@@ -749,7 +902,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
       });
 
       if (!response.ok) {
-       const errorText = await response.text()
+        const errorText = await response.text()
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -891,7 +1044,7 @@ static async SearchPatient(text: string | number | boolean): Promise<any> {
     }
   }
 
-private static async getAuthHeaders(tokenId: string): Promise<Record<string, string>> {
+  private static async getAuthHeaders(tokenId: string): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -910,37 +1063,37 @@ private static async getAuthHeaders(tokenId: string): Promise<Record<string, str
 
   // service/api.ts - Add this method to your APIService class
 
-static async getEpicMedicationById(medicationRequestId: string, tokenId: string): Promise<any> {
-  try {
-    const headers = await this.getAuthHeaders(tokenId);
-    
-    const response = await fetch(
-      `${API_SERVICE}/epic/fhir/meds/${medicationRequestId}`,
-      {
-        method: 'GET',
-        headers: {
-          'accept': 'application/json',
-          ...headers,
-        },
-        credentials: 'include',
+  static async getEpicMedicationById(medicationRequestId: string, tokenId: string): Promise<any> {
+    try {
+      const headers = await this.getAuthHeaders(tokenId);
+
+      const response = await fetch(
+        `${API_SERVICE}/epic/fhir/meds/${medicationRequestId}`,
+        {
+          method: 'GET',
+          headers: {
+            'accept': 'application/json',
+            ...headers,
+          },
+          credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch medication: ${response.statusText}`);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch medication: ${response.statusText}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Epic medication by ID search error:', error);
+      throw error;
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Epic medication by ID search error:', error);
-    throw error;
   }
-}
 
   static async getEpicMedications(patientId: string, tokenId: string): Promise<any> {
     try {
       const headers = await this.getAuthHeaders(tokenId);
-      
+
       const response = await fetch(
         `${API_SERVICE}/epic/fhir/meds/search?patient=${patientId}`,
         {
@@ -962,31 +1115,31 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
       console.error('Epic medications search error:', error);
       throw error;
     }
-}
+  }
 
 
  static async  getEOBByPatient(patientId: string, tokenId: string): Promise<EOBSearchResponse> {
     const response = await fetch(
-    `${API_SERVICE}/epic/eob-search/search?patient=${patientId}&token_id=${tokenId}`,
-    {
-      method: 'GET',
-      headers: {
-        'accept': 'application/json',
-      },
+      `${API_SERVICE}/epic/eob-search/search?patient=${patientId}&token_id=${tokenId}`,
+      {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch EOB data');
     }
-  );
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch EOB data');
+    return response.json();
   }
-
-  return response.json();
-}
 
   static async searchEpicPatients(tokenId: string): Promise<EpicPatientsResponse> {
     try {
       const headers = await this.getAuthHeaders(tokenId);
-      
+
       const response = await fetch(
         `${API_SERVICE}/epic/fhir/patients/demo-names?token_id=${tokenId}`,
         {
@@ -1009,12 +1162,12 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
       throw error;
     }
   }
-  
+
   // Epic FHIR Practitioner API
   static async searchEpicPractitioner(practitionerId: string, tokenId: string): Promise<EpicPractitioner> {
     try {
       const headers = await this.getAuthHeaders(tokenId);
-      
+
       const response = await fetch(
         `${API_SERVICE}/epic/fhir/practitioner/${practitionerId}/name?token_id=${tokenId}`,
         {
@@ -1041,7 +1194,7 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
   static async epicStartSession(patientId: string | number, practitionerId: string) {
     try {
       // const headers = await this.getAuthHeaders(tokenId);
-      
+
       const response = await fetch(`${API_SERVICE}/session/start?epic_practitioner_id=${practitionerId}&epic_patient_id=${patientId}`, {
         method: "POST",
         headers: {
@@ -1067,7 +1220,7 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
   static async getEpicEncounters(tokenId: string, patientId: string, count: number = 50): Promise<any> {
     try {
       const headers = await this.getAuthHeaders(tokenId);
-      
+
       const url = new URL(`${API_SERVICE}/epic/fhir/encounters`);
       url.searchParams.append('token_id', tokenId);
       url.searchParams.append('patient_id', patientId);
@@ -1101,7 +1254,7 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
   ): Promise<any> {
     try {
       const headers = await this.getAuthHeaders(tokenId);
-      
+
       const url = new URL(`${API_SERVICE}/epic/fhir/documentreference`);
       url.searchParams.append('token_id', tokenId);
       url.searchParams.append('patient_id', patientId);
@@ -1139,7 +1292,7 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
   static async saveToEpicDocumentReference(tokenId: string, data: any): Promise<{ success: boolean; data?: any; message?: string }> {
     try {
       const headers = await this.getAuthHeaders(tokenId);
-      
+
       const response = await fetch('/api/epic/fhir/documentreference', {
         method: 'POST',
         headers: {
@@ -1149,31 +1302,31 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
         body: JSON.stringify(data),
         credentials: 'include',
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
       return { success: true, data: result };
     } catch (error) {
       console.error('Error saving to Epic DocumentReference:', error);
-      return { 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to save to Epic DocumentReference' 
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to save to Epic DocumentReference'
       };
     }
   }
 
   static async getEpicDocumentReferences(
-    tokenId: string, 
-    patientId: string, 
+    tokenId: string,
+    patientId: string,
     count: number = 100
   ): Promise<EpicDocumentReferenceResponse> {
     try {
       const headers = await this.getAuthHeaders(tokenId);
-      
+
       const response = await fetch(
         `${API_SERVICE}/epic/fhir/documentreference?token_id=${tokenId}&patient_id=${patientId}&count=${count}`,
         {
@@ -1196,12 +1349,12 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
       console.error('Error fetching Epic documents:', error);
       throw error;
     }
-}
+  }
 
   static async getEpicSession(tokenId: string): Promise<any> {
     try {
       const headers = await this.getAuthHeaders(tokenId);
-      
+
       const response = await fetch(`${API_SERVICE}/epic/auth/session`, {
         method: 'GET',
         credentials: "include",
@@ -1239,8 +1392,8 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
     }
   }
 
-      static async getReferralsByPatient(patientId: string, tokenId: string, count: number = 10) {
-         const headers = await this.getAuthHeaders(tokenId);
+  static async getReferralsByPatient(patientId: string, tokenId: string, count: number = 10) {
+    const headers = await this.getAuthHeaders(tokenId);
     const response = await fetch(
       `${API_SERVICE}/epic/referral-search?patient_id=${patientId}&token_id=${tokenId}&count=${count}`,
       {
@@ -1261,7 +1414,7 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
   }
 
 
-   static async saveObjective(data: any): Promise<any> {
+  static async saveObjective(data: any): Promise<any> {
     try {
       const response = await fetch(
         'https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/objective/save',
@@ -1286,7 +1439,7 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
     }
   }
 
-    static async getObjectiveByPatient(patientId: number): Promise<ObjectiveUpdateData[]> {
+  static async getObjectiveByPatient(patientId: number): Promise<ObjectiveUpdateData[]> {
     try {
       const response = await fetch(
         `https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/objective/by-patient/${patientId}`,
@@ -1297,11 +1450,11 @@ static async getEpicMedicationById(medicationRequestId: string, tokenId: string)
           },
         }
       );
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error fetching objective data:', error);

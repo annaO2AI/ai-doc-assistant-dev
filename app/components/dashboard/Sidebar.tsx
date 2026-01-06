@@ -55,7 +55,7 @@ const menuItems = [
         href: "/mediNote-ai/pharmacy",
         icon: ArroTabIcon,
       },
-      
+
       {
         label: "Vitals & Objective",
         href: "/mediNote-ai/vitals-objective",
@@ -63,12 +63,12 @@ const menuItems = [
       }
     ],
   },
-   {
+  {
     id: "EPIC",
     label: "Electronic Health Record",
     icon: ElectronicHealthRecord,
     subItems: [
-     {
+      {
         label: "Doctor Patient Encounter (Epic)",
         href: "/mediNote-ai/epic",
         icon: ArroTabIcon,
@@ -78,12 +78,12 @@ const menuItems = [
         href: "/mediNote-ai/epic-search-medication",
         icon: ArroTabIcon,
       },
-        {
+      {
         label: "Epic Patient History",
         href: "/mediNote-ai/epic-patient-history",
         icon: ArroTabIcon,
       },
-       {
+      {
         label: "Explanation Of Benefit Search",
         href: "/mediNote-ai/epic-eob-search",
         icon: ArroTabIcon,
@@ -93,12 +93,12 @@ const menuItems = [
         href: "/mediNote-ai/epic-patient-lab-results",
         icon: ArroTabIcon,
       },
-       {
+      {
         label: "Explanation Of Benefit Read",
         href: "/mediNote-ai/epic-eob-read",
         icon: ArroTabIcon,
       },
-       {
+      {
         label: "EPIC Referral Search",
         href: "/mediNote-ai/epic-referral-search",
         icon: ArroTabIcon,
@@ -107,7 +107,40 @@ const menuItems = [
         label: "Epic Appointment",
         href: "/mediNote-ai/epic-appointment",
         icon: ArroTabIcon,
-      }
+      },
+    ],
+  },
+
+  {
+    id: "ADMIN",
+    label: "Admin Details",
+    icon: ElectronicHealthRecord,
+    subItems: [
+      {
+        label: "Create Users",
+        href: "/admin/create-users",
+        icon: ArroTabIcon,
+      },
+       {
+        label: "Update Users",
+        href: "/admin/update-users",
+        icon: ArroTabIcon,
+      },
+      // {
+      //   label: "Users List",
+      //   href: "/admin/users-list",
+      //   icon: ArroTabIcon,
+      // },
+      // {
+      //   label: "Deactivate Users Account",
+      //   href: "/admin/deactivate-users-account",
+      //   icon: ArroTabIcon,
+      // },
+      //  {
+      //   label: "Activate Users Account",
+      //   href: "/admin/activate-users-account",
+      //   icon: ArroTabIcon,
+      // },
     ],
   },
 ]

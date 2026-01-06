@@ -39,12 +39,12 @@ export interface EpicPractitioner {
 // WebSocket/Real-time Types
 export interface TranscriptMessage {
   type:
-    | "transcript_update"
-    | "processing"
-    | "keepalive"
-    | "error"
-    | "transcript"
-    | "binary"
+  | "transcript_update"
+  | "processing"
+  | "keepalive"
+  | "error"
+  | "transcript"
+  | "binary"
   speaker?: "doctor" | "patient"
   text?: string
   timestamp?: string
@@ -75,8 +75,8 @@ export interface EpicPatientsResponse {
 }
 
 
-export 
-interface ReferralEntry {
+export
+  interface ReferralEntry {
   fullUrl?: string;
   resource: {
     resourceType: string;
@@ -228,6 +228,14 @@ export interface PatientCreationTypes {
   date_of_birth?: string;
   age?: number;
   sex?: string;
+}
+
+export interface UserCreationTypes {
+  clinic_id: string;
+  doctor_id: number;
+  email: string;
+  name: string;
+  role: string;
 }
 
 export interface patient extends PatientCreationTypes {
@@ -1096,4 +1104,35 @@ export interface ObjectiveUpdateData extends Omit<ObjectiveData, 'id' | 'patient
   patient_id: number;
   session_id: number;
   summary_id: number;
+}
+
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  role: 'SUPER_ADMIN' | 'CLINIC_ADMIN' | 'DOCTOR';
+  clinic_id: string | null;
+  doctor_id: number | null;
+  is_active: boolean;
+  azure_oid: string;
+}
+
+export interface UserResponse {
+  total: number;
+  users: User[];
+}
+
+export interface UserUpdateData {
+  email: string;
+  name: string;
+  role: 'SUPER_ADMIN' | 'CLINIC_ADMIN' | 'DOCTOR';
+  clinic_id: string | null;
+  doctor_id: number | null;
+  is_active: boolean;
+  azure_oid?: string;
+}
+
+export interface ActivationResponse {
+  message: string;
+  user_id: number;
 }
