@@ -346,7 +346,7 @@ const UserManagement: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={handleBackToList}
-            className="flex items-center text-blue-600 hover:text-blue-800"
+            className="flex items-center text-[#0975bb] hover:text-blue-800"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -356,7 +356,7 @@ const UserManagement: React.FC = () => {
           <div className="flex space-x-4">
             <button
               onClick={() => handleEditUser(selectedUser)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-[#0975bb] text-white rounded-md hover:bg-blue-700"
             >
               Edit User
             </button>
@@ -540,7 +540,7 @@ const UserManagement: React.FC = () => {
                       e.stopPropagation();
                       handleSelectUser(user);
                     }}
-                    className="text-blue-600 hover:text-blue-900"
+                    className="text-[#0975bb] hover:text-blue-900"
                   >
                     View
                   </button>
@@ -682,7 +682,7 @@ const UserManagement: React.FC = () => {
                 id="isActive"
                 checked={editingUser.is_active}
                 onChange={(e) => setEditingUser({ ...editingUser, is_active: e.target.checked })}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-[#0975bb] focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
                 Active User
@@ -701,7 +701,7 @@ const UserManagement: React.FC = () => {
             <button
               onClick={handleSaveUser}
               disabled={saving}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-[#0975bb] text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
@@ -756,7 +756,7 @@ const UserManagement: React.FC = () => {
             <div className="flex bg-[#0c9bcf] rounded-md p-1 justify-center items-center h-[48px]">
               <button
                 onClick={() => setViewMode('card')}
-                className={`px-4 py-2 mr-2 rounded-md h-[42px] ${viewMode === 'card' ? 'bg-blue-600 text-white' : 'text-gray-700'}`}
+                className={`px-4 py-2 mr-2 rounded-md h-[42px] ${viewMode === 'card' ? 'bg-[#0975bb] text-white' : 'text-gray-700'}`}
               >
                 <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M6.20225 9.28961C6.64904 9.28961 7.01124 9.66393 7.01124 10.1257V16.1639C7.01124 16.6257 6.64904 17 6.20225 17H0.808989C0.362197 17 3.0577e-07 16.6257 0 16.1639V10.1257L0.000263343 10.1041C0.0113442 9.65232 0.369182 9.28961 0.808989 9.28961H6.20225ZM15.191 9.28961C15.6378 9.28961 16 9.66393 16 10.1257V16.1639C16 16.6257 15.6378 17 15.191 17H9.79775C9.35096 17 8.98876 16.6257 8.98876 16.1639V10.1257C8.98876 9.66393 9.35096 9.28961 9.79775 9.28961H15.191ZM10.6067 15.3279H14.382V10.9617H10.6067V15.3279ZM1.61798 15.3279H5.39326V10.9617H1.61798V15.3279ZM6.20225 0C6.64904 1.14918e-07 7.01124 0.374319 7.01124 0.836066V6.87433C7.01124 7.33607 6.64904 7.71039 6.20225 7.71039H0.808989C0.3622 7.71039 4.86447e-06 7.33607 0 6.87433V0.836066L0.000263343 0.814484C0.0113398 0.362712 0.369179 0 0.808989 0H6.20225ZM15.191 0C15.6378 0 16 0.374319 16 0.836066V6.87433C16 7.33607 15.6378 7.71039 15.191 7.71039H9.79775C9.35096 7.71039 8.98876 7.33606 8.98876 6.87433V0.836066C8.98876 0.374322 9.35096 4.71129e-06 9.79775 0H15.191ZM10.6067 6.03826H14.382V1.67213H10.6067V6.03826ZM1.61798 6.03826H5.39326V1.67213H1.61798V6.03826Z" fill="white"/>
@@ -764,7 +764,7 @@ const UserManagement: React.FC = () => {
               </button>
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-4 py-2 rounded-md h-[42px] ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'text-gray-700'}`}
+                className={`px-4 py-2 rounded-md h-[42px] ${viewMode === 'table' ? 'bg-[#0975bb] text-white' : 'text-gray-700'}`}
               >
                 <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path fillRule="evenodd" clipRule="evenodd" d="M5.81849 2.18194C5.81849 0.976889 4.8416 0 3.63656 0H2.18194C0.976889 0 0 0.976889 0 2.18194V3.63656C0 4.8416 0.976889 5.81849 2.18194 5.81849H3.63656C4.8416 5.81849 5.81849 4.8416 5.81849 3.63656V2.18194ZM4.36387 2.18194C4.36387 1.78026 4.03824 1.45462 3.63656 1.45462H2.18194C1.78026 1.45462 1.45462 1.78026 1.45462 2.18194V3.63656C1.45462 4.03824 1.78026 4.36387 2.18194 4.36387H3.63656C4.03824 4.36387 4.36387 4.03824 4.36387 3.63656V2.18194Z" fill="white"/>
@@ -881,7 +881,7 @@ const UserManagement: React.FC = () => {
         />
       )}
 
-      <div className="mx-auto px-16 py-16 mt-12 transcription-welcommassege-main rounded-[20px] w-[88%]">
+      <div className="mx-auto px-16 py-16 mt-1 transcription-welcommassege-main rounded-[20px] w-[88%]">
         <div className="flex flex-col space-y-2">
           <h1 className="text-2xl font-bold text-[#fff] text-left">
             User Management

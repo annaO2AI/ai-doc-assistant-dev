@@ -108,7 +108,7 @@ export default function CreateUserForm() {
                 Create User
             </h1>
 
-            <div className="mx-auto bg-white shadow-xl overflow-hidden flex justify-center w-[65%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
+            <div className="mx-auto bg-white shadow-xl overflow-hidden flex justify-center w-[75%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
                 {!success ? (
                     <>
                         <div className="p-16 text-white relative z-10 w-[55%]">
@@ -193,11 +193,11 @@ export default function CreateUserForm() {
                         </div>
 
                         {/* Illustration or side panel */}
-                        <div className="flex w-[45%] items-center justify-center">
+                        <div className="flex w-[45%] items-center justify-center relative z-[2]">
                             <Image
-                                src="/Add User-pana.svg"
+                                src="/Instant information-pana.svg"
                                 alt="User Management Illustration"
-                                width={410}
+                                width={380}
                                 height={270}
                                 className=""
                             />

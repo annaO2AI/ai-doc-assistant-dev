@@ -119,7 +119,7 @@ export default function DoctorSearch({
       )}
 
       {/* ---- Selected doctor summary ---- */}
-      {selectedDoctor && (
+      {/* {selectedDoctor && (
         <div className="mb-6 text-sm text-gray-700">
           Selected doctor:{" "}
           <span className="font-semibold">
@@ -127,7 +127,7 @@ export default function DoctorSearch({
           </span>{" "}
           (ID: {selectedDoctor.id})
         </div>
-      )}
+      )} */}
     </div>
   );
 }

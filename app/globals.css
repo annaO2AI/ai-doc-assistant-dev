@@ -486,6 +486,7 @@ body {
     outline: 8px solid #0052cc50;
   }
   .patent-listAuto{
+    overflow: hidden;
     overflow-y: auto;
     height: calc(100vh - 340px);
   }
@@ -655,5 +656,11 @@ body {
 
   .custom-scroole::-webkit-scrollbar-thumb:hover {
     background: #fff;       /* handle on hover */
+  }
+  .bg-blue-600, .bg-blue-800 {
+    background-color: #0975bb !important;
+  }
+  .text-blue-600, .text-blue-800{
+    color: #0975bb !important;
   }
 }

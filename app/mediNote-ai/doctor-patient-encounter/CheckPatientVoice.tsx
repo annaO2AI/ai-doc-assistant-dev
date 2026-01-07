@@ -249,7 +249,7 @@ export default function CheckPatientVoice({
       <div className="relative flex gap-3">
         {selectedDoctor ? (
           <div
-            className="flex gap-2 text-white items-center absolute top-6 right-6 w-[160px] z-10"
+            className="flex gap-2 text-white items-center absolute top-6 right-6 w-[160px] z-10 cursor-pointer"
             onClick={() => {
               setShowDoctorSearch(true);
             }}

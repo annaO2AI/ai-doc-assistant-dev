@@ -1,11 +1,12 @@
 //page.tsx
 "use client"
-import HeaderAISearch from "@/app/chat-ui/components/Header"
-import Sidebar from "@/app/components/dashboard/Sidebar"
-import { DashboardProvider } from "@/app/context/DashboardContext"
-import React, { useRef, useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
-import Breadcrumbs from "@/app/components/dashboard/Breadcrumbs"
+import HeaderAISearch from "@/app/chat-ui/components/Header";
+import Sidebar from "@/app/components/dashboard/Sidebar";
+import { DashboardProvider } from "@/app/context/DashboardContext";
+import React, { useRef, useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import Breadcrumbs from "@/app/components/dashboard/Breadcrumbs";
+import FooterAISearch from "../../chat-ui/components/Footer";
 
 import CreateUserForm from "./CreateUserForm"
 
@@ -34,7 +35,7 @@ export default function Page() {
 
   return (
     <DashboardProvider>
-      <div className="flex overflow-hidden mt-12">
+      <div className="overflow-hidden mt-12">
         {showSidebar && (
           <Sidebar
             collapsed={collapsed}
@@ -53,6 +54,7 @@ export default function Page() {
             <CreateUserForm />
           </main>
         </div>
+        <FooterAISearch sidebarOpen={showSidebar && isSidebarExpanded} />
       </div>
     </DashboardProvider>
   )
