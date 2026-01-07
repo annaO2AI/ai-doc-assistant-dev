@@ -24,6 +24,50 @@ const SearchPharmacy = ({
   const [hasSearched, setHasSearched] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
+  // Helper function to safely get PDF URLs
+  const getPdfUrls = (item: any) => {
+    if (!item) return [];
+    
+    // Check for fda_medguide_pdf_url first
+    if (item.fda_medguide_pdf_url) {
+      return [item.fda_medguide_pdf_url];
+    }
+    
+    // Check for medguide_pdfs array
+    if (item.medguide_pdfs && Array.isArray(item.medguide_pdfs)) {
+      return item.medguide_pdfs.map((pdf: any) => pdf.pdf_url);
+    }
+    
+    // Check for fda_medguide_pdf_urls array
+    if (item.fda_medguide_pdf_urls && Array.isArray(item.fda_medguide_pdf_urls)) {
+      return item.fda_medguide_pdf_urls;
+    }
+    
+    return [];
+  };
+
+  // Safe data access helper functions
+  const getActiveIngredients = (item: any) => {
+    if (!item.active_ingredients || !Array.isArray(item.active_ingredients)) {
+      return [];
+    }
+    return item.active_ingredients;
+  };
+
+  const getRxCUI = (item: any) => {
+    if (!item.openfda?.rxcui || !Array.isArray(item.openfda.rxcui)) {
+      return [];
+    }
+    return item.openfda.rxcui;
+  };
+
+  const getPackaging = (item: any) => {
+    if (!item.packaging || !Array.isArray(item.packaging)) {
+      return [];
+    }
+    return item.packaging.slice(0, 2);
+  };
+
   // Debounce the search query
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -79,28 +123,6 @@ const SearchPharmacy = ({
     if (id === 'summary' && setSelectedItem) {
       setSelectedItem({ ...item, source: formData.source });
     }
-  };
-
-  // Safe data access helper functions
-  const getActiveIngredients = (item: any) => {
-    if (!item.active_ingredients || !Array.isArray(item.active_ingredients)) {
-      return [];
-    }
-    return item.active_ingredients;
-  };
-
-  const getRxCUI = (item: any) => {
-    if (!item.openfda?.rxcui || !Array.isArray(item.openfda.rxcui)) {
-      return [];
-    }
-    return item.openfda.rxcui;
-  };
-
-  const getPackaging = (item: any) => {
-    if (!item.packaging || !Array.isArray(item.packaging)) {
-      return [];
-    }
-    return item.packaging.slice(0, 2);
   };
 
   return (
@@ -282,6 +304,63 @@ const SearchPharmacy = ({
                           <li className="text-[#ffffffb3]">No packaging information</li>
                         )}
                       </ul>
+                    </div>
+
+                    {/* PDF Links Section */}
+                    <div className="mt-3 pt-2 border-t border-gray-100">
+                      <strong className="text-sm font-medium text-gray-800 mb-2 flex items-center">
+                        <svg className="w-4 h-4 mr-2 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                        </svg>
+                        Medication Guides
+                      </strong>
+                      
+                      <div className="space-y-2">
+                        {getPdfUrls(item).length > 0 ? (
+                          getPdfUrls(item).slice(0, 3).map((pdfUrl: string, pdfIndex: number) => {
+                            // Extract date from URL if available
+                            const dateMatch = pdfUrl.match(/\/(\d{4})\/\d+\.pdf/);
+                            const year = dateMatch ? dateMatch[1] : '';
+                            
+                            return (
+                              <div 
+                                key={pdfIndex} 
+                                className="flex items-center justify-between bg-blue-50 hover:bg-blue-100 p-2 rounded border border-blue-100 transition-colors"
+                              >
+                                <div className="flex items-center">
+                                  <svg className="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clipRule="evenodd" />
+                                  </svg>
+                                  <span className="text-sm text-blue-700 font-medium">
+                                    {pdfIndex === 0 ? 'Latest Guide' : `Guide ${pdfIndex + 1}`}
+                                  </span>
+                                  {year && (
+                                    <span className="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded">
+                                      {year}
+                                    </span>
+                                  )}
+                                </div>
+                                <a
+                                  href={pdfUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded transition-colors"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  View PDF
+                                </a>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="text-center py-3">
+                            <svg className="w-6 h-6 mx-auto text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p className="text-xs text-gray-500">No medication guide available</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {id === 'summary' && (
