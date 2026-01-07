@@ -79,7 +79,7 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
 const getRoleBadgeStyle = (role: string) => {
   switch (role) {
     case 'SUPER_ADMIN':
-      return 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-md';
+      return 'bg-[#0975BB] text-white shadow-md';
     case 'CLINIC_ADMIN':
       return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md';
     case 'DOCTOR':

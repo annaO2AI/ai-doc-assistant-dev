@@ -291,7 +291,7 @@ export default function PatientForm() {
             <Image
               src="/patentRegistration-ill.svg"
               alt="Doctor-Patient Illustration"
-              width={250}
+              width={350}
               height={170}
               className=""
             />

@@ -107,13 +107,13 @@ export default function DoctorForm() {
   }
 
   return (
-    <div className="min-h-screen py-0 px-4 bg-gray-50">
+    <div className="">
       {/* Header */}
       <h1 className="text-3xl font-bold text-center text-gray-800 mb-8 pt-6">
         Doctor Registration
       </h1>
       {/* Progress Bar */}
-      <div className="max-w-[400px] mx-auto mb-14">
+      <div className="max-w-[400px] mx-auto mb-10">
         <div className="flex items-center justify-between mr-[-110px]">
           {["Registration", "Enroll Doctor Voice", "Completed Process"].map((label, index) => (
             <div key={index} className="flex items-center w-full">
@@ -156,7 +156,7 @@ export default function DoctorForm() {
         {/* Step 1: Registration Form */}
         {currentStep === 1 && (
           <>
-            <div className="p-8 text-white relative z-10 w-full flex flex-col">
+            <div className="py-10 px-14 text-white relative z-10 w-full flex flex-col">
               {error && (
                 <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">
                   {error}
@@ -164,72 +164,80 @@ export default function DoctorForm() {
               )}
               
               <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-                <div className="flex-1 overflow-y-auto pr-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
+                <div className="flex gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-6 pb-4 w-[60%]">
                     {/* Personal Information */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-medium border-b pb-2 ">Personal Information</h3>
-                      <input
-                        type="text"
-                        name="first_name"
-                        placeholder="First Name *"
-                        value={formData.first_name}
-                        onChange={handleChange}
-                        required
-                      className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <input
-                        type="text"
-                        name="last_name"
-                        placeholder="Last Name *"
-                        value={formData.last_name}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <input
-                        type="email"
-                        name="email"
-                        placeholder="Email *"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <select
-                        name="sex"
-                        value={formData.sex}
-                        onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      >
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                      </select>
+                    <div className="space-y-4 ">
+                      <h3 className="text-lg font-medium border-b border-[#1b71a3] pb-2 ">Personal Information</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-2 gap-6 pb-4">
+                        <input
+                          type="text"
+                          name="first_name"
+                          placeholder="First Name *"
+                          value={formData.first_name}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                        <input
+                          type="text"
+                          name="last_name"
+                          placeholder="Last Name *"
+                          value={formData.last_name}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                        <input
+                          type="email"
+                          name="email"
+                          placeholder="Email *"
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                        <select
+                          name="sex"
+                          value={formData.sex}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        >
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
                     </div>
 
                     {/* License Information */}
                     <div className="space-y-4">
-                    <h3 className="text-lg font-medium border-b pb-2">License Information</h3>
-                      <input
-                        type="text"
-                        name="license_type"
-                        placeholder="License Type (MD, DO, etc.) *"
-                        value={formData.license_type}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <div>
-                        <label className="block text-sm mb-1 text-white/80">License Expiry Date *</label>
-                        <input
-                          type="date"
-                          name="license_expiry_date"
-                          value={formData.license_expiry_date}
+                    <h3 className="text-lg font-medium border-b border-[#1b71a3] pb-2">License Information</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm mb-1 text-white/80">License*</label>
+                          <input
+                          type="text"
+                          name="license_type"
+                          placeholder="License Type (MD, DO, etc.) *"
+                          value={formData.license_type}
                           onChange={handleChange}
                           required
-                      className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                          className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
                         />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm mb-1 text-white/80">License Expiry Date *</label>
+                          <input
+                            type="date"
+                            name="license_expiry_date"
+                            value={formData.license_expiry_date}
+                            onChange={handleChange}
+                            required
+                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                          />
+                        </div>
                       </div>
                       <div className="flex items-center space-x-2 p-2 bg-white/5 rounded-lg">
                         <input
@@ -245,74 +253,75 @@ export default function DoctorForm() {
 
                     {/* Education */}
                     <div className="space-y-4">
-                      <h3 className="text-lg font-medium border-b pb-2 ">Education</h3>
-                      <input
-                        type="text"
-                        name="medical_school"
-                        placeholder="Medical School *"
-                        value={formData.medical_school}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <input
-                        type="text"
-                        name="residency"
-                        placeholder="Residency (e.g., Internal Medicine - Johns Hopkins)"
-                        value={formData.residency}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <input
-                        type="text"
-                        name="fellowship"
-                        placeholder="Fellowship (e.g., Cardiology - Mayo Clinic)"
-                        value={formData.fellowship}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
+                      <h3 className="text-lg font-medium border-b pb-2 border-[#1b71a3] ">Education</h3>
+                      <div className="grid grid-cols-3 md:grid-cols-3 gap-6">
+                        <input
+                          type="text"
+                          name="medical_school"
+                          placeholder="Medical School *"
+                          value={formData.medical_school}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                        <input
+                          type="text"
+                          name="residency"
+                          placeholder="Residency (e.g., Internal Medicine - Johns Hopkins)"
+                          value={formData.residency}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                        <input
+                          type="text"
+                          name="fellowship"
+                          placeholder="Fellowship (e.g., Cardiology - Mayo Clinic)"
+                          value={formData.fellowship}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                      </div>
                     </div>
 
                     {/* Professional Details */}
                     <div className="space-y-4">
-                      <h3 className="text-lg font-medium border-b pb-2 ">Professional Details</h3>
-                      <textarea
-                        name="areas_of_focus"
-                        placeholder="Areas of Focus (e.g., Cardiology, Hypertension, Diabetes Management)"
-                        value={formData.areas_of_focus}
-                        onChange={handleChange}
-                        rows={3}
-                      className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <textarea
-                        name="certifications"
-                        placeholder="Certifications (e.g., Board Certified in Internal Medicine, ACLS Certified)"
-                        value={formData.certifications}
-                        onChange={handleChange}
-                        rows={2}
-                      className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <textarea
-                        name="awards"
-                        placeholder="Awards & Honors (e.g., Physician of the Year 2023)"
-                        value={formData.awards}
-                        onChange={handleChange}
-                        rows={2}
-                      className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
-                      <textarea
-                        name="professional_memberships"
-                        placeholder="Professional Memberships (e.g., American Medical Association, Egyptian Medical Syndicate)"
-                        value={formData.professional_memberships}
-                        onChange={handleChange}
-                        rows={2}
-                      className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                      />
+                      <h3 className="text-lg font-medium border-b pb-2 border-[#1b71a3]">Professional Details</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                        <textarea
+                          name="areas_of_focus"
+                          placeholder="Areas of Focus (e.g., Cardiology, Hypertension, Diabetes Management)"
+                          value={formData.areas_of_focus}
+                          onChange={handleChange}
+                          rows={3}
+                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                        <textarea
+                          name="certifications"
+                          placeholder="Certifications (e.g., Board Certified in Internal Medicine, ACLS Certified)"
+                          value={formData.certifications}
+                          onChange={handleChange}
+                          rows={2}
+                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                        <textarea
+                          name="awards"
+                          placeholder="Awards & Honors (e.g., Physician of the Year 2023)"
+                          value={formData.awards}
+                          onChange={handleChange}
+                          rows={2}
+                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                        <textarea
+                          name="professional_memberships"
+                          placeholder="Professional Memberships (e.g., American Medical Association, Egyptian Medical Syndicate)"
+                          value={formData.professional_memberships}
+                          onChange={handleChange}
+                          rows={2}
+                        className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        />
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-4 p-6">
+                     <div className="py-6 flex justify-end gap-3">
                   <button
                     type="button"
                     onClick={() => setFormData({
@@ -331,18 +340,25 @@ export default function DoctorForm() {
                       residency: "",
                       sex: "Male"
                     })}
-                    className="flex-1 py-3 rounded-lg bg-white/20 hover:bg-white/30 text-white font-medium transition"
+                    className="py-3 rounded-lg bg-white/20 hover:bg-white/30 text-white font-medium transition w-[250px]"
                   >
                     Clear All
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-medium transition disabled:opacity-70"
+                    className="py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-medium transition disabled:opacity-70 w-[250px]"
                   >
                     {isSubmitting ? "Submitting..." : "Submit Registration"}
                   </button>
+                    </div>
+                  </div>
+                  <div className="w-[40%] flex justify-center h-[570px]">
+                    <Image src="/Doctor-pana-Registration.svg" alt="Epic" width={400} height={400} />
+                  </div>
                 </div>
+
+               
               </form>
             </div>
           </>

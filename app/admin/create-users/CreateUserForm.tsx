@@ -195,10 +195,10 @@ export default function CreateUserForm() {
                         {/* Illustration or side panel */}
                         <div className="flex w-[45%] items-center justify-center">
                             <Image
-                                src="/patentRegistration-ill.svg"
+                                src="/Add User-pana.svg"
                                 alt="User Management Illustration"
-                                width={250}
-                                height={170}
+                                width={410}
+                                height={270}
                                 className=""
                             />
                         </div>
