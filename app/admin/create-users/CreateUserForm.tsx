@@ -171,6 +171,8 @@ export default function CreateUserForm() {
                                     <option value="DOCTOR">Doctor</option>
                                     <option value="SUPER_ADMIN">Super Admin</option>
                                     <option value="CLINIC_ADMIN">Clinic Admin</option>
+                                    <option value="MANAGER">Manager</option>
+                                    <option value="RECEPTIONIST">Receptionist / Nurse </option>
                                 </select>
 
                                 <div className="flex gap-4 pt-6">
