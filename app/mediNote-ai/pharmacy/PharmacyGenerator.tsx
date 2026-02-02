@@ -63,7 +63,7 @@ const PharmacyGenerator = ({
         <div
           className={`${
             showButton 
-              ? 'fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50'
+              ? 'fixed top-0 right-0 h-full w-[800px] max-w-screen-lg  shadow-2xl z-50 aside-style-left'
               : fullWidth 
                 ? 'bg-white shadow-lg rounded-lg transcription-welcommassege-main w-[88%] mx-auto rounded-[20px] autopharmacySearch-min relative'
                 : 'w-[800px] max-w-screen-lg bg-white shadow-lg rounded-lg'
