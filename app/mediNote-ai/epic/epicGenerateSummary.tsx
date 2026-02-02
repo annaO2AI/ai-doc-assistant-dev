@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState, useRef } from "react"
-import { Play, Pause, CheckCircle, User, Stethoscope, Activity } from "lucide-react"
+import { Play, Pause, Edit, CheckCircle, User, Stethoscope, Save, Activity } from "lucide-react"
 import { APIService } from "../service/api"
 import { ObjectiveData, TranscriptionSummary } from "../types"
 import { Summary } from "../transcription-summary/Summary"
@@ -65,7 +65,7 @@ type DefaultEncounter = {
   serviceProvider: string
   display: string
 }
-// Move handleApiError to the top, right after the other hooks
+
 export default function EpicGenerateSummary({
   sessionId,
   patientId,
@@ -104,9 +104,7 @@ export default function EpicGenerateSummary({
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [progress, setProgress] = useState(0)
-  const [pharmacyData, setPharmacyData] = useState<MedicationResponse | any>(
-    null
-  )
+  const [pharmacyData, setPharmacyData] = useState<MedicationResponse | any>(null)
   const [showPopup, setShowPopup] = useState(false)
   const [selectedEncounter, setSelectedEncounter] = useState<any>(null)
   const [isCreatingNote, setIsCreatingNote] = useState(false)
@@ -119,8 +117,7 @@ export default function EpicGenerateSummary({
   const [objectiveData, setObjectiveData] = useState<ObjectiveData[]>([]);
   const [isLoadingObjective, setIsLoadingObjective] = useState(false);
 
-
-    const handleBackToEpic = useCallback(() => {
+  const handleBackToEpic = useCallback(() => {
     const epicPath = "/mediNote-ai/epic"
     window.location.href = epicPath
   }, [])
@@ -161,14 +158,11 @@ export default function EpicGenerateSummary({
         setObjectiveData(validData);
       }
     } catch (err) {
-      handleApiError(err, "Failed to fetch objective data"); // Now this works
+      handleApiError(err, "Failed to fetch objective data");
     } finally {
       setIsLoadingObjective(false);
     }
   }, [patientId, handleApiError]);
-
-
-
 
   // Generate fixed waveform heights (shared for gray and blue)
   const waveformHeights = useRef<number[]>([])
@@ -182,9 +176,6 @@ export default function EpicGenerateSummary({
 
   // Create default encounter
   const createDefaultEncounter = useCallback((): DefaultEncounter => {
-    const timestamp = new Date().getTime()
-    const randomSuffix = Math.random().toString(36).substring(2, 8)
-
     return {
       id: `eoK8nLRcEypNjtns4dgnF3Q3`,
       type: ["AMB", "OFFICE_VISIT"],
@@ -199,7 +190,6 @@ export default function EpicGenerateSummary({
     if (epicCounters && epicCounters.length > 0) {
       return epicCounters
     }
-
     // Return default encounter if no epic counters available
     const defaultEncounter = createDefaultEncounter()
     return [defaultEncounter]
@@ -218,34 +208,46 @@ export default function EpicGenerateSummary({
     localStorage.setItem(`summaryApproved:${sessionId}`, "true")
   }, [getAvailableEncounters, createDefaultEncounter, handleSelectedEpic, summaryContent, showNotification, sessionId])
 
-  // Updated function to handle Create Summary button click
-  const handleCreateSummaryClick = useCallback(() => {
-    const availableEncounters = getAvailableEncounters()
-
-    if (availableEncounters.length > 0) {
-      // Use the first available encounter
-      const encounterToUse = availableEncounters[0]
-      setSelectedEncounter(encounterToUse)
-      setShowPopup(true)
-
-      // Show notification if using default encounter
-      if (epicCounters.length === 0) {
-        showNotification("Using default encounter for clinical note creation")
+  // Updated function to handle Edit Summary button click - opens edit mode
+  const handleEditSummaryClick = useCallback(() => {
+    setIsEdit(true);
+    setEditedSummary(summaryContent);
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`visitSummaryEdit:${sessionId}`, "true");
+        window.dispatchEvent(new CustomEvent("visitSummaryEditToggle", { detail: { sessionId, isEdit: true } }));
       }
-    } else {
-      // Fallback to creating a default encounter with your specified ID
-      const defaultEncounter = {
-        id: "eoK8nLRcEypNjtns4dgnF3Q3",
-        type: ["AMB", "OFFICE_VISIT"],
-        status: "in-progress",
-        serviceProvider: "Default Healthcare Provider",
-        display: `Visit - ${new Date().toLocaleDateString()}`,
-      }
-      setSelectedEncounter(defaultEncounter)
-      setShowPopup(true)
-      showNotification("Using default encounter for clinical note creation")
+    } catch {}
+  }, [summaryContent, sessionId])
+
+  // Handler for saving edited summary
+  const handleSaveEditedSummary = useCallback(async () => {
+    const resolvedSummaryId = summaryId?.summary_id ?? transcriptionEnd?.summary_id ?? summaryData?.summary_id;
+    if (!resolvedSummaryId) {
+      handleApiError(new Error("summary_id not available"), "Cannot update summary");
+      return;
     }
-  }, [getAvailableEncounters, epicCounters, showNotification])
+    try {
+      setIsLoading(true);
+      await APIService.editSummary({
+        summaryId: resolvedSummaryId,
+        edited_text: editedSummary || summaryContent,
+      });
+      setSummaryContent(editedSummary || summaryContent);
+      setIsEdit(false);
+      showNotification("Summary updated successfully!");
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.setItem(`visitSummaryEdit:${sessionId}`, "false");
+          window.dispatchEvent(new CustomEvent("visitSummaryEditToggle", { detail: { sessionId, isEdit: false } }));
+        }
+      } catch {}
+    } catch (err) {
+      handleApiError(err, "Failed to update summary");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [editedSummary, summaryContent, summaryId, transcriptionEnd, summaryData, sessionId, handleApiError, showNotification]);
 
   // New function to fetch Epic DocumentReferences
   const fetchEpicDocumentReferences = useCallback(async () => {
@@ -417,35 +419,6 @@ export default function EpicGenerateSummary({
     return parts.join("\n") + (after ? "" : "\n")
   }, [])
 
-  // Handler for creating clinical note
-  const handleCreateClinicalNote = useCallback(() => {
-    if (!clinicalNote.trim()) {
-      showNotification("Please enter a clinical note")
-      return
-    }
-    setIsCreatingNote(true)
-
-    // Use the selected encounter (either from epicCounters or default)
-    if (selectedEncounter) {
-      handleSelectedEpic(selectedEncounter, clinicalNote)
-    }
-
-    // Simulate API call - remove setTimeout in production
-    setTimeout(() => {
-      setShowPopup(false)
-      setIsCreatingNote(false)
-      setClinicalNote("")
-      setNoteTypeDisplay("")
-      showNotification("Clinical note created successfully!")
-    }, 2000)
-  }, [
-    clinicalNote,
-    noteTypeDisplay,
-    selectedEncounter,
-    handleSelectedEpic,
-    showNotification,
-  ])
-
   useEffect(() => {
     loadAudio()
   }, [loadAudio])
@@ -482,14 +455,12 @@ export default function EpicGenerateSummary({
     }
   }, [handleTimeUpdate])
 
-   // Fetch objective data when component mounts
-    useEffect(() => {
-      if (patientId) {
-        fetchObjectiveData();
-      }
-    }, [patientId, fetchObjectiveData]);
-
-  // No revoke needed when using direct web URLs
+  // Fetch objective data when component mounts
+  useEffect(() => {
+    if (patientId) {
+      fetchObjectiveData();
+    }
+  }, [patientId, fetchObjectiveData]);
 
   useEffect(() => {
     fetchSummaryById()
@@ -588,14 +559,6 @@ export default function EpicGenerateSummary({
       return upsertIcdSection(base || "", icdSectionText)
     })
   }, [isEdit, icdSectionText, summaryContent, upsertIcdSection])
-
-  // Initialize clinical note with summary content when popup opens
-  useEffect(() => {
-    if (showPopup && summaryContent) {
-      setClinicalNote(summaryContent)
-      setNoteTypeDisplay(" ") // Set default note type
-    }
-  }, [showPopup, summaryContent])
 
   // Validate props after Hooks
   if (!sessionId || !patientId || !transcriptionEnd || !summaryData) {
@@ -726,27 +689,16 @@ export default function EpicGenerateSummary({
   }
 
   const patientName = epicPatientName || "Patient"
-  const symptoms = summaryId?.summary?.ui?.chips?.[1]?.value ?? "Not specified"
-  const durationText =
-    summaryId?.summary?.ui?.chips?.[2]?.value ?? "Not specified"
-  const familyHistory =
-    summaryId?.summary?.ui?.chips?.[3]?.value ?? "Not specified"
-  const nextSteps =
-    summaryId?.summary?.ui?.chips?.[4]?.value?.replace(/\*\*/g, "") ?? ""
   const doctorName = epicDoctorName || "Doctor"
   const doctorBullets = summaryId?.summary?.ui?.insights?.doctor?.bullets ?? []
   const structuredInsights = processDoctorInsights(doctorBullets)
-  const patientBullets =
-    summaryId?.summary?.ui?.insights?.patient?.bullets ?? []
+  const patientBullets = summaryId?.summary?.ui?.insights?.patient?.bullets ?? []
   const processedPatientInsights = processPatientInsights(patientBullets)
-  const followupNote =
-    summaryId?.summary?.ui?.followup?.note?.replace(/\*\*/g, "") ?? ""
-  const followupDate =
-    summaryId?.summary?.ui?.followup?.date ?? "To be scheduled"
+  const followupNote = summaryId?.summary?.ui?.followup?.note?.replace(/\*\*/g, "") ?? ""
+  const followupDate = summaryId?.summary?.ui?.followup?.date ?? "To be scheduled"
 
   // Get the latest objective data
   const latestObjective = objectiveData.length > 0 ? objectiveData[0] : null;
-
 
   const Loader = () => (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-50 bg-opacity-75 z-50">
@@ -760,7 +712,6 @@ export default function EpicGenerateSummary({
       const info = await APIService.getRecordingInfo(sessionId)
       const url = info?.web_url || ""
       if (!url) throw new Error("Recording URL not available")
-      // Force download by fetching as blob and using an object URL
       const response = await fetch(url, { method: "GET" })
       if (!response.ok)
         throw new Error(`Failed to fetch audio: ${response.status}`)
@@ -795,101 +746,95 @@ export default function EpicGenerateSummary({
     }
   }
 
-  // Get display types for document
   const getDisplayTypes = (types: DocumentReferenceType[]) => {
     if (!types.length) return ["No type specified"]
-    // Prefer LOINC display names, fallback to others
     const loincType = types.find((t) => t.system === "http://loinc.org")
     if (loincType) return [loincType.display]
     return types.map((t) => t.display).filter(Boolean)
   }
 
-  
-    // Function to render objective data section inside Visit Summary
-    const renderObjectiveSection = () => {
-      if (isLoadingObjective) {
-        return (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Objective</h3>
-            <div className="flex justify-center items-center h-20">
-              <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-blue-600"></div>
-            </div>
-          </div>
-        );
-      }
-  
-      if (!latestObjective) {
-        return null;
-      }
-  
-      const {
-        blood_pressure_systolic,
-        blood_pressure_diastolic,
-        heart_rate,
-        respiratory_rate,
-        temperature_f,
-        oxygen_saturation,
-        general_appearance,
-        heent,
-        neurological
-      } = latestObjective;
-  
+  // Function to render objective data section inside Visit Summary
+  const renderObjectiveSection = () => {
+    if (isLoadingObjective) {
       return (
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Objective</h3>
-          
-          {/* Vital Signs Section */}
-          <div className="mb-4">
-            <h4 className="text-md font-medium text-gray-800 mb-3 flex items-center">
-              <Activity className="w-4 h-4 mr-2 text-blue-600" />
-              Vital Signs
-            </h4>
-            <ul className="list-none space-y-2 pl-6">
-              <li className="text-gray-700 text-sm leading-relaxed">
-                <span className="font-medium">Blood Pressure:</span> {blood_pressure_systolic}/{blood_pressure_diastolic} mmHg
-              </li>
-              <li className="text-gray-700 text-sm leading-relaxed">
-                <span className="font-medium">Heart Rate:</span> {heart_rate} bpm
-              </li>
-              <li className="text-gray-700 text-sm leading-relaxed">
-                <span className="font-medium">Respiratory Rate:</span> {respiratory_rate} breaths/min
-              </li>
-              <li className="text-gray-700 text-sm leading-relaxed">
-                <span className="font-medium">Temperature:</span> {temperature_f}°F
-              </li>
-              <li className="text-gray-700 text-sm leading-relaxed">
-                <span className="font-medium">Oxygen Saturation:</span> {oxygen_saturation}% on room air
-              </li>
-            </ul>
-          </div>
-  
-          {/* Physical Exam Section */}
-          <div className="space-y-3">
-            <div>
-              <h4 className="text-md font-medium text-gray-800 mb-2">General Appearance</h4>
-              <p className="text-gray-700 text-sm leading-relaxed pl-4">
-                {general_appearance}
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="text-md font-medium text-gray-800 mb-2">HEENT</h4>
-              <p className="text-gray-700 text-sm leading-relaxed pl-4">
-                {heent}
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="text-md font-medium text-gray-800 mb-2">Neurological</h4>
-              <p className="text-gray-700 text-sm leading-relaxed pl-4">
-                {neurological}
-              </p>
-            </div>
+          <div className="flex justify-center items-center h-20">
+            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-blue-600"></div>
           </div>
         </div>
       );
-    };
-  
+    }
+
+    if (!latestObjective) {
+      return null;
+    }
+
+    const {
+      blood_pressure_systolic,
+      blood_pressure_diastolic,
+      heart_rate,
+      respiratory_rate,
+      temperature_f,
+      oxygen_saturation,
+      general_appearance,
+      heent,
+      neurological
+    } = latestObjective;
+
+    return (
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Objective</h3>
+        
+        <div className="mb-4">
+          <h4 className="text-md font-medium text-gray-800 mb-3 flex items-center">
+            <Activity className="w-4 h-4 mr-2 text-blue-600" />
+            Vital Signs
+          </h4>
+          <ul className="list-none space-y-2 pl-6">
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Blood Pressure:</span> {blood_pressure_systolic}/{blood_pressure_diastolic} mmHg
+            </li>
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Heart Rate:</span> {heart_rate} bpm
+            </li>
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Respiratory Rate:</span> {respiratory_rate} breaths/min
+            </li>
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Temperature:</span> {temperature_f}°F
+            </li>
+            <li className="text-gray-700 text-sm leading-relaxed">
+              <span className="font-medium">Oxygen Saturation:</span> {oxygen_saturation}% on room air
+            </li>
+          </ul>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-2">General Appearance</h4>
+            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+              {general_appearance}
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-2">HEENT</h4>
+            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+              {heent}
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="text-md font-medium text-gray-800 mb-2">Neurological</h4>
+            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+              {neurological}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -964,10 +909,9 @@ export default function EpicGenerateSummary({
               </div>
             </div>
 
-            {/* Enhanced horizontal audio player with layered waveform */}
+            {/* Audio Player */}
             <div className="relative w-full max-w-2xl mb-6">
               <div className="relative rounded-full overflow-hidden flex items-center px-2 py-2 border border-white">
-                {/* Control Buttons */}
                 <div className="flex items-center space-x-2 mr-3">
                   <button
                     className={`relative flex items-center justify-center w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm transition-all duration-200 hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed ${
@@ -987,9 +931,7 @@ export default function EpicGenerateSummary({
                   </button>
                 </div>
 
-                {/* Layered Waveform Visualization */}
                 <div className="relative flex-1 h-6 mx-2 overflow-hidden">
-                  {/* Gray background waveform - full length */}
                   <div className="absolute inset-0 flex items-center space-x-0.5">
                     {waveformHeights.current.map((height, i) => (
                       <div
@@ -1000,7 +942,6 @@ export default function EpicGenerateSummary({
                     ))}
                   </div>
 
-                  {/* Blue highlight waveform - increases with progress */}
                   <div
                     className="absolute inset-0 flex items-center space-x-0.5 overflow-hidden"
                     style={{ width: `${progress}%` }}
@@ -1019,7 +960,6 @@ export default function EpicGenerateSummary({
                   </div>
                 </div>
 
-                {/* Progress Bar with Click-to-Seek */}
                 <div
                   className="flex items-center space-x-2 mx-3"
                   ref={progressRef}
@@ -1038,7 +978,6 @@ export default function EpicGenerateSummary({
                       }`}
                       style={{ width: `${progress}%` }}
                     >
-                      {/* Thumb indicator */}
                       <div className="absolute top-1/2 -translate-y-1/2 right-0 w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                     </div>
                   </div>
@@ -1050,19 +989,21 @@ export default function EpicGenerateSummary({
               </div>
             </div>
           </div>
+
+          {/* Visit Summary Section */}
           <div className="rounded-lg shadow-sm p-6 mb-6 bg-white ">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold text-gray-900">
                 Visit Summary
               </h2>
               <div className="flex gap-4">
-                <ICDGenerator
-                  sessionId={sessionId}
-                  showButton={true}
-                  fullWidth={true}
-                  editMode={false}
-                  defaultOpen={false}
-                />
+                <button
+                  className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  onClick={() => setShowICDGenerator(!showICDGenerator)}
+                  disabled={isLoading || isApproved}
+                >
+                  ICD Code Generator
+                </button>
 
                 <SummaryPharmacyGen
                   data={pharmacyData}
@@ -1075,16 +1016,26 @@ export default function EpicGenerateSummary({
             </div>
             <div className="flex justify-between items-start">
               <div className="w-full pr-4">
-                <div className="text-gray-700 text-sm leading-relaxed">
-                  {summaryContent === "Summary content not available." ? (
-                    <p>{summaryContent}</p>
-                  ) : (
-                         <>
-                           {renderContentSections(summaryContent || "")}
-                           {renderObjectiveSection()}
-                         </>
-                  )}
-                </div>
+                {isEdit ? (
+                  <textarea
+                    className="w-full h-96 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-none"
+                    value={editedSummary || ""}
+                    onChange={(e) => setEditedSummary(e.target.value)}
+                    placeholder="Edit the summary here..."
+                    disabled={isApproved}
+                  />
+                ) : (
+                  <div className="text-gray-700 text-sm leading-relaxed">
+                    {summaryContent === "Summary content not available." ? (
+                      <p>{summaryContent}</p>
+                    ) : (
+                      <>
+                        {renderContentSections(summaryContent || "")}
+                        {renderObjectiveSection()}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="w-[300px] flex flex-col items-center justify-center">
                 <Image
@@ -1097,6 +1048,8 @@ export default function EpicGenerateSummary({
               </div>
             </div>
           </div>
+
+          {/* Insights Section */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-start space-x-3">
@@ -1156,7 +1109,9 @@ export default function EpicGenerateSummary({
               </div>
             </div>
           </div>
-          <div className="rounded-lg shadow-sm p-6 follow-upAppointment-gradiant">
+
+          {/* Follow-up Section */}
+          <div className="rounded-lg shadow-sm p-6 follow-upAppointment-gradiant mb-6">
             <div className="flex items-start space-x-3">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center">
                 <Image
@@ -1180,6 +1135,8 @@ export default function EpicGenerateSummary({
               </div>
             </div>
           </div>
+
+          {/* Epic Documents Section */}
           <div className="rounded-lg shadow-sm p-6 my-6 bg-white z-10 relative">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-semibold text-gray-900">
@@ -1222,10 +1179,8 @@ export default function EpicGenerateSummary({
               </div>
             ) : epicDocuments.length > 0 ? (
               <>
-                {/* Scrollable container with custom height */}
                 <div
                   className="max-h-80 overflow-y-auto space-y-3 pr-2 
-                  /* Custom scrollbar styling */
                   scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100 
                   hover:scrollbar-thumb-blue-400"
                 >
@@ -1350,26 +1305,60 @@ export default function EpicGenerateSummary({
             </svg>
           </span>
         </div>
+
+        {/* Action Buttons */}
         <div className="flex justify-around space-x-4 mt-8 mb-8 relative z-[1]">
           <div className="flex gap-4">
-            {/* Save Summary Button - Direct Submit */}
-            <button
-              className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-              onClick={handleSaveSummary}
-              disabled={isLoading || isApproved}
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              <span>Save Summary</span>
-            </button>
+            {!isEdit && (
+              <button
+                className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                onClick={handleSaveSummary}
+                disabled={isLoading || isApproved}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                <span>Save Summary</span>
+              </button>
+            )}
 
-            {/* Edit Summary Button - Opens Popup for Editing */}
-            <button
-              className="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
-              onClick={handleCreateSummaryClick}
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              <span>Edit Summary</span>
-            </button>
+            {!isEdit && !isApproved && (
+              <button
+                className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                onClick={handleEditSummaryClick}
+                disabled={isLoading || isApproved}
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                <span>Edit Summary</span>
+              </button>
+            )}
+
+            {isEdit && (
+              <button
+                className="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                onClick={handleSaveEditedSummary}
+                disabled={isLoading || isApproved}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                <span>Save Changes</span>
+              </button>
+            )}
+
+            {isEdit && (
+              <button
+                className="flex items-center px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                onClick={() => {
+                  setIsEdit(false);
+                  try {
+                    if (typeof window !== "undefined") {
+                      localStorage.setItem(`visitSummaryEdit:${sessionId}`, "false");
+                      window.dispatchEvent(new CustomEvent("visitSummaryEditToggle", { detail: { sessionId, isEdit: false } }));
+                    }
+                  } catch {}
+                }}
+                disabled={isLoading || isApproved}
+              >
+                <span>Cancel</span>
+              </button>
+            )}
           </div>
 
           <button
@@ -1382,150 +1371,9 @@ export default function EpicGenerateSummary({
             <span className="pl-2">Back To EPIC</span>
           </button>
         </div>
-
-        {/* Popup Modal for Editing */}
-        {showPopup && selectedEncounter && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl p-6 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Create Clinical Note
-                    </h3>
-                    <p className="text-sm text-gray-500">Epic Integration</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    setShowPopup(false)
-                    setIsCreatingNote(false)
-                    setClinicalNote("")
-                    setNoteTypeDisplay("")
-                  }}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                  disabled={isCreatingNote}
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="mb-6">
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">
-                    Selected Encounter
-                  </h4>
-                  <div className="space-y-1 text-sm text-gray-600">
-                    <p>
-                      <span className="font-medium">Encounter ID:</span>{" "}
-                      {selectedEncounter.id}
-                    </p>
-                    <p>
-                      <span className="font-medium">Type:</span>{" "}
-                      {Array.isArray(selectedEncounter.type)
-                        ? selectedEncounter.type.join(", ")
-                        : selectedEncounter.type || "Office Visit"}
-                    </p>
-                    <p>
-                      <span className="font-medium">Status:</span>{" "}
-                      {selectedEncounter.status || "in-progress"}
-                    </p>
-                    <p>
-                      <span className="font-medium">Provider:</span>{" "}
-                      {selectedEncounter.serviceProvider ||
-                        "Default Healthcare Provider"}
-                    </p>
-                    {selectedEncounter.display && (
-                      <p>
-                        <span className="font-medium">Display:</span>{" "}
-                        {selectedEncounter.display}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {!isCreatingNote ? (
-                  <div className="space-y-4">
-                    <div>
-                      <label
-                        htmlFor="clinical-note"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Clinical Note <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        id="clinical-note"
-                        value={clinicalNote}
-                        onChange={(e) => setClinicalNote(e.target.value)}
-                        className="w-full h-64 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
-                        placeholder="Enter the clinical note content here..."
-                      />
-                      <p className="mt-1 text-xs text-gray-500">
-                        This note will be created in Epic and associated with
-                        the selected encounter.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center space-x-3 py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-600"></div>
-                    <p className="text-sm text-gray-700">
-                      Creating clinical note in Epic...
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => {
-                    setShowPopup(false)
-                    setIsCreatingNote(false)
-                    setClinicalNote("")
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-                  disabled={isCreatingNote}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCreateClinicalNote}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center space-x-2"
-                  disabled={isCreatingNote || !clinicalNote.trim()}
-                >
-                  {isCreatingNote ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white"></div>
-                      <span>Creating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Save Summary </span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </>
-      {/* Properly connected audio element */}
+
+      {/* Audio Element */}
       {audioUrl && (
         <audio
           ref={audioRef}
