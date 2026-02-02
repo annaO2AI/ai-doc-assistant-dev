@@ -60,21 +60,15 @@ export default function EOBDetails({ eobEntry, onBack }: EOBDetailsProps) {
           </section>
 
           {/* Patient Information */}
-          <section>
+          {/* <section>
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Patient Information</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-600">Patient</label>
                 <p className="mt-1 text-sm text-gray-900">{resource.patient.display}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-600">Billable Period</label>
-                <p className="mt-1 text-sm text-gray-900">
-                  {resource.billablePeriod.start} to {resource.billablePeriod.end}
-                </p>
-              </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Insurance Information */}
           <section>
@@ -87,6 +81,12 @@ export default function EOBDetails({ eobEntry, onBack }: EOBDetailsProps) {
               <div>
                 <label className="block text-sm font-medium text-gray-600">Provider</label>
                 <p className="mt-1 text-sm text-gray-900">{resource.provider.display}</p>
+              </div>
+               <div>
+                <label className="block text-sm font-medium text-gray-600">Billable Period</label>
+                <p className="mt-1 text-sm text-gray-900">
+                  {resource.billablePeriod.start} to {resource.billablePeriod.end}
+                </p>
               </div>
             </div>
           </section>
