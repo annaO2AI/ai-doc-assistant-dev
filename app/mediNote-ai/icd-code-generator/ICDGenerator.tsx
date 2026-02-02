@@ -379,6 +379,7 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
                 onClick={() => setIsOpen(false)}
                 className="text-white hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded"
               >
+                
                 <X size={24} />
               </button>
             )}
