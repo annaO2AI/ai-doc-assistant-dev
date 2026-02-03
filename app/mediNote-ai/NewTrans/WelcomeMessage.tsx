@@ -65,7 +65,7 @@ export default function WelcomeMessage({ username }: WelcomeMessageProps) {
                 receive a streamlined summary immediately.
               </p>
             </div>
-            <div className="flex imagfilter-doctor w-[44%]">
+            <div className="flex imagfilter-doctor w-[30%]">
                     <Image 
                           src="/DocAssistes.svg" 
                           alt="I Search" 

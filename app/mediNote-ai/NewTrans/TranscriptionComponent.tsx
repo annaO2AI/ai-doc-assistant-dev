@@ -174,7 +174,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
         <div className="mt-10">
             <div className="flex gap-2 text-white items-center absolute left-8 top-8 z-20 ">
               <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-semibold">{patientName ? patientName.charAt(0).toUpperCase() : "P"}</span>
-              <span className="font-semibold text-white flex flex-col leading-[1] ">
+              <span className="font-semibold text-white flex flex-col leading-[1.4] ">
                 <span className="text-white text-[16px]">{patientName || "No patient selected"}</span> 
                 <span className="text-white text-[14px] font-normal">Patent</span>
               </span>
@@ -187,7 +187,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
             <div className="flex gap-2 text-white items-center absolute top-6 right-6 w-[160px] z-10">
               <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-semibold">{doctorName ? doctorName.charAt(0).toUpperCase() : "D"}</span>
-              <span className="font-semibold text-white flex flex-col leading-[1] ">
+              <span className="font-semibold text-white flex flex-col leading-[1.4] ">
                 <span className="text-white text-[16px]">{doctorName || "No doctor selected"}</span> 
                 <span className="text-white text-[14px] font-normal">Doctor</span>
               </span>

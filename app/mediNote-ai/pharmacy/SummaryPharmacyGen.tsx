@@ -78,18 +78,18 @@ const SummaryPharmacyGen = ({
       </button>
       {/* Offcanvas Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+        className={`transcription-welcommassege-main  fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Offcanvas Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h3 className="text-xl font-semibold text-gray-800">
+        <div className="flex items-center justify-between p-6 border-b border-[#1b71a3]">
+          <h3 className="text-xl font-semibold text-white">
             Pharmacy Search
           </h3>
           <button
             onClick={() => setIsOpen(false)}
-            className="text-gray-500 hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded"
+            className="text-white hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded"
           >
             <X size={24} />
           </button>

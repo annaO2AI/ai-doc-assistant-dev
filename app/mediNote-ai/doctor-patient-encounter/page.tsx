@@ -144,7 +144,7 @@ export default function DocAssistantPage() {
               )}
               {sessionId && patientId && transcriptionEnd && showICDGenerator && (
                 <div className="ICDGenerator-pupup fixed" ref={icdRef}>
-                    <ICDGenerator sessionId={sessionId} showButton={false} fullWidth={true}  editMode={true}  />
+                    <ICDGenerator sessionId={sessionId} showButton={true} fullWidth={true}  editMode={true}  />
                 </div>
               )}
           </main>

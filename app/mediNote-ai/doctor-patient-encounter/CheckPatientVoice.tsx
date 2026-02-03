@@ -255,7 +255,7 @@ export default function CheckPatientVoice({
             }}
           >
             <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-semibold">{selectedDoctor.first_name.charAt(0).toUpperCase()}</span>
-            <span className="font-semibold text-white flex flex-col leading-[1]">
+            <span className="font-semibold text-white flex flex-col leading-[1.4]">
               <span className="text-white text-[16px]">{selectedDoctor.first_name} {selectedDoctor.last_name}</span>
               <span className="text-white text-[14px] font-normal">Doctor</span>
             </span>

@@ -351,14 +351,7 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
   };
 
   if (!isOpen) {
-    return showButton ? (
-      <button
-        className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-        onClick={() => setIsOpen(true)}
-      >
-        Generate ICD Codes
-      </button>
-    ) : null;
+    return null;
   }
 
   return (
@@ -367,13 +360,14 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
         showButton 
           ? 'fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50 aside-style-left '
           : fullWidth 
-            ? 'transcription-welcommassege-main  fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50'
+            ? 'transcription-welcommassege-main w-[88%] mx-auto  rounded-[20px] autopharmacySearch-min relative '
             : 'w-[800px] max-w-screen-lg bg-white shadow-lg rounded-lg'
       }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-[#1b71a3]">
         <h3 className="text-xl font-semibold text-[#fff] ">ICD Code Generator</h3>
+         {showButton && (
               <button
                 onClick={() => setIsOpen(false)}
                 className="text-white hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded"
@@ -381,10 +375,11 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
                 
                 <X size={24} />
               </button>
+            )}
       </div>
 
       {/* Content */}
-      <div className={`${showButton ? 'p-6 overflow-y-auto h-[calc(100%-80px)]' : 'p-6 z-[2] relative'}`}>
+      <div className={`${showButton ? 'p-6 overflow-y-auto h-[calc(100%-80px)] z-[2] relative' : 'p-6 z-[2] relative'}`}>
         <div className="space-y-4 mb-8">
             {/* Search Query Input */}
             <div>
@@ -456,7 +451,7 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
                 <h4 className="text-md font-semibold mb-3 text-[#fff]">
                   Search Results
                 </h4>
-                <div className="space-y-3 auto-hight-min">
+                <div className="space-y-3">
                   {icdCodes.map((code) => {
                     const itemId = createItemId(code);
                     const checkboxId = `${itemId}__select`;
@@ -525,7 +520,7 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
         </div>
         )}
       </div>
-      <span className="rightlinerGrading">
+      <span className="rightlinerGrading opcity opacity-[.67]">
         <svg width="461" height="430" viewBox="0 0 461 430" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.476 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z" fill="#C2F5F9" fillOpacity="0.2" />
         </svg>

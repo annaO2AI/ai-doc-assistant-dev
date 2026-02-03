@@ -40,7 +40,7 @@ export const PatientProfile: React.FC<PatientProfileProps> = ({
       <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-green-600 text-white text-sm font-semibold">
         {patient.first_name?.charAt(0).toUpperCase() || 'P'}
       </span>
-      <span className="font-semibold text-white flex flex-col leading-[1]">
+      <span className="font-semibold text-white flex flex-col leading-[1.4]">
         <span className="text-white text-[16px]">
           {patient.full_name}
         </span>

@@ -244,8 +244,8 @@ export default function Page() {
               <div ref={icdRef}>
                 <ICDGenerator
                   sessionId={sessionId}
-                  showButton={false}
-                  fullWidth={true}
+                  showButton={true}
+                  fullWidth={false}
                   editMode={false}
                 />
               </div>
