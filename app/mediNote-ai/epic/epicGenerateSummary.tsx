@@ -633,50 +633,72 @@ export default function EpicGenerateSummary({
       if (!section) return null
       const { level, title, content: sectionContent } = section
       const displayTitle = title === "Patient Chief Concerns & Symptoms"
-        ? "Review of Systems"
+        ? "Current Symptoms"
         : title === "Encounter Summary"
           ? "Subjective"
           : title
 
-      const formatContent = (text: string) => {
-        const lines = text.split("\n").filter((line) => line.trim())
-        return lines
-          .map((line, lineIndex) => {
-            const trimmed = line.trim()
-            if (!trimmed) return null
-            if (trimmed.startsWith("-") || trimmed.startsWith("•")) {
-              const bulletText = trimmed.replace(/^[-•]\s*/, "").trim()
-              return (
-                <li
-                  key={lineIndex}
-                  className="text-gray-700 text-sm leading-relaxed ml-4 mb-1"
-                >
-                  {bulletText}
-                </li>
-              )
-            }
-            return (
-              <p
-                key={lineIndex}
-                className="text-gray-700 text-sm leading-relaxed mb-2"
-              >
-                {trimmed}
-              </p>
-            )
-          })
-          .filter(Boolean)
+  const formatContent = (text: string) => {
+  const lines = text.split("\n").filter((line) => line.trim())
+
+  return lines
+    .map((line, lineIndex) => {
+      let content = line.trim()
+      if (!content) return null
+
+      if (content.startsWith("-") || content.startsWith("•")) {
+        const bulletText = content.replace(/^[-•]\s*/, "").trim()
+        const parts = bulletText.split(/(\*\*[^*]+\*\*)/g)
+
+        const formattedParts = parts.map((part, i) => {
+          if (part.startsWith("**") && part.endsWith("**")) {
+            return <strong key={i}>{part.slice(2, -2).trim()}</strong>
+          }
+          return part
+        })
+
+        return (
+          <li
+            key={lineIndex}
+            className="text-gray-700 text-[16px] leading-relaxed ml-4 mb-1"
+          >
+            {formattedParts}
+          </li>
+        )
       }
+
+      // Same logic for normal paragraphs
+      const parts = content.split(/(\*\*[^*]+\*\*)/g)
+      const formattedParts = parts.map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+          return <strong key={i}>{part.slice(2, -2).trim()}</strong>
+        }
+        return part
+      })
+
+      return (
+        <p
+          key={lineIndex}
+          className="text-gray-700 text-[16px] leading-relaxed mb-2"
+        >
+          {formattedParts}
+        </p>
+      )
+    })
+    .filter(Boolean)
+}
+
       const HeaderTag = level === 1 ? "h2" : "h3"
       const headerClass =
         level === 1
           ? "text-lg font-semibold text-gray-900 mb-3 mt-6 first:mt-0"
-          : "text-md font-medium text-gray-800 mb-2 mt-4"
+          : "text-[16px] font-bold text-gray-800 mb-2 mt-4"
       return (
         <div key={index} className="mb-4">
           <HeaderTag className={headerClass}>{displayTitle}</HeaderTag>
           <div className="pl-2">
             {sectionContent.includes("-") || sectionContent.includes("•") ? (
-              <ul className="list-none space-y-1">
+              <ul className="list-disc space-y-1">
                 {formatContent(sectionContent)}
               </ul>
             ) : (
@@ -753,6 +775,16 @@ export default function EpicGenerateSummary({
     return types.map((t) => t.display).filter(Boolean)
   }
 
+  const stripMarkdownForEditing = (text: string): string => {
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')           // remove **bold**
+      .replace(/\*([^*]+)\*/g, '$1')               // remove *italic* if you have any
+      .replace(/^\s*###?\s*/gm, '')                 // optional: remove ### if you don't want them in edit
+      .replace(/^\s*##\s*/gm, '')                   // optional: remove ## in edit mode
+      .replace(/\n{3,}/g, '\n\n')                   // clean up excessive newlines
+      .trim();
+  };
+
   // Function to render objective data section inside Visit Summary
   const renderObjectiveSection = () => {
     if (isLoadingObjective) {
@@ -792,19 +824,19 @@ export default function EpicGenerateSummary({
             Vital Signs
           </h4>
           <ul className="list-none space-y-2 pl-6">
-            <li className="text-gray-700 text-sm leading-relaxed">
+            <li className="text-gray-700 text-[16px] leading-relaxed">
               <span className="font-medium">Blood Pressure:</span> {blood_pressure_systolic}/{blood_pressure_diastolic} mmHg
             </li>
-            <li className="text-gray-700 text-sm leading-relaxed">
+            <li className="text-gray-700 text-[16px] leading-relaxed">
               <span className="font-medium">Heart Rate:</span> {heart_rate} bpm
             </li>
-            <li className="text-gray-700 text-sm leading-relaxed">
+            <li className="text-gray-700 text-[16px] leading-relaxed">
               <span className="font-medium">Respiratory Rate:</span> {respiratory_rate} breaths/min
             </li>
-            <li className="text-gray-700 text-sm leading-relaxed">
+            <li className="text-gray-700 text-[16px] leading-relaxed">
               <span className="font-medium">Temperature:</span> {temperature_f}°F
             </li>
-            <li className="text-gray-700 text-sm leading-relaxed">
+            <li className="text-gray-700 text-[16px] leading-relaxed">
               <span className="font-medium">Oxygen Saturation:</span> {oxygen_saturation}% on room air
             </li>
           </ul>
@@ -813,21 +845,21 @@ export default function EpicGenerateSummary({
         <div className="space-y-3">
           <div>
             <h4 className="text-md font-medium text-gray-800 mb-2">General Appearance</h4>
-            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+            <p className="text-gray-700 text-[16px] leading-relaxed pl-4">
               {general_appearance}
             </p>
           </div>
           
           <div>
             <h4 className="text-md font-medium text-gray-800 mb-2">HEENT</h4>
-            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+            <p className="text-gray-700 text-[16px] leading-relaxed pl-4">
               {heent}
             </p>
           </div>
           
           <div>
             <h4 className="text-md font-medium text-gray-800 mb-2">Neurological</h4>
-            <p className="text-gray-700 text-sm leading-relaxed pl-4">
+            <p className="text-gray-700 text-[16px] leading-relaxed pl-4">
               {neurological}
             </p>
           </div>
@@ -847,7 +879,7 @@ export default function EpicGenerateSummary({
         >
           {notification.show && (
             <div className="fixed top-4 right-4 z-50">
-              <div className="flex items-center bg-green-500 text-white text-sm font-bold px-4 py-3 rounded-md shadow-lg">
+              <div className="flex items-center bg-green-500 text-white text-[16px] font-bold px-4 py-3 rounded-md shadow-lg">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 {notification.message}
               </div>
@@ -1018,14 +1050,14 @@ export default function EpicGenerateSummary({
               <div className="w-full pr-4">
                 {isEdit ? (
                   <textarea
-                    className="w-full h-96 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-none"
-                    value={editedSummary || ""}
+                    className="w-full h-96 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-[16px] resize-none"
+                    value={stripMarkdownForEditing(editedSummary || summaryContent || "")}
                     onChange={(e) => setEditedSummary(e.target.value)}
                     placeholder="Edit the summary here..."
                     disabled={isApproved}
                   />
                 ) : (
-                  <div className="text-gray-700 text-sm leading-relaxed">
+                  <div className="text-gray-700 text-[16px] leading-relaxed">
                     {summaryContent === "Summary content not available." ? (
                       <p>{summaryContent}</p>
                     ) : (
@@ -1060,15 +1092,15 @@ export default function EpicGenerateSummary({
                   <h3 className="font-medium text-gray-900 mb-1">
                     Doctor Call Insights
                   </h3>
-                  <p className="text-sm text-gray-600 mb-3">{doctorName}</p>
+                  <p className="text-[16px] text-gray-600 mb-3">{doctorName}</p>
                   {Object.entries(structuredInsights).map(
                     ([section, items]) =>
                       items.length > 0 && (
                         <div key={section} className="mb-4">
-                          <h4 className="text-sm font-semibold text-gray-800 mb-1">
+                          <h4 className="text-[16px] font-semibold text-gray-800 mb-1">
                             {section}
                           </h4>
-                          <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
+                          <ul className="text-[16px] text-gray-700 list-disc pl-5 space-y-1">
                             {items.map((item, idx) => (
                               <li key={idx}>{item}</li>
                             ))}
@@ -1077,7 +1109,7 @@ export default function EpicGenerateSummary({
                       )
                   )}
                   {doctorBullets.length === 0 && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-[16px] text-gray-500">
                       No doctor insights available.
                     </p>
                   )}
@@ -1093,15 +1125,15 @@ export default function EpicGenerateSummary({
                   <h3 className="font-medium text-gray-900 mb-1">
                     Patient Call Insights
                   </h3>
-                  <p className="text-sm text-gray-600 mb-3">{patientName}</p>
+                  <p className="text-[16px] text-gray-600 mb-3">{patientName}</p>
                   {processedPatientInsights.length > 0 ? (
-                    <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
+                    <ul className="text-[16px] text-gray-700 list-disc pl-5 space-y-1">
                       {processedPatientInsights.map((insight, idx) => (
                         <li key={idx}>{insight}</li>
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-[16px] text-gray-500">
                       No patient insights available.
                     </p>
                   )}
@@ -1125,11 +1157,11 @@ export default function EpicGenerateSummary({
                 <h3 className="font-medium text-gray-900 mb-1">
                   Follow-up Appointment
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-[16px] text-gray-600">
                   <span className="font-medium">Note:</span>{" "}
                   {followupNote || "No follow-up actions specified"}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-[16px] text-gray-600">
                   <span className="font-medium">Date:</span> {followupDate}
                 </p>
               </div>
@@ -1190,7 +1222,7 @@ export default function EpicGenerateSummary({
                       className="border border-gray-200 rounded-lg p-4 hover:border-blue-500 hover:bg-blue-50 transition-colors bg-white"
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-gray-800 text-sm">
+                        <h3 className="font-semibold text-gray-800 text-[16px]">
                           ID : {doc.id || "No ID"}
                         </h3>
                         <span
@@ -1206,12 +1238,12 @@ export default function EpicGenerateSummary({
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[16px] text-gray-600">
                         <div>
                           <p className="font-medium text-xs text-gray-500">
                             Date:
                           </p>
-                          <p className="text-sm">
+                          <p className="text-[16px]">
                             {formatDisplayDate(doc.date)}
                           </p>
                         </div>
@@ -1219,7 +1251,7 @@ export default function EpicGenerateSummary({
                           <p className="font-medium text-xs text-gray-500">
                             Type:
                           </p>
-                          <p className="text-sm">
+                          <p className="text-[16px]">
                             {getDisplayTypes(doc.type).join(", ")}
                           </p>
                         </div>
@@ -1227,7 +1259,7 @@ export default function EpicGenerateSummary({
                           <p className="font-medium text-xs text-gray-500">
                             Authors:
                           </p>
-                          <p className="text-sm">
+                          <p className="text-[16px]">
                             {doc.author.length > 0
                               ? doc.author
                                   .map((author) =>
@@ -1243,7 +1275,7 @@ export default function EpicGenerateSummary({
                           <p className="font-medium text-xs text-gray-500">
                             Encounters:
                           </p>
-                          <p className="text-sm">
+                          <p className="text-[16px]">
                             {doc.encounters.length > 0
                               ? doc.encounters.length
                               : "No encounters"}
