@@ -54,14 +54,13 @@ export default function WelcomeMessage({ username }: WelcomeMessageProps) {
           <div className="flex justify-evenly w-full">
             <div className="flex flex-col items-left justify-center mb-4 w-[56%]">
               <LoganimationsIconWhite width={73} />
-              <div className="text-[58px] font-bold w-2xl otitle mt-4 mb-4 leading-[1.1]">
+              <div className="text-[3vw] font-bold w-2xl otitle mt-4 mb-4 leading-[1.1] w-[90%]" >
                 Hi, {username}
                 <br />
                 What would like to know?
               </div>
               <p className="osubtitle-white text-[20px] mb-4">
                 Tap to start conversation your patient visit and 
-                <br />
                 receive a streamlined summary immediately.
               </p>
             </div>
