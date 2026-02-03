@@ -663,4 +663,8 @@ body {
   .text-blue-600, .text-blue-800{
     color: #0975bb !important;
   }
+  .auto-hight-min{
+    overflow: auto;
+    height: calc(100vh - 370px);
+  }
 }

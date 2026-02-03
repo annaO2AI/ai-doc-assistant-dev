@@ -241,7 +241,7 @@ export default function Page() {
               </>
             )}
             {sessionId && patientId && transcriptionEnd && showICDGenerator && (
-              <div className="ICDGenerator-pupup fixed" ref={icdRef}>
+              <div ref={icdRef}>
                 <ICDGenerator
                   sessionId={sessionId}
                   showButton={false}

@@ -367,14 +367,13 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
         showButton 
           ? 'fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50 aside-style-left '
           : fullWidth 
-            ? 'transcription-welcommassege-main w-[88%] mx-auto  rounded-[20px] autopharmacySearch-min relative '
+            ? 'transcription-welcommassege-main  fixed top-0 right-0 h-full w-[800px] max-w-screen-lg bg-white shadow-2xl z-50'
             : 'w-[800px] max-w-screen-lg bg-white shadow-lg rounded-lg'
       }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-[#1b71a3]">
         <h3 className="text-xl font-semibold text-[#fff] ">ICD Code Generator</h3>
-         {showButton && (
               <button
                 onClick={() => setIsOpen(false)}
                 className="text-white hover:text-gray-700 transition-colors p-1 hover:bg-gray-100 rounded"
@@ -382,7 +381,6 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
                 
                 <X size={24} />
               </button>
-            )}
       </div>
 
       {/* Content */}
@@ -458,7 +456,7 @@ const ICDGenerator: React.FC<ICDGeneratorProps> = ({
                 <h4 className="text-md font-semibold mb-3 text-[#fff]">
                   Search Results
                 </h4>
-                <div className="space-y-3">
+                <div className="space-y-3 auto-hight-min">
                   {icdCodes.map((code) => {
                     const itemId = createItemId(code);
                     const checkboxId = `${itemId}__select`;
