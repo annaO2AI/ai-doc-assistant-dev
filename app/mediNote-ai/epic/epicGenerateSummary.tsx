@@ -691,8 +691,8 @@ export default function EpicGenerateSummary({
       const HeaderTag = level === 1 ? "h2" : "h3"
       const headerClass =
         level === 1
-          ? "text-lg font-semibold text-gray-900 mb-3 mt-6 first:mt-0"
-          : "text-[16px] font-bold text-gray-800 mb-2 mt-4"
+          ? "text-lg font-bold text-[#0975bb] mb-3 mt-6 first:mt-0 border-b border-gray-200"
+          : "text-[16px] font-bold text-[#0975bb] mb-2 mt-4 border-b border-gray-200"
       return (
         <div key={index} className="mb-4">
           <HeaderTag className={headerClass}>{displayTitle}</HeaderTag>
@@ -1023,10 +1023,10 @@ export default function EpicGenerateSummary({
           </div>
 
           {/* Visit Summary Section */}
-          <div className="rounded-lg shadow-sm p-6 mb-6 bg-white ">
+          <div className="rounded-lg shadow-sm p-12 mb-6 bg-white ">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Visit Summary
+              <h2 className="text-[24px] font-semibold text-gray-900">
+                Summary
               </h2>
               <div className="flex gap-4">
                 <button
@@ -1046,8 +1046,8 @@ export default function EpicGenerateSummary({
                 />
               </div>
             </div>
-            <div className="flex justify-between items-start">
-              <div className="w-full pr-4">
+            <div className="flex justify-between items-start items-center">
+              <div className="w-[60%] pr-4">
                 {isEdit ? (
                   <textarea
                     className="w-full h-96 p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 font-mono text-[16px] resize-none"
@@ -1069,13 +1069,13 @@ export default function EpicGenerateSummary({
                   </div>
                 )}
               </div>
-              <div className="w-[300px] flex flex-col items-center justify-center">
+              <div className="w-[40%] flex flex-col items-center justify-center">
                 <Image
                   src="/summary-docter-petiont.svg"
                   alt="Doctor-Patient Illustration"
                   width={250}
                   height={170}
-                  className="mt-12"
+                  className="mt-12 w-[70%]"
                 />
               </div>
             </div>
