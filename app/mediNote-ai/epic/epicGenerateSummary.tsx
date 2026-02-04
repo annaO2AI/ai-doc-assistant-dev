@@ -566,6 +566,28 @@ export default function EpicGenerateSummary({
     return <div>Error: Missing required props</div>
   }
 
+  // Extract symptoms and family history from summary content
+  const extractSymptomsFromSummary = () => {
+    const symptomsMatch = summaryContent.match(/## Patient Chief Concerns & Symptoms\s*\n([\s\S]*?)(?=\n##|$)/);
+    if (symptomsMatch) {
+      const symptomsText = symptomsMatch[1].trim();
+      // Get first 3 symptoms or the full text if shorter
+      const lines = symptomsText.split('\n').filter(line => line.trim().startsWith('-'));
+      return lines.slice(0, 3).map(line => line.replace(/^-\s*/, '').trim()).join(', ') || "No symptoms recorded";
+    }
+    return "No symptoms recorded";
+  };
+
+  const extractFamilyHistoryFromSummary = () => {
+    const familyMatch = summaryContent.match(/## Family History\s*\n([\s\S]*?)(?=\n##|$)/);
+    if (familyMatch) {
+      const familyText = familyMatch[1].trim();
+      const lines = familyText.split('\n').filter(line => line.trim().startsWith('-'));
+      return lines.slice(0, 2).map(line => line.replace(/^-\s*/, '').trim()).join(', ') || "No family history recorded";
+    }
+    return "No family history recorded";
+  };
+
   // Rest of the component logic remains unchanged
   const parseContentSections = (content: string) => {
     if (!content) return []
@@ -638,55 +660,55 @@ export default function EpicGenerateSummary({
           ? "Subjective"
           : title
 
-  const formatContent = (text: string) => {
-  const lines = text.split("\n").filter((line) => line.trim())
+      const formatContent = (text: string) => {
+        const lines = text.split("\n").filter((line) => line.trim())
 
-  return lines
-    .map((line, lineIndex) => {
-      let content = line.trim()
-      if (!content) return null
+        return lines
+          .map((line, lineIndex) => {
+            let content = line.trim()
+            if (!content) return null
 
-      if (content.startsWith("-") || content.startsWith("•")) {
-        const bulletText = content.replace(/^[-•]\s*/, "").trim()
-        const parts = bulletText.split(/(\*\*[^*]+\*\*)/g)
+            if (content.startsWith("-") || content.startsWith("•")) {
+              const bulletText = content.replace(/^[-•]\s*/, "").trim()
+              const parts = bulletText.split(/(\*\*[^*]+\*\*)/g)
 
-        const formattedParts = parts.map((part, i) => {
-          if (part.startsWith("**") && part.endsWith("**")) {
-            return <strong key={i}>{part.slice(2, -2).trim()}</strong>
-          }
-          return part
-        })
+              const formattedParts = parts.map((part, i) => {
+                if (part.startsWith("**") && part.endsWith("**")) {
+                  return <strong key={i}>{part.slice(2, -2).trim()}</strong>
+                }
+                return part
+              })
 
-        return (
-          <li
-            key={lineIndex}
-            className="text-gray-700 text-[16px] leading-relaxed ml-4 mb-1"
-          >
-            {formattedParts}
-          </li>
-        )
+              return (
+                <li
+                  key={lineIndex}
+                  className="text-gray-700 text-[16px] leading-relaxed ml-4 mb-1"
+                >
+                  {formattedParts}
+                </li>
+              )
+            }
+
+            // Same logic for normal paragraphs
+            const parts = content.split(/(\*\*[^*]+\*\*)/g)
+            const formattedParts = parts.map((part, i) => {
+              if (part.startsWith("**") && part.endsWith("**")) {
+                return <strong key={i}>{part.slice(2, -2).trim()}</strong>
+              }
+              return part
+            })
+
+            return (
+              <p
+                key={lineIndex}
+                className="text-gray-700 text-[16px] leading-relaxed mb-2"
+              >
+                {formattedParts}
+              </p>
+            )
+          })
+          .filter(Boolean)
       }
-
-      // Same logic for normal paragraphs
-      const parts = content.split(/(\*\*[^*]+\*\*)/g)
-      const formattedParts = parts.map((part, i) => {
-        if (part.startsWith("**") && part.endsWith("**")) {
-          return <strong key={i}>{part.slice(2, -2).trim()}</strong>
-        }
-        return part
-      })
-
-      return (
-        <p
-          key={lineIndex}
-          className="text-gray-700 text-[16px] leading-relaxed mb-2"
-        >
-          {formattedParts}
-        </p>
-      )
-    })
-    .filter(Boolean)
-}
 
       const HeaderTag = level === 1 ? "h2" : "h3"
       const headerClass =
@@ -885,6 +907,9 @@ export default function EpicGenerateSummary({
               </div>
             </div>
           )}
+
+
+          {/* Audio Player Section */}
           <div className="rounded-lg mb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
@@ -1022,6 +1047,58 @@ export default function EpicGenerateSummary({
             </div>
           </div>
 
+   {/* NEW: Info Cards Section */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            {/* Patient Info Card */}
+            <div className="bg-white rounded-lg shadow-sm p-6 border-t-4 border-gray-300">
+              <div className="flex items-center mb-3">
+                <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                  <User className="w-6 h-6 text-gray-600" />
+                </div>
+              </div>
+              <h3 className="text-sm font-semibold text-gray-600 mb-1">Patient</h3>
+              <p className="text-lg font-bold text-gray-900">{patientName}</p>
+            </div>
+
+            {/* Symptoms Card */}
+            <div className="bg-blue-500 rounded-lg shadow-sm p-6 text-white">
+              <div className="flex items-center mb-3">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-semibold mb-2">Symptoms</h3>
+              <p className="text-sm opacity-90 line-clamp-2">
+                {extractSymptomsFromSummary()}
+              </p>
+            </div>
+
+            {/* Family History Card */}
+            <div className="bg-cyan-400 rounded-lg shadow-sm p-6 text-white">
+              <div className="flex items-center mb-3">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-semibold mb-2">Family History</h3>
+              <p className="text-sm opacity-90 line-clamp-2">
+                {extractFamilyHistoryFromSummary()}
+              </p>
+            </div>
+
+            {/* Next Steps Card */}
+            <div className="bg-purple-500 rounded-lg shadow-sm p-6 text-white">
+              <div className="flex items-center mb-3">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-semibold mb-2">Next Steps</h3>
+              <p className="text-sm opacity-90">
+                {followupNote ? "Follow-up tasks scheduled" : "No tasks scheduled"}
+              </p>
+            </div>
+          </div>
           {/* Visit Summary Section */}
           <div className="rounded-lg shadow-sm p-12 mb-6 bg-white ">
             <div className="flex justify-between items-center mb-6">
@@ -1029,13 +1106,13 @@ export default function EpicGenerateSummary({
                 Summary
               </h2>
               <div className="flex gap-4">
-                <button
+              <button
                   className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                  onClick={() => setShowICDGenerator(!showICDGenerator)}
-                  disabled={isLoading || isApproved}
-                >
-                  ICD Code Generator
-                </button>
+                onClick={() => setShowICDGenerator(!showICDGenerator)}
+                disabled={isLoading || isApproved}
+              >
+                ICD Code Generator
+              </button>
 
                 <SummaryPharmacyGen
                   data={pharmacyData}
@@ -1044,8 +1121,8 @@ export default function EpicGenerateSummary({
                   patientId={patientId}
                   doctorId={doctorId}
                 />
-              </div>
             </div>
+          </div>
             <div className="flex justify-between items-start items-center">
               <div className="w-[60%] pr-4">
                 {isEdit ? (
