@@ -672,7 +672,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       {showDiagnosticReports && (
         <div className="fixed inset-0 z-50 flex items-center justify-center glass-card" onClick={handleCloseDiagnosticReports}>
           <div 
-            className="bg-white rounded-tl-lg rounded-tr-lg shadow-2xl w-full max-w-5xl overflow-y-auto w-[500px] absolute top-[0] right-[0] h-[100vh]"
+            className="bg-white rounded-tl-lg rounded-tr-lg shadow-2xl w-full max-w-2xl overflow-y-auto w-[500px] absolute top-[0] right-[0] h-[100vh]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
