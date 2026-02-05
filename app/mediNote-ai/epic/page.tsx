@@ -218,6 +218,8 @@ export default function Page() {
                   setTranscriptionEnd={setTranscriptionEnd}
                   patientName={patientName}
                   doctorName={doctorName}
+                   authToken={authToken || ""}
+                  patientMId={patientMId || ""}
                 />
               )}
             {sessionId && patientId && transcriptionEnd && (
