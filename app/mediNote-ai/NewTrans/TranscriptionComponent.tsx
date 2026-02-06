@@ -106,12 +106,12 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
   // Sidebar States
   const [showSidebar, setShowSidebar] = useState(false)
-  
+
   // Lab Results States
   const [diagnosticReports, setDiagnosticReports] = useState<any[]>([])
   const [diagnosticReportsLoading, setDiagnosticReportsLoading] = useState(false)
   const [diagnosticReportsError, setDiagnosticReportsError] = useState<string | null>(null)
-  
+
   // Report Details States
   const [showReportDetails, setShowReportDetails] = useState(false)
   const [selectedReport, setSelectedReport] = useState<any>(null)
@@ -154,7 +154,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
     console.log("Fetch diagnostic reports called")
     console.log("Patient MID:", patientMId)
     console.log("Auth Token:", authToken ? "Present" : "Missing")
-    
+
     if (!patientMId || !authToken) {
       const errorMsg = `Missing required data - Patient ID: ${patientMId ? "Present" : "Missing"}, Auth Token: ${authToken ? "Present" : "Missing"}`
       console.error(errorMsg)
@@ -377,9 +377,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
   }
 
   return (
-    <div className="flex Patient-voice mx-auto w-[88%] mt-6 transcription-welcommassege-main rounded-[1vw] relative min-h-[600px]">
-   
-
+    <div className="flex mx-auto w-[88%] mt-6 transcription-welcommassege-main rounded-[1vw] relative">
       {/* Stop Recording Confirmation Popup */}
       {showStopConfirmation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -428,346 +426,334 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
         </div>
       )}
 
-   <div className="flex ">
-  <div className="w-3/5 ">  
-     {/* Top-right Pharmacy Button */}
-      <div className="absolute top-[5px] right-[190px] mt-4 mr-4 z-50">
-        <PharmacyGenerator
-          defaultOpen={false}
-          showButton={true}
-          fullWidth={false}
-        />
-      </div>
-  <div
-        className={
-          transcription.length === 0
-            ? "mediNote-widthfix-warpper-center m-auto w-[88%]"
-            : "mediNote-widthfix-warpper m-auto w-[88%]"
-        }
-      >
-        {/* Transcription Display */}
-        <div className="mt-10">
-          <div className="flex gap-2 text-white items-center absolute left-8 top-8 z-20 ">
-            <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-semibold">
-              {patientName ? patientName.charAt(0).toUpperCase() : "P"}
-            </span>
-            <span className="font-semibold text-white flex flex-col leading-[1.4] ">
-              <span className="text-white text-[16px]">
-                {patientName || "No patient selected"}
-              </span>
-              <span className="text-white text-[14px] font-normal">Patent</span>
-            </span>
-            <span>
-              <svg
-                width="10"
-                height="8"
-                viewBox="0 0 10 8"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5.86603 7.5C5.48112 8.16667 4.51887 8.16667 4.13397 7.5L0.669873 1.5C0.284972 0.833333 0.766098 5.89981e-08 1.5359 1.26296e-07L8.4641 7.31979e-07C9.2339 7.99277e-07 9.71503 0.833334 9.33013 1.5L5.86603 7.5Z"
-                  fill="white"
-                />
-              </svg>
-            </span>
-          </div>
-
-          <div className="flex gap-2 text-white items-center absolute top-6 right-6 w-[160px] z-10">
-            <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-semibold">
-              {doctorName ? doctorName.charAt(0).toUpperCase() : "D"}
-            </span>
-            <span className="font-semibold text-white flex flex-col leading-[1.4] ">
-              <span className="text-white text-[16px]">
-                {doctorName || "No doctor selected"}
-              </span>
-              <span className="text-white text-[14px] font-normal">Doctor</span>
-            </span>
-            <span>
-              <svg
-                width="10"
-                height="8"
-                viewBox="0 0 10 8"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5.86603 7.5C5.48112 8.16667 4.51887 8.16667 4.13397 7.5L0.669873 1.5C0.284972 0.833333 0.766098 5.89981e-08 1.5359 1.26296e-07L8.4641 7.31979e-07C9.2339 7.99277e-07 9.71503 0.833334 9.33013 1.5L5.86603 7.5Z"
-                  fill="white"
-                />
-              </svg>
-            </span>
-          </div>
-          {transcription.length === 0 ? (
-            <WelcomeMessage username={"Doctor"} />
-          ) : (
-            <div className="space-y-4 overflow-y-auto p-2 transcriptDoctorPatient">
-              {transcription.map((msg: any, index: number) => {
-                if (msg.text === "Thank you.") return null
-                return (
-                  <div
-                    key={index}
-                    className={`p-2 border-l-4 transition-all duration-200 hover:shadow-md transcript-strip-msg ${
-                      msg.type === "turn-final"
-                        ? "hover:bg-white"
-                        : msg.type === "error"
-                          ? "bg-red-50  hover:bg-red-100"
-                          : "bg-blue-50  hover:bg-blue-100"
-                    }`}
+      <div className="flex w-full h-[calc(100vh-180px)]">
+        <div className="w-[70%] ">
+          <div
+            className={
+              transcription.length === 0
+                ? "mediNote-widthfix-warpper-center-pro m-auto p-12 h-full"
+                : "mediNote-widthfix-warpper-pro m-auto p-12"
+            }
+          >
+            {/* Transcription Display */}
+            <div className="flex justify-between w-full mb-2">
+              <div className="flex gap-2 text-white items-center">
+                <span className="avatar flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-semibold">
+                  {patientName ? patientName.charAt(0).toUpperCase() : "P"}
+                </span>
+                <span className="font-semibold text-white flex flex-col leading-[1.4] ">
+                  <span className="text-white text-[16px] ">
+                    {patientName || "No patient selected"}
+                  </span>
+                  <span className="text-white text-[14px] font-normal">Patent</span>
+                </span>
+                <span>
+                  <svg
+                    width="10"
+                    height="8"
+                    viewBox="0 0 10 8"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex gap-3 items-center">
-                        <div className="flex items-center">
-                          <div className="flex items-center space-x-2">
-                            {msg.speakerName}
-                          </div>
-                        </div>
-                        <p className="text-gray-800 leading-relaxed">
-                          {msg.text || msg.msg}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-              <div ref={transcriptEndRef} />
-            </div>
-          )}
-        </div>
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-4 text-white">
-            <span
-              className={`h-3 w-3 rounded-full ${
-                isConnected ? "bg-green-500" : "bg-red-500"
-              }`}
-            />
-            <span className="text-sm font-medium">
-              {isConnected ? "Connected" : "Disconnected"}
-            </span>
-          </div>
-        </div>
-
-        {/* Controls */}
-        <div className="flex flex-wrap gap-3 mb-10 justify-between controle-search-AIDocAssist h-[70px]">
-          <div className="flex items-center overflow-hidden dm-width">
-            <button
-              onClick={isRecording ? handleStopRecording : handleStartRecording}
-              disabled={!isConnected || isProcessing}
-            >
-              {isRecording ? (
-                <span className="flex gap-3 items-center">
-                  <span className="px-6 py-4 rounded-md font-medium flex items-center bg-blue-200 hover:bg-blue-300">
-                    <Speeker />
-                  </span>
-                  <AudioLineIcon />
+                    <path
+                      d="M5.86603 7.5C5.48112 8.16667 4.51887 8.16667 4.13397 7.5L0.669873 1.5C0.284972 0.833333 0.766098 5.89981e-08 1.5359 1.26296e-07L8.4641 7.31979e-07C9.2339 7.99277e-07 9.71503 0.833334 9.33013 1.5L5.86603 7.5Z"
+                      fill="white"
+                    />
+                  </svg>
                 </span>
-              ) : (
-                <span className="flex gap-3 items-center">
-                  <span className="px-6 py-4 rounded-md font-medium flex items-center bg-blue-200 hover:bg-blue-300">
-                    <Speeker />
-                  </span>
-                </span>
-              )}
-            </button>
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <button
-              onClick={isRecording ? handleStopRecording : handleStartRecording}
-              disabled={!isConnected || isProcessing}
-              className={`rounded-md font-medium h-[44px] ${
-                isRecording
-                  ? "bg-white-500 hover:bg-white-600"
-                  : "px-4 py-2 bg-blue-500 hover:bg-blue-600"
-              } text-white ${
-                !isConnected || isProcessing
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-            >
-              {isRecording ? (
-                <span className="flex items-center">
-                  <StopRecoding />
-                </span>
-              ) : (
-                "Start Recording"
-              )}
-            </button>
-          </div>
-        </div>
-
-        <span className="bottomlinerGrading">
-          <svg
-            width="289"
-            height="199"
-            viewBox="0 0 289 199"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M74.4604 14.9961C29.4945 21.2278 -3.5762 38.2063 -12.2914 45.6118L-26.7382 51.5987L-18.129 238.328L15.9938 288.05L59.727 287.301L185.831 257.872C186.478 228.034 237.253 176.817 262.56 154.938C307.047 107.868 284.151 58.3168 267.142 39.4252C236.04 -2.0024 184.942 -2.74081 158.943 2.76831C155.608 3.47505 152.272 4.08963 148.876 4.38837C134.405 5.6613 97.5463 9.50809 74.4604 14.9961Z"
-              fill="url(#paint0_linear_3427_90583)"
-              fillOpacity="0.4"
-            />
-            <defs>
-              <linearGradient
-                id="paint0_linear_3427_90583"
-                x1="307.848"
-                y1="2.45841"
-                x2="-6.38578"
-                y2="289.124"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop stopColor="#45CEF1" />
-                <stop offset="1" stopColor="#219DF1" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </span>
-        <span className="rightlinerGrading">
-          <svg
-            width="461"
-            height="430"
-            viewBox="0 0 461 430"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.476 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z"
-              fill="#C2F5F9"
-              fillOpacity="0.2"
-            />
-          </svg>
-        </span>
-      </div></div>
-  <div className="w-2/5 "> {/* Patient Histories Sidebar */}
-    
-        <div 
-          className=" flex items-center justify-end"
-        >
-          {/* Backdrop with blur */}
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
-          
-          {/* Sidebar */}
-          <div 
-            className="relative bg-gradient-to-br from-cyan-400 to-blue-500 w-full max-w-md h-full overflow-y-auto shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="sticky top-0 bg-transparent p-6 flex items-center justify-between z-10">
-              <h3 className="text-2xl font-bold text-white">Patient Histories</h3>
-            </div>
-
-            <div className="px-6 pb-6">
-              {/* Patient Info Card */}
-              <div className="bg-white rounded-2xl p-6 mb-6 shadow-lg">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-white">
-                          {patientName.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-gray-900">{patientName}</h4>
-                      <p className="text-sm text-gray-600">ID: {patientId} • Voice Exists: <span className="font-semibold">Exists</span></p>
-                    </div>
-                  </div>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </button>
-                </div>
-               
               </div>
-
-              {/* Previous Lab Test Section */}
-              <div className="mb-4">
-                <h4 className="text-white font-semibold text-lg mb-3">Previous Lab test</h4>
-                
-                {diagnosticReportsError && (
-                  <div className="mb-4 p-4 bg-white/90 border border-red-300 rounded-lg">
-                    <div className="flex items-center">
-                      <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                      </svg>
-                      <p className="text-sm text-red-700">{diagnosticReportsError}</p>
-                    </div>
-                  </div>
-                )}
-
-                {diagnosticReportsLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="flex flex-col items-center gap-3">
-                      <svg
-                        className="animate-spin h-10 w-10 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      <p className="text-sm text-white">
-                        Loading diagnostic reports...
-                      </p>
-                    </div>
-                  </div>
-                ) : diagnosticReports.length > 0 ? (
-                  <div className="space-y-3">
-                    {diagnosticReports.map((report) => (
-                      <div
-                        key={report.id}
-                        onClick={() => handleViewReport(report)}
-                        className="bg-white rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer"
-                      >
-                        <h5 className="font-semibold text-gray-900 mb-1">
-                          {report.code.text || "Appointment Consultation Summary"}
-                        </h5>
-                        <p className="text-sm text-gray-600">
-                          {formatDate(report.effectiveDateTime)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : !diagnosticReportsError ? (
-                  <div className="text-center py-8">
-                    <svg className="mx-auto h-12 w-12 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex gap-3 items-center">
+                <div className="z-50">
+                  <PharmacyGenerator
+                    defaultOpen={false}
+                    showButton={true}
+                    fullWidth={false}
+                  />
+                </div>
+                <div className="flex gap-2 text-white items-center z-10">
+                  <span className="avatar flex items-center justify-center min-w-[30px] w-[30px] h-[30px] rounded-full bg-indigo-600 text-white text-sm font-semibold">
+                    {doctorName ? doctorName.charAt(0).toUpperCase() : "D"}
+                  </span>
+                  <span className="font-semibold text-white flex flex-col leading-[1.4] ">
+                    <span className="text-white text-[16px] truncate w-[180px]">
+                      {doctorName || "No doctor selected"}
+                    </span>
+                    <span className="text-white text-[14px] font-normal">Doctor</span>
+                  </span>
+                  <span>
+                    <svg
+                      width="10"
+                      height="8"
+                      viewBox="0 0 10 8"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
                       <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        d="M5.86603 7.5C5.48112 8.16667 4.51887 8.16667 4.13397 7.5L0.669873 1.5C0.284972 0.833333 0.766098 5.89981e-08 1.5359 1.26296e-07L8.4641 7.31979e-07C9.2339 7.99277e-07 9.71503 0.833334 9.33013 1.5L5.86603 7.5Z"
+                        fill="white"
                       />
                     </svg>
-                    <p className="text-white/70 mt-4">No diagnostic reports found</p>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              {transcription.length === 0 ? (
+                  <WelcomeMessage username={"Doctor"} />
+              ) : (
+                  <div className="space-y-4 overflow-y-auto p-2 transcriptDoctorPatient">
+                    {transcription.map((msg: any, index: number) => {
+                      if (msg.text === "Thank you.") return null
+                      return (
+                        <div
+                          key={index}
+                          className={`p-2 border-l-4 transition-all duration-200 hover:shadow-md transcript-strip-msg ${msg.type === "turn-final"
+                              ? "hover:bg-white"
+                              : msg.type === "error"
+                                ? "bg-red-50  hover:bg-red-100"
+                                : "bg-blue-50  hover:bg-blue-100"
+                            }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex gap-3 items-center">
+                              <div className="flex items-center">
+                                <div className="flex items-center space-x-2">
+                                  {msg.speakerName}
+                                </div>
+                              </div>
+                              <p className="text-gray-800 leading-relaxed">
+                                {msg.text || msg.msg}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                    <div ref={transcriptEndRef} />
                   </div>
-                ) : null}
+              )}
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center space-x-4 text-white">
+                  <span
+                    className={`h-3 w-3 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"
+                      }`}
+                  />
+                  <span className="text-sm font-medium">
+                    {isConnected ? "Connected" : "Disconnected"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Controls */}
+              <div className="flex flex-wrap gap-3 justify-between controle-search-AIDocAssist h-[70px]">
+                <div className="flex items-center overflow-hidden dm-width">
+                  <button
+                    onClick={isRecording ? handleStopRecording : handleStartRecording}
+                    disabled={!isConnected || isProcessing}
+                  >
+                    {isRecording ? (
+                      <span className="flex gap-3 items-center">
+                        <span className="px-6 py-4 rounded-md font-medium flex items-center bg-blue-200 hover:bg-blue-300">
+                          <Speeker />
+                        </span>
+                        <AudioLineIcon />
+                      </span>
+                    ) : (
+                      <span className="flex gap-3 items-center">
+                        <span className="px-6 py-4 rounded-md font-medium flex items-center bg-blue-200 hover:bg-blue-300">
+                          <Speeker />
+                        </span>
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  <button
+                    onClick={isRecording ? handleStopRecording : handleStartRecording}
+                    disabled={!isConnected || isProcessing}
+                    className={`rounded-md font-medium h-[44px] ${isRecording
+                        ? "bg-white-500 hover:bg-white-600"
+                        : "px-4 py-2 bg-blue-500 hover:bg-blue-600"
+                      } text-white ${!isConnected || isProcessing
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                      }`}
+                  >
+                    {isRecording ? (
+                      <span className="flex items-center">
+                        <StopRecoding />
+                      </span>
+                    ) : (
+                      "Start Recording"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <span className="bottomlinerGrading">
+              <svg
+                width="289"
+                height="199"
+                viewBox="0 0 289 199"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M74.4604 14.9961C29.4945 21.2278 -3.5762 38.2063 -12.2914 45.6118L-26.7382 51.5987L-18.129 238.328L15.9938 288.05L59.727 287.301L185.831 257.872C186.478 228.034 237.253 176.817 262.56 154.938C307.047 107.868 284.151 58.3168 267.142 39.4252C236.04 -2.0024 184.942 -2.74081 158.943 2.76831C155.608 3.47505 152.272 4.08963 148.876 4.38837C134.405 5.6613 97.5463 9.50809 74.4604 14.9961Z"
+                  fill="url(#paint0_linear_3427_90583)"
+                  fillOpacity="0.4"
+                />
+                <defs>
+                  <linearGradient
+                    id="paint0_linear_3427_90583"
+                    x1="307.848"
+                    y1="2.45841"
+                    x2="-6.38578"
+                    y2="289.124"
+                    gradientUnits="userSpaceOnUse"
+                  >
+                    <stop stopColor="#45CEF1" />
+                    <stop offset="1" stopColor="#219DF1" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </span>
+            <span className="rightlinerGrading">
+              <svg
+                width="461"
+                height="430"
+                viewBox="0 0 461 430"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M261.412 0C341.45 8.67863e-05 413.082 35.9951 461.001 92.6807V429.783C460.94 429.856 460.878 429.928 460.816 430H289.244C370.46 416.708 432.435 346.208 432.435 261.232C432.435 166.779 355.865 90.2101 261.412 90.21C166.959 90.21 90.3887 166.779 90.3887 261.232C90.3887 346.208 152.364 416.707 233.579 430H62.0068C23.4388 384.476 0.179688 325.571 0.179688 261.232C0.179741 116.958 117.137 0 261.412 0Z"
+                  fill="#C2F5F9"
+                  fillOpacity="0.2"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div className="w-[30%] relative z-[2] border-l border-[#3264BC] mt-10 mb-10"> {/* Patient Histories Sidebar */}
+
+          <div className=" flex items-center justify-center">
+            <div className="relative from-cyan-400 to-blue-500 w-full max-w-md h-full overflow-y-auto ml-6 mr-6" onClick={(e) => e.stopPropagation()} >
+              {/* Header */}
+              <div className="sticky top-0 bg-transparent  flex items-center justify-between z-10">
+                <h3 className="text-[18px] font-semibold text-white ">Patient Histories</h3>
+              </div>
+              <div className="">
+                {/* Patient Info Card */}
+                <div className="bg-white rounded-2xl p-6 mb-4 shadow-lg relative">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="flex items-center gap-4 flex-col">
+                      <div className="relative">
+                        <div className="w-16 h-16 rounded-full bg-[#0975BB] flex items-center justify-center">
+                          <span className="text-2xl font-bold text-white">
+                            {patientName.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 text-center">{patientName}</h4>
+                        <p className="text-sm text-gray-600 text-center">ID: {patientId} • Voice Exists: <span className="font-semibold">Exists</span></p>
+                      </div>
+                    </div>
+                    <button className="text-gray-400 hover:text-gray-600 absolute right-[15px] top-[15px]">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                </div>
+
+                {/* Previous Lab Test Section */}
+                <div className="mb-4">
+                  <h4 className="text-white font-semibold text-[16px] mb-3">Previous Lab test</h4>
+
+                  {diagnosticReportsError && (
+                    <div className="mb-4 p-4 bg-white/90 border border-red-300 rounded-lg">
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        <p className="text-sm text-red-700">{diagnosticReportsError}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {diagnosticReportsLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="flex flex-col items-center gap-3">
+                        <svg
+                          className="animate-spin h-10 w-10 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        <p className="text-sm text-white">
+                          Loading diagnostic reports...
+                        </p>
+                      </div>
+                    </div>
+                  ) : diagnosticReports.length > 0 ? (
+                    <div className="minhight-labrecode">
+                      {diagnosticReports.map((report) => (
+                        <div
+                          key={report.id}
+                          onClick={() => handleViewReport(report)}
+                          className="bg-white rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer"
+                        >
+                          <h5 className="font-semibold text-gray-900 mb-1">
+                            {report.code.text || "Appointment Consultation Summary"}
+                          </h5>
+                          <p className="text-sm text-gray-600">
+                            {formatDate(report.effectiveDateTime)}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : !diagnosticReportsError ? (
+                    <div className="text-center py-8">
+                      <svg className="mx-auto h-12 w-12 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                      <p className="text-white/70 mt-4">No diagnostic reports found</p>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-</div>
-    
 
-     
+
+
 
       {/* Report Details Modal */}
       {showReportDetails && selectedReport && (
@@ -821,21 +807,19 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
                     onClick={() =>
                       fetchReportData(selectedReport.id, "summary")
                     }
-                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                      activeView === "summary"
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeView === "summary"
                         ? "border-blue-600 text-blue-600"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                      }`}
                   >
                     Summarize Diagnostic Report
                   </button>
                   <button
                     onClick={() => fetchReportData(selectedReport.id, "epic")}
-                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                      activeView === "epic"
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeView === "epic"
                         ? "border-blue-600 text-blue-600"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                      }`}
                   >
                     EPIC DiagnosticReport
                   </button>
@@ -843,11 +827,10 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
                     onClick={() =>
                       fetchReportData(selectedReport.id, "observations")
                     }
-                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                      activeView === "observations"
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeView === "observations"
                         ? "border-blue-600 text-blue-600"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                      }`}
                   >
                     Diagnostic Report Observations
                   </button>

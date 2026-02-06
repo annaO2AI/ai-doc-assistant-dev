@@ -297,6 +297,12 @@ body {
     flex-direction: column;
     justify-content: center;
   }
+    .mediNote-widthfix-warpper-center-pro{
+    min-height: calc(100vh - 223px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
   .custom-gradient {
   background: linear-gradient(to right, #EDFAFF, #F0EEFF);
   }
@@ -666,5 +672,40 @@ body {
   .auto-hight-min{
     overflow: auto;
     height: calc(100vh - 370px);
+  }
+  .mediNote-widthfix-warpper-pro{
+    min-height: calc(100vh - 180px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .minhight-labrecode{
+    height: calc(100vh - 530px);
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-right: 10px;
+  }
+   /* width */
+.minhight-labrecode::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+.minhight-labrecode::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+.minhight-labrecode::-webkit-scrollbar-thumb {
+    background: #185683;
+    border-radius: 100px;
+}
+
+  /* Handle on hover */
+  .minhight-labrecode::-webkit-scrollbar-thumb:hover {
+      background: #185683;
+      border-radius: 100px;
   }
 }

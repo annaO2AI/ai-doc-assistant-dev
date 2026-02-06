@@ -51,7 +51,7 @@ export default function WelcomeMessage({ username }: WelcomeMessageProps) {
     //   </div>
     // </div>
     <div className="flex flex-col  w-[100%] m-auto items-center justify-center items-end z-10">
-          <div className="flex justify-evenly w-full">
+          <div className="flex justify-between w-full">
             <div className="flex flex-col items-left justify-center mb-4 w-[56%]">
               <LoganimationsIconWhite width={73} />
               <div className="text-[3vw] font-bold w-2xl otitle mt-4 mb-4 leading-[1.1] w-[90%]" >
