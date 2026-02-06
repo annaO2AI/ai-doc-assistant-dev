@@ -104,8 +104,10 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
   const [userInitiatedStop, setUserInitiatedStop] = useState(false)
   const transcriptEndRef = useRef<HTMLDivElement>(null)
 
+  // Sidebar States
+  const [showSidebar, setShowSidebar] = useState(false)
+  
   // Lab Results States
-  const [showDiagnosticReports, setShowDiagnosticReports] = useState(false)
   const [diagnosticReports, setDiagnosticReports] = useState<any[]>([])
   const [diagnosticReportsLoading, setDiagnosticReportsLoading] = useState(false)
   const [diagnosticReportsError, setDiagnosticReportsError] = useState<string | null>(null)
@@ -157,14 +159,13 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
       const errorMsg = `Missing required data - Patient ID: ${patientMId ? "Present" : "Missing"}, Auth Token: ${authToken ? "Present" : "Missing"}`
       console.error(errorMsg)
       setDiagnosticReportsError(errorMsg)
-      setShowDiagnosticReports(true)
+      setShowSidebar(true)
       return
     }
 
     try {
       setDiagnosticReportsLoading(true)
       setDiagnosticReportsError(null)
-
       const url = `https://ai-doc-assistant-dev-f2b9agd0h4exa2eg.centralus-01.azurewebsites.net/epic/diagnostic-report/search?token_id=${authToken}&patient_id=${patientMId}&_count=50`
       console.log("Fetching from URL:", url)
 
@@ -191,23 +192,33 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
         const reports = data.entry.map((entry: any) => entry.resource)
         console.log("Found reports:", reports.length)
         setDiagnosticReports(reports)
-        setShowDiagnosticReports(true)
       } else {
         console.log("No reports found in response")
         setDiagnosticReportsError("No diagnostic reports found for this patient")
         setDiagnosticReports([])
-        setShowDiagnosticReports(true)
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch diagnostic reports"
       console.error("Error fetching diagnostic reports:", err)
       setDiagnosticReportsError(errorMessage)
       setDiagnosticReports([])
-      setShowDiagnosticReports(true)
     } finally {
       setDiagnosticReportsLoading(false)
     }
   }, [authToken, patientMId])
+
+  // Auto-fetch diagnostic reports when sidebar opens
+  useEffect(() => {
+    if (showSidebar && diagnosticReports.length === 0 && !diagnosticReportsLoading && !diagnosticReportsError) {
+      fetchDiagnosticReports()
+    }
+  }, [showSidebar, diagnosticReports.length, diagnosticReportsLoading, diagnosticReportsError, fetchDiagnosticReports])
+
+  // Auto-open sidebar and fetch reports on component mount
+  useEffect(() => {
+    fetchDiagnosticReports()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Empty dependency array means this runs once on mount
 
   // Fetch Report Data (Summary/Epic/Observations)
   const fetchReportData = useCallback(async (
@@ -281,12 +292,6 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
     setReportError(null)
   }, [])
 
-  // Handle Close Diagnostic Reports
-  const handleCloseDiagnosticReports = useCallback(() => {
-    setShowDiagnosticReports(false)
-    setDiagnosticReports([])
-    setDiagnosticReportsError(null)
-  }, [])
 
   // Format Date
   const formatDate = useCallback((dateString: string) => {
@@ -373,49 +378,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
 
   return (
     <div className="flex Patient-voice mx-auto w-[88%] mt-6 transcription-welcommassege-main rounded-[1vw] relative min-h-[600px]">
-      {/* Top-right Buttons */}
-      <div className="absolute top-[5px] right-[190px] mt-4 mr-4 z-50">
-        <div className="flex gap-2">
-          <button
-            className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-            onClick={() => {
-              console.log("Get Lab Results button clicked!")
-              console.log("Props - authToken:", authToken, "patientMId:", patientMId)
-              fetchDiagnosticReports()
-            }}
-            disabled={diagnosticReportsLoading}
-          >
-            {diagnosticReportsLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div>
-                <span>Loading...</span>
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <span>Get Lab Results</span>
-              </>
-            )}
-          </button>
-          <PharmacyGenerator
-            defaultOpen={false}
-            showButton={true}
-            fullWidth={false}
-          />
-        </div>
-      </div>
+   
 
       {/* Stop Recording Confirmation Popup */}
       {showStopConfirmation && (
@@ -465,7 +428,17 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
         </div>
       )}
 
-      <div
+   <div className="flex ">
+  <div className="w-3/5 ">  
+     {/* Top-right Pharmacy Button */}
+      <div className="absolute top-[5px] right-[190px] mt-4 mr-4 z-50">
+        <PharmacyGenerator
+          defaultOpen={false}
+          showButton={true}
+          fullWidth={false}
+        />
+      </div>
+  <div
         className={
           transcription.length === 0
             ? "mediNote-widthfix-warpper-center m-auto w-[88%]"
@@ -666,112 +639,137 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
             />
           </svg>
         </span>
-      </div>
-
-      {/* Diagnostic Reports Modal */}
-      {showDiagnosticReports && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center glass-card" onClick={handleCloseDiagnosticReports}>
+      </div></div>
+  <div className="w-2/5 "> {/* Patient Histories Sidebar */}
+    
+        <div 
+          className=" flex items-center justify-end"
+        >
+          {/* Backdrop with blur */}
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+          
+          {/* Sidebar */}
           <div 
-            className="bg-white rounded-tl-lg rounded-tr-lg shadow-2xl w-full max-w-2xl overflow-y-auto w-[500px] absolute top-[0] right-[0] h-[100vh]"
+            className="relative bg-gradient-to-br from-cyan-400 to-blue-500 w-full max-w-md h-full overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-              <h3 className="text-xl font-semibold ot-title flex gap-3 items-center">
-                <span className="avatar-scr text-2xl">
-                  {patientName.charAt(0).toUpperCase()}
-                </span>
-                <span>
-                  Lab Results - {patientName}
-                </span>
-              </h3>
-              <button
-                onClick={handleCloseDiagnosticReports}
-                className="text-gray-500 hover:text-gray-700 transition"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+            {/* Header */}
+            <div className="sticky top-0 bg-transparent p-6 flex items-center justify-between z-10">
+              <h3 className="text-2xl font-bold text-white">Patient Histories</h3>
             </div>
 
-            <div className="p-6">
-              <h4 className="text-lg font-semibold text-gray-800 mb-4">Previous Lab test</h4>
-              
-              {diagnosticReportsError && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
-                  <div className="flex items-center">
-                    <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                    <p className="text-sm text-red-600">{diagnosticReportsError}</p>
+            <div className="px-6 pb-6">
+              {/* Patient Info Card */}
+              <div className="bg-white rounded-2xl p-6 mb-6 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                        <span className="text-2xl font-bold text-white">
+                          {patientName.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-gray-900">{patientName}</h4>
+                      <p className="text-sm text-gray-600">ID: {patientId} • Voice Exists: <span className="font-semibold">Exists</span></p>
+                    </div>
                   </div>
+                  <button className="text-gray-400 hover:text-gray-600">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
                 </div>
-              )}
+               
+              </div>
 
-              {diagnosticReportsLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="flex flex-col items-center gap-3">
-                    <svg
-                      className="animate-spin h-10 w-10 text-blue-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <p className="text-sm text-gray-600">
-                      Loading diagnostic reports...
-                    </p>
+              {/* Previous Lab Test Section */}
+              <div className="mb-4">
+                <h4 className="text-white font-semibold text-lg mb-3">Previous Lab test</h4>
+                
+                {diagnosticReportsError && (
+                  <div className="mb-4 p-4 bg-white/90 border border-red-300 rounded-lg">
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-sm text-red-700">{diagnosticReportsError}</p>
+                    </div>
                   </div>
-                </div>
-              ) : diagnosticReports.length > 0 ? (
-                <div className="space-y-3">
-                  {diagnosticReports.map((report) => (
-                    <div
-                      key={report.id}
-                      onClick={() => handleViewReport(report)}
-                      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer"
-                    >
-                      <h3 className="text-base font-semibold text-gray-900 mb-1">
-                        {report.code.text || "Appointment Consultation Summary"}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        {formatDate(report.effectiveDateTime)}
+                )}
+
+                {diagnosticReportsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="flex flex-col items-center gap-3">
+                      <svg
+                        className="animate-spin h-10 w-10 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <p className="text-sm text-white">
+                        Loading diagnostic reports...
                       </p>
                     </div>
-                  ))}
-                </div>
-              ) : !diagnosticReportsError ? (
-                <div className="text-center py-12">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <p className="text-gray-500 mt-4">No diagnostic reports found for this patient</p>
-                </div>
-              ) : null}
+                  </div>
+                ) : diagnosticReports.length > 0 ? (
+                  <div className="space-y-3">
+                    {diagnosticReports.map((report) => (
+                      <div
+                        key={report.id}
+                        onClick={() => handleViewReport(report)}
+                        className="bg-white rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer"
+                      >
+                        <h5 className="font-semibold text-gray-900 mb-1">
+                          {report.code.text || "Appointment Consultation Summary"}
+                        </h5>
+                        <p className="text-sm text-gray-600">
+                          {formatDate(report.effectiveDateTime)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : !diagnosticReportsError ? (
+                  <div className="text-center py-8">
+                    <svg className="mx-auto h-12 w-12 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <p className="text-white/70 mt-4">No diagnostic reports found</p>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
+</div>
+    
 
-      {/* Report Details Modal - FIXED WITH ACTUAL CONTENT RENDERING */}
+     
+
+      {/* Report Details Modal */}
       {showReportDetails && selectedReport && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] p-4">
           <div className="bg-white rounded-lg w-full max-w-6xl max-h-[90vh] flex flex-col shadow-2xl">
@@ -857,7 +855,7 @@ const TranscriptionInterface: React.FC<TranscriptionInterfaceProps> = ({
               </div>
             </div>
 
-            {/* Content - NOW WITH ACTUAL RENDERING */}
+            {/* Content */}
             <div className="flex-1 overflow-y-auto p-6">
               {reportLoading ? (
                 <div className="flex items-center justify-center py-12">

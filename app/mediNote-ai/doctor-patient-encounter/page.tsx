@@ -129,6 +129,8 @@ export default function DocAssistantPage() {
                   setTranscriptionEnd={setTranscriptionEnd}
                   patientName={patientName} // Pass stored patientName
                   doctorName={doctorName}   // Pass stored doctorName
+                   authToken=""
+                  patientMId=""
                 />
               )}
               {sessionId && patientId && transcriptionEnd && (
